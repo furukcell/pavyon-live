@@ -9,7 +9,7 @@ const game = createGame(document.querySelector('#game-canvas'));
 const logEl = document.querySelector('#event-log');
 const state = {
   viewers: new Map(), likes: 0,
-  kons: { 'kons-1': null, 'kons-2': null, 'kons-3': null },
+  kons: Object.fromEntries(Array.from({length:10},(_,i)=>['kons-'+(i+1),null])),
   timers: new Map(), lastCommands: new Map()
 };
 const usernameEl = document.querySelector('#username');
@@ -35,7 +35,7 @@ function cleanUsername(value) {
 function username() { return cleanUsername(usernameEl.value); }
 function updateHud() {
   document.querySelector('#guest-count').textContent = `${state.viewers.size} / 100`;
-  document.querySelector('#kons-count').textContent = `${Object.values(state.kons).filter(value => !value).length} müsait`;
+  document.querySelector('#kons-count').textContent = `${Object.values(state.kons).filter(value => !value).length} / 10 müsait`;
   document.querySelector('#like-count').textContent = state.likes.toLocaleString('tr-TR');
 }
 function addViewer(rawName) {
@@ -64,6 +64,7 @@ function command(rawName, rawCommand) {
   else if (cmd === '!sahne') { guest.action='stage';game.stage(guest.id);log(`<b>@${escapeHtml(name)}</b> sahneye çıktı.`); }
 }
 function occupyKons(konsId, name, duration, action) {
+  if (!Object.prototype.hasOwnProperty.call(state.kons,konsId)) { log('Geçersiz kons seçimi.'); return false; }
   if (state.kons[konsId]) { log(`<b>${escapeHtml(konsId)}</b> şu anda @${escapeHtml(state.kons[konsId])} ile meşgul.`); return false; }
   state.kons[konsId] = name;
   action();
