@@ -254,6 +254,14 @@ export function createGame(canvas) {
     moveTo(id,spot.x,spot.z);
     return true;
   }
+  function prepareGuestForInteraction(actor){
+    releaseSeat(actor);
+    actor.userData.motion='standing';
+    if(actor.userData.body)actor.userData.body.position.y=.72;
+    if(actor.userData.head)actor.userData.head.position.y=1.35;
+    actor.userData.legPivots?.forEach(leg=>leg.rotation.x=0);
+    actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});
+  }
   function animateActor(id,kind){
     const actor=actors.get(id);if(!actor)return false;
     if(kind==='seat')return seatCustomer(id);
@@ -452,6 +460,7 @@ export function createGame(canvas) {
     konsToTable:(k,id)=>{
       const customer=actors.get(id),hostess=actors.get(k);
       if(!customer||!hostess)return false;
+      prepareGuestForInteraction(customer);
       // Try the four sides of the guest and prefer a nearby position with room around it.
       const candidates=[0,Math.PI/2,Math.PI,-Math.PI/2].map(offset=>{
         const point=clampRoomPosition(customer.position.x+Math.sin(offset)*1.25,customer.position.z+Math.cos(offset)*1.25);
@@ -470,8 +479,8 @@ export function createGame(canvas) {
       moveTo(k,chosen.point.x,chosen.point.z);
       return true;
     },
-    konsDance:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...danceAssignments.values()].map(slot=>slot));const slot=danceSlots.find(item=>!occupied.has(item));if(!slot)return false;danceAssignments.set(k,slot);releaseSeat(guest);if(guest.userData.body)guest.userData.body.position.y=.72;if(guest.userData.head)guest.userData.head.position.y=1.35;guest.userData.motion='dance';guest.userData.targetRotation=Math.PI/2;hostess.userData.motion='dance';hostess.userData.targetRotation=-Math.PI/2;moveTo(id,slot.x-.65,slot.z);moveTo(k,slot.x+.65,slot.z);return true;},
-    vip:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...vipAssignments.values()].map(slot=>slot));const slot=vipSlots.find(item=>!occupied.has(item));if(!slot)return false;vipAssignments.set(k,slot);hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;guest.userData.targetRotation=Math.PI/2;moveTo(k,slot.x+.55,slot.z);moveTo(id,slot.x-.55,slot.z);return true;},
+    konsDance:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...danceAssignments.values()].map(slot=>slot));const slot=danceSlots.find(item=>!occupied.has(item));if(!slot)return false;danceAssignments.set(k,slot);prepareGuestForInteraction(guest);guest.userData.motion='dance';guest.userData.targetRotation=Math.PI/2;hostess.userData.motion='dance';hostess.userData.targetRotation=-Math.PI/2;moveTo(id,slot.x-.65,slot.z);moveTo(k,slot.x+.65,slot.z);return true;},
+    vip:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...vipAssignments.values()].map(slot=>slot));const slot=vipSlots.find(item=>!occupied.has(item));if(!slot)return false;vipAssignments.set(k,slot);prepareGuestForInteraction(guest);hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;guest.userData.targetRotation=Math.PI/2;moveTo(k,slot.x+.55,slot.z);moveTo(id,slot.x-.55,slot.z);return true;},
     releaseKons:k=>{const home=konsHomes.get(k);if(home){moveTo(k,home.x,home.z);const actor=actors.get(k);if(actor)actor.userData.motion='idle';}vipAssignments.delete(k);danceAssignments.delete(k);},
     releaseGuest:id=>{const actor=actors.get(id);if(actor){releaseSeat(actor);actor.userData.motion='idle';if(actor.userData.body)actor.userData.body.position.y=.72;if(actor.userData.head)actor.userData.head.position.y=1.35;actor.userData.legPivots?.forEach(leg=>leg.rotation.x=0);actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});const home=actor.userData.home;if(home)moveTo(id,home.x,home.z);}},
     show:id=>animateActor(id,'stage'),
