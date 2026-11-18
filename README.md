@@ -133,7 +133,8 @@ Desteklenen olay türleri `comment`, `like`, `gift`. Hediye olayında `action` a
 
 - Tarayıcıda 3D sahne açılır.
 - Mobil ekranda arayüz taşmadan kullanılabilir.
-- Test paneliyle izleyici eklenir ve komutlar aksiyon üretir.
+- Test panelindeki yorum simülatörüyle `!gel`, `!dans`, `!masa`, `!sahne` komutları denenebilir.
+- +10 ve +25 test müşteri butonlarıyla 100 kişilik kapasite denenebilir.
 - +10 ve +25 test müşteri butonlarıyla 100 kişilik kapasite denenebilir.
 - Müşteriler boş masa koltuklarına oturabilir; dolu koltuklar yeniden atanmaz.
 - +10 ve +25 test müşteri butonlarıyla kapasite yükü denenebilir.
