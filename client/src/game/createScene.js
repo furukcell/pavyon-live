@@ -616,6 +616,26 @@ export function createGame(canvas) {
     actor.position.set(-10+((i-1)%5)*1.5,0,-5);actor.userData.home=actor.position.clone();waiterHomes.set(id,actor.position.clone());
   }
 
+  // Keep the dance floor visibly active with three permanent background NPC pairs.
+  // Their slots are reserved so live gift interactions use the remaining dance positions.
+  const ambientDancePairs=3;
+  for(let i=0;i<ambientDancePairs;i++){
+    const slot=danceSlots[i];
+    const hostessId=`npc-kons-${i+1}`;
+    const guestId=`npc-customer-${i+1}`;
+    const hostess=makeActor(hostessId,'kons',(i+6)%10);
+    const guest=makeActor(guestId,'customer',200+i);
+    hostess.position.set(slot.x+.65,0,slot.z);
+    guest.position.set(slot.x-.65,0,slot.z);
+    hostess.rotation.y=-Math.PI/2;
+    guest.rotation.y=Math.PI/2;
+    hostess.userData.motion='dance';
+    guest.userData.motion='dance';
+    hostess.userData.ambientNpc=true;
+    guest.userData.ambientNpc=true;
+    danceAssignments.set(hostessId,slot);
+  }
+
   function findWaiterApproach(waiter,guest){
     // Pick a clear side of the guest instead of sending every waiter to the same offset.
     const candidates=[
