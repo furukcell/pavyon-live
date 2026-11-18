@@ -222,32 +222,49 @@ export function createGame(canvas) {
     });
     actors.forEach(actor=>{
       const target=actor.userData.target;
+      let walking=false;
       if(target){
         const dx=target.x-actor.position.x,dz=target.z-actor.position.z,distance=Math.hypot(dx,dz);
-        if(distance>.08){actor.position.x+=dx/distance*Math.min(distance,dt*2.4);actor.position.z+=dz/distance*Math.min(distance,dt*2.4);actor.rotation.y=Math.atan2(dx,dz);}
-        else {actor.userData.target=null;if(actor.userData.targetRotation!==undefined){actor.rotation.y=actor.userData.targetRotation;delete actor.userData.targetRotation;}}
+        if(distance>.08){
+          walking=true;
+          const speed=actor.userData.role==='kons'?2.05:2.4;
+          actor.position.x+=dx/distance*Math.min(distance,dt*speed);
+          actor.position.z+=dz/distance*Math.min(distance,dt*speed);
+          const desiredRotation=Math.atan2(dx,dz);
+          let angle=desiredRotation-actor.rotation.y;
+          angle=Math.atan2(Math.sin(angle),Math.cos(angle));
+          actor.rotation.y+=angle*Math.min(1,dt*7);
+        }else {
+          actor.userData.target=null;
+          if(actor.userData.targetRotation!==undefined){actor.rotation.y=actor.userData.targetRotation;delete actor.userData.targetRotation;}
+        }
       }
       if(actor.userData.role==='kons'){
         const flirt=Math.sin(time*1.7+actor.userData.flirtPhase);
         actor.rotation.z=(actor.userData.motion==='dance'?Math.sin(time*7+actor.userData.phase)*.18:flirt*.035);
-        actor.position.y=actor.userData.motion==='dance'?Math.abs(Math.sin(time*7+actor.userData.phase))*.08:Math.max(0,flirt)*.018;
         const smile=actor.getObjectByName('kons-smile');
         const laughMouth=actor.getObjectByName('kons-laugh-mouth');
         const blink=Math.pow(Math.max(0,Math.sin(time*.9+actor.userData.flirtPhase*3)),36);
         [-1,1].forEach(side=>{const eye=actor.getObjectByName(`kons-eye-${side}`);if(eye)eye.scale.y=Math.max(.08,1-blink);});
         const dancing=actor.userData.motion==='dance';
+        const stride=walking?Math.sin(time*10+actor.userData.phase):0;
+        actor.position.y=walking?Math.abs(Math.sin(time*10+actor.userData.phase))*.045:(dancing?Math.abs(Math.sin(time*7+actor.userData.phase))*.08:Math.max(0,flirt)*.018);
         actor.userData.armPivots?.forEach((arm,index)=>{
           const side=index===0?-1:1;
-          arm.rotation.z=dancing?side*(.75+Math.sin(time*8+index)*.28):side*(.16+Math.sin(time*1.8+actor.userData.flirtPhase+index)*.12);
-          arm.rotation.x=dancing?Math.sin(time*5+index)*.18:Math.sin(time*1.3+index)*.06;
+          arm.rotation.z=dancing?side*(.75+Math.sin(time*8+index)*.28):(walking?side*(.12+stride*.24):side*(.16+Math.sin(time*1.8+actor.userData.flirtPhase+index)*.12));
+          arm.rotation.x=dancing?Math.sin(time*5+index)*.18:(walking?stride*.16:Math.sin(time*1.3+index)*.06);
         });
         actor.userData.legPivots?.forEach((leg,index)=>{
-          leg.rotation.x=dancing?Math.sin(time*8+index*Math.PI)*.32:Math.sin(time*1.4+index)*.025;
+          leg.rotation.x=dancing?Math.sin(time*8+index*Math.PI)*.32:(walking?Math.sin(time*10+index*Math.PI+actor.userData.phase)*.42:Math.sin(time*1.4+index)*.025);
         });
         const laughing=actor.userData.motion==='laugh'||(Math.sin(time*.72+actor.userData.flirtPhase*2)>.985);
         if(smile)smile.scale.y=laughing?.45:1+Math.max(0,flirt)*.25;
         if(laughMouth){laughMouth.scale.y=laughing?1:.08;}
         if(laughing)actor.position.y+=Math.abs(Math.sin(time*10+actor.userData.phase))*.025;
+      }else if(actor.userData.role==='customer'||actor.userData.role==='waiter'){
+        const gait=walking?Math.sin(time*9+actor.userData.phase):0;
+        actor.position.y=walking?Math.abs(gait)*.035:0;
+        actor.rotation.z=walking?gait*.025:0;
       }else if(actor.userData.motion==='dance'){
         actor.rotation.z=Math.sin(time*7+actor.userData.phase)*.16;
         actor.position.y=Math.abs(Math.sin(time*7+actor.userData.phase))*.08;
