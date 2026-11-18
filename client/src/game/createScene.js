@@ -447,17 +447,17 @@ export function createGame(canvas) {
         const heel=new THREE.Mesh(new THREE.CylinderGeometry(.018,.026,.13,10),new THREE.MeshStandardMaterial({color:'#d7b16e',metalness:.78,roughness:.24}));
         heel.position.set(side*.13,.055,-.035);group.add(heel);
         const sclera=new THREE.Mesh(new THREE.SphereGeometry(.043,16,12),new THREE.MeshStandardMaterial({color:'#f5e9df',roughness:.42}));
-        sclera.scale.set(1.25,.72,.42);sclera.position.set(side*.075,1.36,.187);group.add(sclera);
+        sclera.name=`kons-sclera-${side}`;sclera.scale.set(1.25,.72,.42);sclera.position.set(side*.075,1.36,.187);group.add(sclera);
         const iris=new THREE.Mesh(new THREE.SphereGeometry(.024,14,10),new THREE.MeshStandardMaterial({color:variant%2?'#6a4938':'#405b57',roughness:.32}));
-        iris.scale.set(1,.95,.48);iris.position.set(side*.075,1.36,.219);group.add(iris);
+        iris.name=`kons-iris-${side}`;iris.scale.set(1,.95,.48);iris.position.set(side*.075,1.36,.219);group.add(iris);
         const eye=new THREE.Mesh(new THREE.SphereGeometry(.013,12,8),new THREE.MeshBasicMaterial({color:'#17131a'}));
         eye.name=`kons-eye-${side}`;eye.position.set(side*.075,1.36,.231);group.add(eye);
         const eyeGlint=new THREE.Mesh(new THREE.SphereGeometry(.006,8,6),new THREE.MeshBasicMaterial({color:'#ffffff'}));
         eyeGlint.position.set(side*.068,1.37,.237);group.add(eyeGlint);
         const brow=new THREE.Mesh(new THREE.BoxGeometry(.085,.018,.025),new THREE.MeshStandardMaterial({color:hairColor,roughness:.8}));
-        brow.position.set(side*.075,1.415,.19);brow.rotation.z=side*.12;group.add(brow);
+        brow.name=`kons-brow-${side}`;brow.position.set(side*.075,1.415,.19);brow.rotation.z=side*.12;group.add(brow);
         const lash=new THREE.Mesh(new THREE.BoxGeometry(.09,.012,.018),new THREE.MeshStandardMaterial({color:'#24131c'}));
-        lash.position.set(side*.075,1.385,.198);group.add(lash);
+        lash.name=`kons-lash-${side}`;lash.position.set(side*.075,1.385,.198);group.add(lash);
       }
       const noseBridge=new THREE.Mesh(new THREE.CapsuleGeometry(.018,.075,4,8),new THREE.MeshStandardMaterial({color:skin,roughness:.82}));
       noseBridge.position.set(0,1.315,.205);group.add(noseBridge);
@@ -480,7 +480,7 @@ export function createGame(canvas) {
         const earring=new THREE.Mesh(new THREE.TorusGeometry(.035,.009,5,10),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.8}));
         earring.position.set(side*.22,1.2,.01);group.add(earring);
         const cheek=new THREE.Mesh(new THREE.SphereGeometry(.045,8,6),new THREE.MeshBasicMaterial({color:'#c66c79',transparent:true,opacity:.42}));
-        cheek.position.set(side*.13,1.285,.17);cheek.scale.set(1,.48,.2);group.add(cheek);
+        cheek.name=`kons-cheek-${side}`;cheek.position.set(side*.13,1.285,.17);cheek.scale.set(1,.48,.2);group.add(cheek);
         const bracelet=new THREE.Mesh(new THREE.TorusGeometry(.07,.012,5,12),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.8}));
         bracelet.rotation.x=Math.PI/2;bracelet.position.set(side*.29,.73,0);group.add(bracelet);
       }
@@ -934,7 +934,22 @@ export function createGame(canvas) {
         const smile=actor.getObjectByName('kons-smile');
         const laughMouth=actor.getObjectByName('kons-laugh-mouth');
         const blink=Math.pow(Math.max(0,Math.sin(time*.9+actor.userData.flirtPhase*3)),36);
-        [-1,1].forEach(side=>{const eye=actor.getObjectByName(`kons-eye-${side}`);if(eye)eye.scale.y=Math.max(.08,1-blink);});
+        const expression=Math.max(0,flirt);
+        [-1,1].forEach(side=>{
+          const eye=actor.getObjectByName(`kons-eye-${side}`);
+          const sclera=actor.getObjectByName(`kons-sclera-${side}`);
+          const iris=actor.getObjectByName(`kons-iris-${side}`);
+          const lash=actor.getObjectByName(`kons-lash-${side}`);
+          const brow=actor.getObjectByName(`kons-brow-${side}`);
+          const cheek=actor.getObjectByName(`kons-cheek-${side}`);
+          const eyeOpen=Math.max(.08,1-blink*.94);
+          if(eye)eye.scale.y=eyeOpen;
+          if(sclera)sclera.scale.y=.72*eyeOpen;
+          if(iris)iris.scale.y=.95*eyeOpen;
+          if(lash)lash.scale.y=1+blink*.7;
+          if(brow)brow.rotation.z=side*(.12+expression*.045);
+          if(cheek)cheek.material.opacity=.3+expression*.22;
+        });
         const stagePerforming=actor.userData.stagePerformer===true;
         const dancing=actor.userData.motion==='dance'&&!walking;
         const danceStyle=Number.isInteger(actor.userData.danceStyle)?actor.userData.danceStyle:(Number(actor.userData.id.split('-')[1])-1)%3;
@@ -964,9 +979,20 @@ export function createGame(canvas) {
           leg.rotation.x=dancing?Math.sin(footBeat)*(danceStyle===2?.18:.24):(walking?Math.sin(actor.userData.gaitPhase+index*Math.PI)*.3:Math.sin(time*1.4+index)*.015);
         });
         const laughing=actor.userData.motion==='laugh'||(Math.sin(time*.72+actor.userData.flirtPhase*2)>.985);
-        if(actor.userData.head)actor.userData.head.rotation.z=actor.userData.motion==='flirt'?Math.sin(time*2+actor.userData.flirtPhase)*.045:0;
-        if(smile)smile.scale.y=laughing?.45:1+Math.max(0,flirt)*.25;
-        if(laughMouth){laughMouth.scale.y=laughing?1:.08;}
+        const head=actor.userData.head;
+        const headTilt=actor.userData.motion==='flirt'?Math.sin(time*2+actor.userData.flirtPhase)*.065:
+          (dancing?Math.sin(time*3.1*rhythm+actor.userData.phase)*.035:Math.sin(time*.8+actor.userData.flirtPhase)*.012);
+        if(head){
+          head.rotation.z=headTilt;
+          head.rotation.y=dancing?Math.sin(time*2.4*rhythm+actor.userData.phase)*.055:Math.sin(time*.65+actor.userData.flirtPhase)*.018;
+        }
+        if(actor.userData.body&&dancing){
+          actor.userData.body.rotation.x=Math.sin(time*4.1*rhythm+actor.userData.phase)*.025;
+          actor.userData.body.rotation.z=Math.sin(time*4*rhythm+actor.userData.phase)*.055;
+        }else if(actor.userData.body){actor.userData.body.rotation.x=0;}
+        if(smile)smile.scale.y=laughing?.45:1+Math.max(0,flirt)*.32;
+        if(laughMouth){laughMouth.scale.y=laughing?.9:.08;}
+        if(laughing&&head)head.rotation.x-=Math.abs(Math.sin(time*8+actor.userData.phase))*.035;
         if(laughing)actor.position.y+=Math.abs(Math.sin(time*10+actor.userData.phase))*.025;
       }else if(actor.userData.role==='customer'){
         const motion=actor.userData.motion;
