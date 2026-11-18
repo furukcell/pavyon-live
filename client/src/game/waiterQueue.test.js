@@ -76,3 +76,17 @@ test('clears active service assignments', () => {
   assert.equal(ledger.finish('waiter-1'), null);
   assert.equal(ledger.hasCustomer('guest-a'), false);
 });
+
+test('cancels a customer service and releases the waiter for the next request', () => {
+  const ledger = createWaiterServiceLedger();
+  assert.equal(ledger.start('waiter-1', 'guest-a'), true);
+  assert.equal(ledger.cancelCustomer('guest-a'), 'waiter-1');
+  assert.equal(ledger.hasCustomer('guest-a'), false);
+  assert.equal(ledger.finish('waiter-1'), null);
+  assert.equal(ledger.start('waiter-1', 'guest-b'), true);
+});
+
+test('returns null when cancelling a customer without an active service', () => {
+  const ledger = createWaiterServiceLedger();
+  assert.equal(ledger.cancelCustomer('guest-missing'), null);
+});
