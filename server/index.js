@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { normalizeDevEvent } from './eventValidation.js';
 import { verifyProviderSignature } from './providerWebhook.js';
 import { parseGiftMapping, resolveGiftAction } from './giftMapping.js';
+import { createLiveMetrics } from './liveMetrics.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -14,9 +15,9 @@ const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(currentDir, '../dist');
 const io = new Server(httpServer, { transports: ['websocket', 'polling'] });
 const giftMapping = parseGiftMapping(process.env.LIVE_GIFT_MAP || '{}');
-const liveMetrics = { accepted: 0, comments: 0, likes: 0, gifts: 0, lastEventAt: null, lastEventType: null };
-function publicLiveStatus() { return { ...liveMetrics, integration: process.env.LIVE_PROVIDER_WEBHOOK_SECRET ? 'signed-provider-bridge' : 'simulator-only', connectedClients: io.engine.clientsCount, configuredGiftMappings: giftMapping.size }; }
-function recordLiveEvent(event) { liveMetrics.accepted += 1; liveMetrics[event.type === 'comment' ? 'comments' : event.type === 'like' ? 'likes' : 'gifts'] += 1; liveMetrics.lastEventAt = new Date().toISOString(); liveMetrics.lastEventType = event.type; io.emit('live:status', publicLiveStatus()); }
+const liveMetrics = createLiveMetrics();
+function publicLiveStatus() { return { ...liveMetrics.snapshot(), integration: process.env.LIVE_PROVIDER_WEBHOOK_SECRET ? 'signed-provider-bridge' : 'simulator-only', connectedClients: io.engine.clientsCount, configuredGiftMappings: giftMapping.size }; }
+function recordLiveEvent(event) { liveMetrics.record(event); io.emit('live:status', publicLiveStatus()); }
 
 // Signed provider bridge: connectors normalize their payload and sign the exact raw JSON bytes.
 app.post('/integrations/events', express.raw({ type: 'application/json', limit: '32kb' }), (req, res) => {
