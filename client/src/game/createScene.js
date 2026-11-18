@@ -371,9 +371,6 @@ export function createGame(canvas) {
           let angle=desiredRotation-actor.rotation.y;
           angle=Math.atan2(Math.sin(angle),Math.cos(angle));
           actor.rotation.y+=angle*Math.min(1,dt*7);
-          // A steering force must never push an actor beyond the room boundary.
-          const safePosition=clampRoomPosition(actor.position.x,actor.position.z);
-          actor.position.x=safePosition.x;actor.position.z=safePosition.z;
         }else {
           actor.userData.target=null;
           if(actor.userData.targetRotation!==undefined){actor.rotation.y=actor.userData.targetRotation;delete actor.userData.targetRotation;}
