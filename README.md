@@ -63,7 +63,7 @@
 - Küpe, kolye, bileklik, sahne makyajı/yanak rengi, kaş, kirpik, burun, dudak ve gülümseme detayları.
 - Konsların boy ve vücut oranları görünüş profiline göre hafif değişir.
 - Kons seçme listesindeki her karakterin müsait/meşgul durumu gösterilir; meşgul karakterler test panelinden seçilemez.
-- Boştayken hafif salınım ve ara sıra kahkaha; göz kırpma; davette cilveli duruş; dans sırasında kol/bacak pivot hareketleri. Konslar üç farklı ritim/kol-bacak kombinasyonundan biriyle dans eder. Yürüyüşte hareket mesafesine bağlı ayrı adım fazı, daha düşük hız, karşılıklı kol-bacak salınımı ve hafif gövde/baş tepkisi kullanılır; dans döngülerinde zıplama azaltılarak ayak adımı, kol ritmi ve kalça/gövde salınımı daha kontrollü tutulur.
+- Boştayken hafif salınım ve ara sıra kahkaha; göz kırpma; davette cilveli duruş; dans sırasında kol/bacak pivot hareketleri. Konslar üç farklı ritim/kol-bacak kombinasyonundan biriyle dans eder. Yürüyüşte hareket mesafesine bağlı ayrı adım fazı, daha düşük hız, karşılıklı kol-bacak salınımı ve hafif gövde/baş tepkisi kullanılır; dans döngülerinde zıplama azaltılarak ayak adımı, kol ritmi ve kalça/gövde salınımı daha kontrollü tutulur. Yürüme komutundan dans/sahne pozuna geçişte gövde, baş, kollar ve bacaklar yaklaşık 0,42 saniyelik yumuşak poz harmanlamasıyla geçer; dans hareketi hedefe ulaşıldığında başlatılır.
 - Yeni yürüyüş döngüsü: adım ritminde bacak ve kol salınımı, hafif gövde yükselmesi ve hedefe yumuşak dönüş.
 - Müşteriyle etkileşimde hedefe dönük duruş; VIP locada kons ve müşterinin birbirine bakacak şekilde konumlanması.
 
