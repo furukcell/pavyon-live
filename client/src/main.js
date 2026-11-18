@@ -4,6 +4,7 @@ import { createGame } from './game/createScene.js';
 import { createSessionRules } from './game/sessionRules.js';
 import { normalizeViewerName } from './game/viewerRules.js';
 import { GIFT_ACTIONS, getGiftActionRule } from './game/giftRules.js';
+import { createSessionTimers } from './game/sessionTimers.js';
 
 // In development Vite proxies /socket.io to the local game server.
 // In production the Express server serves both the built game and Socket.IO.
@@ -13,13 +14,17 @@ const logEl = document.querySelector('#event-log');
 const state = {
   viewers: new Map(), likes: 0,
   kons: Object.fromEntries(Array.from({length:10},(_,i)=>['kons-'+(i+1),null])),
-  timers: new Map(), lastCommands: new Map()
+  lastCommands: new Map()
 };
 const usernameEl = document.querySelector('#username');
 const konsSelect = document.querySelector('#kons-select');
 const allowedCommands = new Set(['!gel', '!dans', '!masa', '!sahne', '!cik']);
 const allowedGiftActions = new Set(GIFT_ACTIONS);
 const sessionRules = createSessionRules(Object.keys(state.kons));
+const sessionTimers = createSessionTimers({
+  setTimeoutFn: window.setTimeout.bind(window),
+  clearTimeoutFn: window.clearTimeout.bind(window)
+});
 const musicAudio = new Audio();
 musicAudio.preload = 'metadata';
 musicAudio.volume = .65;
@@ -191,9 +196,7 @@ function removeViewer(rawName) {
   if(!guest)return false;
   if(guest.activeKons){
     const konsId=guest.activeKons;
-    const timer=state.timers.get(konsId);
-    if(timer)window.clearTimeout(timer);
-    state.timers.delete(konsId);
+    sessionTimers.cancel(konsId);
     sessionRules.releaseViewer(name);
     state.kons[konsId]=null;
     game.releaseKons(konsId);
@@ -246,17 +249,16 @@ function occupyKons(konsId, name, duration, action) {
   state.kons[konsId] = name;
   if(guest)guest.activeKons=konsId;
   updateHud();
-  const timer = window.setTimeout(() => {
+  sessionTimers.start(konsId, name, duration, () => {
     if (state.kons[konsId] !== name) return;
     sessionRules.releaseKons(konsId);
-    state.kons[konsId] = null;state.timers.delete(konsId);
+    state.kons[konsId] = null;
     game.releaseKons(konsId);
     const activeGuest=state.viewers.get(name);
     if(activeGuest){activeGuest.activeKons=null;activeGuest.action='standing';game.releaseGuest(activeGuest.id);}
     updateHud();
     log(`<b>${escapeHtml(konsId)}</b> tekrar müsait. @${escapeHtml(name)} eski yerine döndü.`);
-  }, duration);
-  state.timers.set(konsId, timer);
+  });
   return true;
 }
 function gift(rawName, type, konsId) {
@@ -323,6 +325,6 @@ socket.on('live:event',event=>{
 });
 updateHud();log('Oyun başlatıldı. Test panelinden bir kullanıcıyı mekâna al.');
 window.addEventListener('beforeunload',()=>{
-  for(const timer of state.timers.values())window.clearTimeout(timer);
+  sessionTimers.cancelAll();
   socket.disconnect();game.dispose();musicAudio.pause();musicState.objectUrls.forEach(url=>URL.revokeObjectURL(url));
 });
