@@ -61,6 +61,13 @@ export function createWaiterServiceLedger() {
     waiterFor(customerId) {
       return waiterByCustomer.get(customerId) ?? null;
     },
+    cancelCustomer(customerId) {
+      const waiterId = waiterByCustomer.get(customerId) ?? null;
+      if (waiterId === null) return null;
+      waiterByCustomer.delete(customerId);
+      customerByWaiter.delete(waiterId);
+      return waiterId;
+    },
     clear() {
       waiterByCustomer.clear();
       customerByWaiter.clear();
