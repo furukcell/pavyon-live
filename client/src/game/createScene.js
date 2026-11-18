@@ -232,10 +232,33 @@ export function createGame(canvas) {
     const point=clampRoomPosition(x,z);
     actor.userData.target=new THREE.Vector3(point.x,0,point.z);
   }
+  function isBlockedCustomerSpawn(x,z){
+    // Keep initial arrivals out of fixed furniture and the service/VIP work zones.
+    if(z<-6.7)return true; // stage
+    if(x<-8.2&&z<-2)return true; // bar
+    if(x>5.4&&z<-1.2)return true; // VIP
+    return tablePositions.some(([tx,tz])=>Math.hypot(x-tx,z-tz)<1.75);
+  }
+  function findCustomerSpawn(){
+    let best=null,bestClearance=-Infinity;
+    for(let attempt=0;attempt<72;attempt++){
+      const x=-11+Math.random()*22,z=-9.8+Math.random()*19.2;
+      if(isBlockedCustomerSpawn(x,z))continue;
+      let clearance=Infinity;
+      actors.forEach(other=>{
+        clearance=Math.min(clearance,Math.hypot(x-other.position.x,z-other.position.z));
+      });
+      if(clearance>bestClearance){best={x,z};bestClearance=clearance;}
+      if(clearance>=1.05)return {x,z};
+    }
+    // In a crowded room, choose the least occupied valid candidate instead of stacking at a fixed point.
+    return best||clampRoomPosition(0,8.8);
+  }
   function addCustomer(viewer){
     const variant=customerSequence++;
     const actor=makeActor(viewer.id,'customer',variant);actor.userData.name=viewer.name;
-    actor.position.set((Math.random()-.5)*14,0,(Math.random()-.5)*11);
+    const spawn=findCustomerSpawn();
+    actor.position.set(spawn.x,0,spawn.z);
     actor.userData.home=actor.position.clone();
   }
   function releaseSeat(actor){if(actor.userData.seat){actor.userData.seat.occupied=false;actor.userData.seat=null;}}
