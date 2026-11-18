@@ -1,6 +1,7 @@
 import './style.css';
 import { io } from 'socket.io-client';
 import { createGame } from './game/createScene.js';
+import { createSessionRules } from './game/sessionRules.js';
 
 // In development Vite proxies /socket.io to the local game server.
 // In production the Express server serves both the built game and Socket.IO.
@@ -16,6 +17,7 @@ const usernameEl = document.querySelector('#username');
 const konsSelect = document.querySelector('#kons-select');
 const allowedCommands = new Set(['!gel', '!dans', '!masa', '!sahne']);
 const allowedGiftActions = new Set(['invite', 'dance', 'drink', 'vip', 'stage']);
+const sessionRules = createSessionRules(Object.keys(state.kons));
 const musicAudio = new Audio();
 musicAudio.preload = 'metadata';
 musicAudio.volume = .65;
@@ -187,14 +189,17 @@ function command(rawName, rawCommand) {
 function occupyKons(konsId, name, duration, action) {
   if (!Object.prototype.hasOwnProperty.call(state.kons,konsId)) { log('Geçersiz kons seçimi.'); return false; }
   if (state.kons[konsId]) { log(`<b>${escapeHtml(konsId)}</b> şu anda @${escapeHtml(state.kons[konsId])} ile meşgul.`); return false; }
+  if (!sessionRules.canReserve(konsId, name)) { log(`@<b>${escapeHtml(name)}</b> başka bir kons etkileşiminde veya rezervasyon şu anda uygun değil.`); return false; }
   const guest=state.viewers.get(name);
   if(guest?.activeKons){log(`@<b>${escapeHtml(name)}</b> başka bir kons etkileşiminde. Önce mevcut etkileşimin bitmesini beklemeli.`);return false;}
   if(action()===false){log('Bu alan şu anda dolu. Biraz sonra tekrar dene.');return false;}
+  if(!sessionRules.reserve(konsId,name)){log('Kons rezervasyonu alınamadı. Tekrar dene.');return false;}
   state.kons[konsId] = name;
   if(guest)guest.activeKons=konsId;
   updateHud();
   const timer = window.setTimeout(() => {
     if (state.kons[konsId] !== name) return;
+    sessionRules.releaseKons(konsId);
     state.kons[konsId] = null;state.timers.delete(konsId);
     game.releaseKons(konsId);
     const activeGuest=state.viewers.get(name);
