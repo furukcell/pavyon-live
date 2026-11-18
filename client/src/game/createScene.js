@@ -20,6 +20,11 @@ export function createGame(canvas) {
   key.position.set(-7, 14, 8); key.castShadow = true; key.shadow.mapSize.set(1024,1024); scene.add(key);
   const redGlow = new THREE.PointLight('#e33368', 35, 22); redGlow.position.set(-6,4,-3); scene.add(redGlow);
   const goldGlow = new THREE.PointLight('#ffc66d', 28, 20); goldGlow.position.set(7,4,2); scene.add(goldGlow);
+  const vipLights=[];
+  for(const [x,z,color] of [[8.4,-5.8,'#d76a9a'],[11.4,-5.8,'#e8b86d'],[8.4,-1.2,'#e8b86d'],[11.4,-1.2,'#d76a9a']]){
+    const light=new THREE.PointLight(color,3.2,5,2);light.position.set(x,2.15,z);scene.add(light);vipLights.push(light);
+  }
+  const danceWash=new THREE.PointLight('#b34b91',8,10,2);danceWash.position.set(0,3.2,1.5);scene.add(danceWash);
   const stageSpotlights=[];
   const stageWash=[];
   for(let i=0;i<4;i++){
@@ -70,6 +75,19 @@ export function createGame(canvas) {
   box('stage-backdrop',0,1.75,-9.08,7.6,2.55,.16,'#321728',.12);
   box('stage-header',0,3.12,-8.94,7.85,.24,.28,'#bd9256',.78);
   box('stage-header-inset',0,3.12,-8.76,6.9,.1,.06,'#f0cf91',.68);
+  // Overhead truss and compact side light bars create a layered stage silhouette.
+  box('stage-truss',0,3.72,-7.65,9.4,.12,.14,'#302330',.72);
+  for(let i=0;i<9;i++){
+    const x=-4+i;
+    const mount=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.16,10),new THREE.MeshStandardMaterial({color:'#c69c61',metalness:.82,roughness:.24}));
+    mount.position.set(x,3.58,-7.65);scene.add(mount);
+    const lens=new THREE.Mesh(new THREE.SphereGeometry(.075,10,8),new THREE.MeshBasicMaterial({color:i%3===0?'#d66b9a':i%3===1?'#f3d29a':'#8e79c5'}));
+    lens.position.set(x,3.48,-7.65);scene.add(lens);
+  }
+  for(const side of [-1,1]){
+    const bar=box('stage-side-led-bar',side*4.05,1.55,-7.8,.09,2.35,.1,'#b44b77',.4);
+    bar.material.emissive=new THREE.Color('#a12c62');bar.material.emissiveIntensity=.65;bar.castShadow=false;
+  }
   for(const side of [-1,1]){
     const curtain=new THREE.Mesh(new THREE.BoxGeometry(.62,2.55,.24),new THREE.MeshStandardMaterial({color:'#7b1e40',roughness:.88}));
     curtain.position.set(side*3.55,1.72,-8.83);curtain.rotation.z=side*-.08;scene.add(curtain);
@@ -641,6 +659,8 @@ export function createGame(canvas) {
       beam.target.position.z=-2.5+Math.cos(time*.31+phase)*1.6;
       beam.intensity=13+Math.max(0,Math.sin(time*1.7+phase))*8;
     });
+    vipLights.forEach((light,index)=>{light.intensity=2.5+Math.sin(time*1.15+index*1.7)*.55;});
+    danceWash.intensity=6.5+Math.sin(time*2.2)*1.5;
     stageWash.forEach((wash,index)=>{const phase=index*Math.PI/2;wash.position.y=3.5;wash.position.x=-3+index*2;wash.rotation.x=Math.PI/2;wash.rotation.z=Math.sin(time*.42+phase)*.13;wash.material.opacity=.035+Math.max(0,Math.sin(time*1.7+phase))*.035;});
     // Build a lightweight spatial hash once per frame so moving actors only inspect nearby neighbors.
     const separationCellSize=.82;
