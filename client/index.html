@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#160d18" />
+    <title>PAVYON LIVE</title>
+  </head>
+  <body>
+    <div id="app">
+      <main id="game-shell">
+        <canvas id="game-canvas" aria-label="Pavyon Live oyun sahnesi"></canvas>
+        <section class="hud">
+          <header class="topbar">
+            <div>
+              <span class="eyebrow">CANLI ETKİLEŞİM SİMÜLATÖRÜ</span>
+              <h1>PAVYON <em>LIVE</em></h1>
+            </div>
+            <div class="live-pill"><span></span> TEST YAYINI</div>
+          </header>
+          <div class="status-row">
+            <div class="stat"><small>MEKÂNDA</small><strong id="guest-count">0 / 100</strong></div>
+            <div class="stat"><small>KONS</small><strong id="kons-count">3 müsait</strong></div>
+            <div class="stat"><small>BEĞENİ</small><strong id="like-count">0</strong></div>
+          </div>
+          <div class="bottom-grid">
+            <section class="panel command-panel">
+              <div class="panel-heading"><span>ETKİLEŞİM AKIŞI</span><span class="muted">YEREL TEST</span></div>
+              <div id="event-log" class="event-log"><p class="empty">Henüz etkileşim yok. Test panelini kullan.</p></div>
+            </section>
+            <section class="panel controls">
+              <div class="panel-heading">İZLEYİCİ TEST PANELİ</div>
+              <label>Test kullanıcı adı<input id="username" maxlength="20" value="misafir_01" /></label>
+              <div class="button-grid">
+                <button data-command="!gel">+ Mekâna gel</button>
+                <button data-command="!dans">Dans et</button>
+                <button data-command="!masa">Masaya otur</button>
+                <button data-command="!sahne">Sahne iste</button>
+              </div>
+              <div class="divider"></div>
+              <label>Hedef kons<select id="kons-select"><option value="kons-1">Kons 1</option><option value="kons-2">Kons 2</option><option value="kons-3">Kons 3</option></select></label>
+              <div class="button-grid gifts">
+                <button data-gift="invite">🌹 Masaya davet</button>
+                <button data-gift="dance">💃 Birlikte dans</button>
+                <button data-gift="drink">🥤 İçecek gönder</button>
+                <button data-gift="vip">⭐ VIP daveti</button>
+                <button data-gift="stage">🎤 Sahne gösterisi</button>
+              </div>
+              <button id="like-button" class="like-button">♥ Beğeni gönder</button>
+            </section>
+          </div>
+          <footer>Bu ekran geliştirme simülatörüdür · Gerçek TikTok LIVE bağlantısı henüz etkin değil</footer>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
