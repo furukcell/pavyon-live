@@ -119,7 +119,7 @@ export function createGame(canvas) {
   function makeActor(id,role='customer',variant=0){
     const group=new THREE.Group();
     const appearance=getCustomerAppearanceByIndex(role==='kons'?variant*2+1:variant);
-    group.userData={id,role,target:null,phase:Math.random()*6,motion:'idle',flirtPhase:Math.random()*Math.PI*2};
+    group.userData={id,role,target:null,phase:Math.random()*6,gaitPhase:Math.random()*Math.PI*2,motion:'idle',flirtPhase:Math.random()*Math.PI*2};
     const generatedColor=role==='customer'?appearance.outfit:new THREE.Color().setHSL((variant*0.137)%1,.34,.43);
     const color=role==='kons'?konsColors[variant%konsColors.length]:role==='waiter'?'#e7dfd3':generatedColor;
     const body=new THREE.Mesh(new THREE.CapsuleGeometry(role==='kons'?.235:.26+(variant%4)*.012,role==='kons'?.58:.64+(variant%3)*.045,3,7),new THREE.MeshStandardMaterial({color,roughness:.48,metalness:role==='kons'?.12:0}));
@@ -431,9 +431,11 @@ export function createGame(canvas) {
             dz+=avoidZ/avoidLength*strength;
           }
           const steeredDistance=Math.hypot(dx,dz)||1;
-          const speed=actor.userData.role==='kons'?2.05:2.4;
-          actor.position.x+=dx/steeredDistance*Math.min(distance,dt*speed);
-          actor.position.z+=dz/steeredDistance*Math.min(distance,dt*speed);
+          const speed=actor.userData.role==='kons'?1.85:actor.userData.role==='waiter'?2.15:2.0;
+          const step=Math.min(distance,dt*speed);
+          actor.position.x+=dx/steeredDistance*step;
+          actor.position.z+=dz/steeredDistance*step;
+          actor.userData.gaitPhase+=dt*(5.2+speed*.45);
           const safePosition=clampRoomPosition(actor.position.x,actor.position.z);
           actor.position.x=safePosition.x;actor.position.z=safePosition.z;
           const desiredRotation=Math.atan2(dx,dz);
@@ -455,18 +457,19 @@ export function createGame(canvas) {
         [-1,1].forEach(side=>{const eye=actor.getObjectByName(`kons-eye-${side}`);if(eye)eye.scale.y=Math.max(.08,1-blink);});
         const dancing=actor.userData.motion==='dance';
         const danceStyle=(Number(actor.userData.id.split('-')[1])-1)%3;
-        const stride=walking?Math.sin(time*10+actor.userData.phase):0;
-        actor.position.y=walking?Math.abs(Math.sin(time*10+actor.userData.phase))*.045:(dancing?Math.abs(Math.sin(time*7+actor.userData.phase))*.08:Math.max(0,flirt)*.018);
+        const stride=walking?Math.sin(actor.userData.gaitPhase):0;
+        const walkCounter=walking?Math.sin(actor.userData.gaitPhase+Math.PI):0;
+        actor.position.y=walking?Math.abs(stride)*.025:(dancing?Math.abs(Math.sin(time*6.2+actor.userData.phase))*.035:Math.max(0,flirt)*.012);
         actor.userData.armPivots?.forEach((arm,index)=>{
           const side=index===0?-1:1;
           const beat=time*(danceStyle===1?5.5:8)+index;
           const danceArm=danceStyle===0?side*(.78+Math.sin(beat)*.2):danceStyle===1?(index===0?-.25:.95)+Math.sin(beat)*.22:side*(.48+Math.sin(beat)*.42);
-          arm.rotation.z=dancing?danceArm:(walking?side*(.12+stride*.24):side*(.16+Math.sin(time*1.8+actor.userData.flirtPhase+index)*.12));
-          arm.rotation.x=dancing?Math.sin(time*(danceStyle===2?3.8:5)+index)*.2:(walking?stride*.16:Math.sin(time*1.3+index)*.06);
+          arm.rotation.z=dancing?danceArm:(walking?side*(.08+stride*.19):side*(.12+Math.sin(time*1.8+actor.userData.flirtPhase+index)*.09));
+          arm.rotation.x=dancing?Math.sin(time*(danceStyle===2?3.8:5)+index)*.16:(walking?stride*.1:Math.sin(time*1.3+index)*.04);
         });
         actor.userData.legPivots?.forEach((leg,index)=>{
           const footBeat=time*(danceStyle===1?6:8)+index*Math.PI+actor.userData.phase;
-          leg.rotation.x=dancing?Math.sin(footBeat)*(danceStyle===2?.22:.32):(walking?Math.sin(time*10+index*Math.PI+actor.userData.phase)*.42:Math.sin(time*1.4+index)*.025);
+          leg.rotation.x=dancing?Math.sin(footBeat)*(danceStyle===2?.18:.24):(walking?Math.sin(actor.userData.gaitPhase+index*Math.PI)*.3:Math.sin(time*1.4+index)*.015);
         });
         const laughing=actor.userData.motion==='laugh'||(Math.sin(time*.72+actor.userData.flirtPhase*2)>.985);
         if(actor.userData.head)actor.userData.head.rotation.z=actor.userData.motion==='flirt'?Math.sin(time*2+actor.userData.flirtPhase)*.045:0;
@@ -477,33 +480,33 @@ export function createGame(canvas) {
         const motion=actor.userData.motion;
         const dancing=motion==='dance';
         const sitting=motion==='sitting-down'||motion==='seated';
-        const gait=walking?Math.sin(time*9+actor.userData.phase):0;
+        const gait=walking?Math.sin(actor.userData.gaitPhase):0;
         if(motion==='sitting-down'&&!walking)actor.userData.motion='seated';
         const seatedNow=motion==='seated'||(motion==='sitting-down'&&!walking);
         const sitBlend=seatedNow?1:0;
         if(actor.userData.body)actor.userData.body.position.y=.72-.16*sitBlend;
         if(actor.userData.head)actor.userData.head.position.y=1.35-.16*sitBlend;
-        actor.position.y=walking?Math.abs(gait)*.035:0;
+        actor.position.y=walking?Math.abs(gait)*.025:(dancing?Math.abs(Math.sin(time*5.8+actor.userData.phase))*.035:0);
         actor.rotation.z=walking?gait*.025:(seatedNow?-.035:0);
         actor.userData.legPivots?.forEach((leg,index)=>{
-          leg.rotation.x=seatedNow?-.95+(index*.04):(dancing?Math.sin(time*8+index*Math.PI)*.48:(walking?Math.sin(time*9+index*Math.PI+actor.userData.phase)*.3:0));
+          leg.rotation.x=seatedNow?-.95+(index*.04):(dancing?Math.sin(time*6.2+index*Math.PI+actor.userData.phase)*.3:(walking?Math.sin(actor.userData.gaitPhase+index*Math.PI)*.3:0));
         });
         actor.userData.armPivots?.forEach((arm,index)=>{
-          arm.rotation.x=seatedNow?-.25:(dancing?Math.sin(time*8+index*Math.PI)*.22:0);
-          arm.rotation.z=seatedNow?(index===0?-.12:.12):(dancing?(index===0?-1:1)*(.55+Math.sin(time*8+index)*.28):(walking?gait*.18:0));
+          arm.rotation.x=seatedNow?-.25:(dancing?Math.sin(time*6.2+index*Math.PI)*.16:(walking?gait*.08:0));
+          arm.rotation.z=seatedNow?(index===0?-.12:.12):(dancing?(index===0?-1:1)*(.36+Math.sin(time*6.2+index)*.2):(walking?(index===0?1:-1)*gait*.16:0));
         });
-        if(dancing)actor.rotation.z=Math.sin(time*7+actor.userData.phase)*.13;
+        if(dancing)actor.rotation.z=Math.sin(time*5.8+actor.userData.phase)*.08;
       }else if(actor.userData.role==='waiter'){
         const serving=actor.userData.motion==='serving';
-        const gait=walking?Math.sin(time*9+actor.userData.phase):0;
-        actor.position.y=walking?Math.abs(gait)*.035:0;
+        const gait=walking?Math.sin(actor.userData.gaitPhase):0;
+        actor.position.y=walking?Math.abs(gait)*.022:0;
         actor.rotation.z=walking?gait*.025:0;
         actor.userData.armPivots?.forEach((arm,index)=>{
           arm.rotation.x=serving?(index===1?-.22:0):(walking?gait*.16:Math.sin(time*1.4+index)*.025);
           arm.rotation.z=serving?(index===1?-.16:.08):(walking?(index===0?1:-1)*gait*.16:0);
         });
-        actor.userData.legPivots?.forEach((leg,index)=>{leg.rotation.x=walking?Math.sin(time*9+index*Math.PI+actor.userData.phase)*.3:0;});
-        if(actor.userData.tray)actor.userData.tray.rotation.z=serving?-.04:0;
+        actor.userData.legPivots?.forEach((leg,index)=>{leg.rotation.x=walking?Math.sin(actor.userData.gaitPhase+index*Math.PI)*.27:0;});
+        if(actor.userData.tray)actor.userData.tray.rotation.z=serving?-.025:(walking?gait*.018:0);
       }else if(actor.userData.motion==='dance'){
         actor.rotation.z=Math.sin(time*7+actor.userData.phase)*.16;
         actor.position.y=Math.abs(Math.sin(time*7+actor.userData.phase))*.08;
