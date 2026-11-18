@@ -52,6 +52,29 @@ export function createGame(canvas) {
   box('vip-wall',9,.6,-7,.25,1.2,5,'#bc8d50',.7);
   box('vip-floor',8,.05,-4,5,.1,5,'#48233b');label('VIP LOCA',8,-4);
   label('DANS PİSTİ',0,1,'#f4d4a5');
+  // Stage-side speaker stacks and low LED strips give the performance area a stronger focal point.
+  for(const side of [-1,1]){
+    const sx=side*4.35;
+    box('stage-speaker',sx,.95,-7.65,.72,1.5,.8,'#21151f',.35);
+    for(const y of [.55,1.08]){
+      const woofer=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.055,20),new THREE.MeshStandardMaterial({color:'#08070b',metalness:.25,roughness:.5}));
+      woofer.rotation.x=Math.PI/2;woofer.position.set(sx,y,-7.22);scene.add(woofer);
+      const rim=new THREE.Mesh(new THREE.TorusGeometry(.205,.025,6,20),new THREE.MeshStandardMaterial({color:'#c59a5c',metalness:.8,roughness:.25}));
+      rim.position.set(sx,y,-7.18);scene.add(rim);
+    }
+  }
+  for(let i=0;i<12;i++){
+    const led=new THREE.Mesh(new THREE.BoxGeometry(.48,.035,.055),new THREE.MeshBasicMaterial({color:i%2?'#d64b79':'#e5b761'}));
+    led.position.set(-3.3+i*.6,.46,-6.82);scene.add(led);
+  }
+  // Back-bar bottle silhouettes.
+  for(let i=0;i<7;i++){
+    const bx=-10.72+(i%4)*.48, bz=-6.45+Math.floor(i/4)*.62;
+    const bottle=new THREE.Mesh(new THREE.CylinderGeometry(.085,.11,.42,10),new THREE.MeshStandardMaterial({color:['#47745d','#9b573e','#a98a42'][i%3],roughness:.3,metalness:.18}));
+    bottle.position.set(bx,1.42,bz);scene.add(bottle);
+    const neck=new THREE.Mesh(new THREE.CylinderGeometry(.035,.05,.15,8),new THREE.MeshStandardMaterial({color:'#c9a66c',metalness:.45,roughness:.3}));
+    neck.position.set(bx,1.7,bz);scene.add(neck);
+  }
 
   const tablePositions=[[-7,3],[-3,6],[4,6],[8,2],[-8,-1],[4,-1]];
   const seatSpots=[];
