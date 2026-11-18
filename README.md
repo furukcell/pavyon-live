@@ -33,7 +33,7 @@
 | Müşteri oturma/dans hareketi | İlk prototip hazır | Boş koltuğa yürüme, oturma pozu, kol/bacak hareketleri ve bireysel dans döngüsü; 18 koltuk dolduğunda yeni oturma isteği reddedilir |
 | Garson servis animasyonu | İlk prototip hazır | Tepsi/bardak taşıma görseli, servis pozisyonu, müşteriye gidip dönme ve beş garson meşgulse FIFO servis kuyruğu (en fazla 30 talep) |
 | VIP yerleşimi | İlk prototip hazır | Aynı locaya üst üste karakter yığılmasını azaltan dört ayrı çift konumu |
-| Kons-müşteri etkileşimi | İlk prototip hazır | Masaya göre yaklaşma, müşteriye dönme ve yan yana eşli dans başlangıç pozisyonu |
+| Kons-müşteri etkileşimi | İlk prototip hazır | Masaya göre yaklaşma, müşteriye dönme; konsun müşterinin dört yanından daha uygun/boş yaklaşma noktasını seçmesi ve yan yana eşli dans başlangıç pozisyonu |
 | Etkileşim rezervasyonları | İlk prototip hazır | Dans pisti için altı çift noktası, VIP için dört çift noktası ve aynı izleyicinin eşzamanlı iki kons etkileşimine girmesini engelleme |
 | Yorum ve hediye testleri | Prototip hazır | Komutlar ve normalize edilmiş test hediye olayları |
 | Kons kullanım süresi | İlk akış hazır | Kons meşguliyet kontrolü; davet/dans 5 dk, VIP 3 dk; süre bitince dönüş ve test panelinde müsait/meşgul durumu |
@@ -179,7 +179,7 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 
 ## Test durumu ve bilinen eksikler
 
-- Son geliştirme turunda dans pisti/VIP konum rezervasyonları, dolu alan için güvenli ret, aynı izleyicinin eşzamanlı kons etkileşimine girmesini engelleme, dolu 18 koltuk için açık ret, beş garson için 30 taleplik FIFO servis kuyruğu ve kuyrukta geçersiz müşteri kaydından sonra otomatik devam/garsonu boşa çıkarma akışı, hedef noktaları ve yürüyen karakterlerin gerçek konumlarını salon sınırları içinde tutan sınırlandırma, hedef ve hareket konumlarını zemin sınırlarında tutan oda sınırlandırması, masa üstü mum/bardak dekoru, sahne hoparlörleri/LED şeridi, bar şişe dekorları, üç farklı kons dans stili ve etkileşim sürerken izleyicinin komutla görev bozmasının önlenmesi GitHub'a yazıldı. Ancak bu oturumda `npm install`, `npm run build` veya gerçek cihaz tarayıcı testi çalıştırılmadı.
+- Son geliştirme turunda dans pisti/VIP konum rezervasyonları, dolu alan için güvenli ret, konsun müşteriye yaklaşırken dört yöndeki noktaları mesafe/çevre açıklığına göre değerlendirmesi, aynı izleyicinin eşzamanlı kons etkileşimine girmesini engelleme, dolu 18 koltuk için açık ret, beş garson için 30 taleplik FIFO servis kuyruğu ve kuyrukta geçersiz müşteri kaydından sonra otomatik devam/garsonu boşa çıkarma akışı, hedef noktaları ve yürüyen karakterlerin gerçek konumlarını salon sınırları içinde tutan sınırlandırma, hedef ve hareket konumlarını zemin sınırlarında tutan oda sınırlandırması, masa üstü mum/bardak dekoru, sahne hoparlörleri/LED şeridi, bar şişe dekorları, üç farklı kons dans stili ve etkileşim sürerken izleyicinin komutla görev bozmasının önlenmesi GitHub'a yazıldı. Ancak bu oturumda `npm install`, `npm run build` veya gerçek cihaz tarayıcı testi çalıştırılmadı.
 - Kons animasyonları prosedürel Three.js hareketleridir; sesli kahkaha, gerçekçi yüz kasları, dudak senkronu ve profesyonel dans koreografisi yoktur.
 - Karakterlerin gerçekçi/kaliteli hale gelmesi için ileride lisanslı veya özgün hazırlanmış rig'li 3D varlıklar kullanılabilir. Bu dosyaların lisans ve optimizasyonu kontrol edilmelidir.
 - TikTok LIVE bağlantısı, canlı yayın performansı ve 115 aktör hedefi henüz doğrulanmadı.
