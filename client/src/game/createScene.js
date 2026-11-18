@@ -289,12 +289,32 @@ export function createGame(canvas) {
       const target=actor.userData.target;
       let walking=false;
       if(target){
-        const dx=target.x-actor.position.x,dz=target.z-actor.position.z,distance=Math.hypot(dx,dz);
+        let dx=target.x-actor.position.x,dz=target.z-actor.position.z;
+        const distance=Math.hypot(dx,dz);
         if(distance>.08){
           walking=true;
+          // Soft local separation: moving actors steer around nearby people instead of walking through them.
+          let avoidX=0,avoidZ=0;
+          actors.forEach(other=>{
+            if(other===actor)return;
+            const ox=actor.position.x-other.position.x,oz=actor.position.z-other.position.z;
+            const gap=Math.hypot(ox,oz);
+            if(gap>0.001&&gap<.82){
+              const force=(.82-gap)/.82;
+              avoidX+=(ox/gap)*force;
+              avoidZ+=(oz/gap)*force;
+            }
+          });
+          const avoidLength=Math.hypot(avoidX,avoidZ);
+          if(avoidLength>.001){
+            const strength=Math.min(.72,avoidLength*.42);
+            dx+=avoidX/avoidLength*strength;
+            dz+=avoidZ/avoidLength*strength;
+          }
+          const steeredDistance=Math.hypot(dx,dz)||1;
           const speed=actor.userData.role==='kons'?2.05:2.4;
-          actor.position.x+=dx/distance*Math.min(distance,dt*speed);
-          actor.position.z+=dz/distance*Math.min(distance,dt*speed);
+          actor.position.x+=dx/steeredDistance*Math.min(distance,dt*speed);
+          actor.position.z+=dz/steeredDistance*Math.min(distance,dt*speed);
           const desiredRotation=Math.atan2(dx,dz);
           let angle=desiredRotation-actor.rotation.y;
           angle=Math.atan2(Math.sin(angle),Math.cos(angle));
