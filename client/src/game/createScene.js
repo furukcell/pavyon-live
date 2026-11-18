@@ -524,26 +524,51 @@ export function createGame(canvas) {
   }
   function findCustomerSpawn(){
     let best=null,bestClearance=-Infinity;
-    for(let attempt=0;attempt<72;attempt++){
-      const x=-11+Math.random()*22,z=-9.8+Math.random()*19.2;
+    const candidates=[];
+    // Random candidates keep the room feeling organic; a deterministic fallback grid prevents pile-ups
+    // when a large batch arrives after most of the room has already filled.
+    for(let attempt=0;attempt<96;attempt++){
+      candidates.push({x:-11+Math.random()*22,z:-9.8+Math.random()*19.2});
+    }
+    for(let row=0;row<27;row++){
+      for(let column=0;column<31;column++){
+        candidates.push({x:-11.25+column*.75,z:-9.75+row*.74});
+      }
+    }
+    for(const candidate of candidates){
+      const {x,z}=candidate;
       if(isBlockedCustomerSpawn(x,z))continue;
       let clearance=Infinity;
       actors.forEach(other=>{
         clearance=Math.min(clearance,Math.hypot(x-other.position.x,z-other.position.z));
       });
-      if(clearance>bestClearance){best={x,z};bestClearance=clearance;}
-      if(clearance>=1.05)return {x,z};
+      if(clearance>bestClearance){best=candidate;bestClearance=clearance;}
+      if(clearance>=1.05)return candidate;
     }
-    // In a crowded room, choose the least occupied valid candidate instead of stacking at a fixed point.
+    // At maximum density, use the least crowded valid location rather than a single fallback point.
     return best||clampRoomPosition(0,8.8);
+  }
+  function findCustomerEntrance(){
+    let best=null,bestClearance=-Infinity;
+    // Spread simultaneous arrivals through the doorway and the first few metres of the entrance lane.
+    for(let row=0;row<14;row++){
+      for(let column=0;column<7;column++){
+        const point=clampRoomPosition((column-3)*.38,9.55-row*.42);
+        let clearance=Infinity;
+        actors.forEach(other=>{
+          clearance=Math.min(clearance,Math.hypot(point.x-other.position.x,point.z-other.position.z));
+        });
+        if(clearance>bestClearance){best=point;bestClearance=clearance;}
+        if(clearance>=.62)return point;
+      }
+    }
+    return best||clampRoomPosition(0,9.55);
   }
   function addCustomer(viewer){
     const variant=customerSequence++;
     const spawn=findCustomerSpawn();
+    const entrance=findCustomerEntrance();
     const actor=makeActor(viewer.id,'customer',variant);actor.userData.name=viewer.name;
-    // Stagger arrivals across the doorway so a burst of new viewers does not start on one exact point.
-    const lane=(variant%7)-3;
-    const entrance=clampRoomPosition(lane*.48,9.85-Math.floor(variant/7%3)*.42);
     actor.position.set(entrance.x,0,entrance.z);
     actor.userData.home=new THREE.Vector3(spawn.x,0,spawn.z);
     actor.userData.motion='arriving';
