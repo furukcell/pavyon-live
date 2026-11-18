@@ -9,6 +9,9 @@ import { createSessionTimers } from './game/sessionTimers.js';
 // In development Vite proxies /socket.io to the local game server.
 // In production the Express server serves both the built game and Socket.IO.
 const socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
+const streamMode = new URLSearchParams(window.location.search).get('view') === 'stream';
+document.documentElement.classList.toggle('stream-mode', streamMode);
+if (streamMode) document.querySelector('#broadcast-label').textContent = 'YAYIN EKRANI';
 const game = createGame(document.querySelector('#game-canvas'));
 const logEl = document.querySelector('#event-log');
 const state = {
@@ -150,6 +153,8 @@ function log(message) {
   p.innerHTML = message;
   logEl.prepend(p);
   while (logEl.children.length > 30) logEl.lastElementChild.remove();
+  const ticker = document.querySelector('#stream-event-text');
+  if (ticker) ticker.textContent = p.textContent || 'Yeni etkileşim';
 }
 function cleanUsername(value) {
   return normalizeViewerName(typeof value === 'string' ? value : '');
