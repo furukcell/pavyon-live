@@ -396,6 +396,17 @@ export function createGame(canvas) {
       shirt.position.set(0,.77,.255);group.add(shirt);
       const chain=new THREE.Mesh(new THREE.TorusGeometry(.09,.009,6,20),new THREE.MeshStandardMaterial({color:'#cba15d',metalness:.72,roughness:.3}));
       chain.position.set(0,.99,.27);chain.rotation.x=Math.PI/2;group.add(chain);
+      const lapelMaterial=new THREE.MeshStandardMaterial({color:'#382d38',roughness:.42});
+      for(const side of [-1,1]){
+        const lapel=new THREE.Mesh(new THREE.BoxGeometry(.075,.25,.025),lapelMaterial);
+        lapel.position.set(side*.105,.94,.265);lapel.rotation.z=side*.22;group.add(lapel);
+      }
+      const bowTie=new THREE.Mesh(new THREE.BoxGeometry(.16,.055,.035),new THREE.MeshStandardMaterial({color:'#c49a58',metalness:.35,roughness:.35}));
+      bowTie.position.set(0,1.055,.275);group.add(bowTie);
+      for(let button=0;button<3;button++){
+        const stud=new THREE.Mesh(new THREE.SphereGeometry(.014,8,6),new THREE.MeshStandardMaterial({color:'#d9bd83',metalness:.72,roughness:.25}));
+        stud.position.set(0,.84-button*.105,.27);group.add(stud);
+      }
     }
     if(role==='waiter'){
       const shirtFront=new THREE.Mesh(new THREE.BoxGeometry(.19,.46,.025),new THREE.MeshStandardMaterial({color:'#f5eee2',roughness:.7}));
@@ -690,6 +701,23 @@ export function createGame(canvas) {
     actor.userData.instrument=musicianRoles[i];
     actor.userData.motion='performing';
     addBandInstrument(actor,musicianRoles[i]);
+    if(musicianRoles[i]!=='clarinet'){
+      actor.userData.seatedPerformer=true;
+      actor.userData.body.position.y=.64;
+      actor.userData.head.position.y=1.25;
+      actor.userData.armPivots.forEach(arm=>{arm.position.y=.91;});
+      actor.userData.legPivots.forEach((leg,index)=>{leg.rotation.x=index===0?-.48:-.62;leg.rotation.z=index===0?-.12:.12;});
+      const stool=new THREE.Group();
+      const seat=new THREE.Mesh(new THREE.CylinderGeometry(.25,.25,.09,18),new THREE.MeshStandardMaterial({color:'#382432',roughness:.48}));
+      seat.position.y=.58;stool.add(seat);
+      const cushion=new THREE.Mesh(new THREE.CylinderGeometry(.235,.235,.045,18),new THREE.MeshStandardMaterial({color:'#9b3454',roughness:.68}));
+      cushion.position.y=.65;stool.add(cushion);
+      const stem=new THREE.Mesh(new THREE.CylinderGeometry(.045,.06,.5,10),new THREE.MeshStandardMaterial({color:'#b78c50',metalness:.68,roughness:.32}));
+      stem.position.y=.3;stool.add(stem);
+      const base=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.055,16),new THREE.MeshStandardMaterial({color:'#3a2a2c',metalness:.48,roughness:.38}));
+      base.position.y=.055;stool.add(base);
+      actor.add(stool);
+    }
     bandMembers.push(actor);
   }
 
