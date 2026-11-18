@@ -29,7 +29,7 @@ test('prevents one viewer from opening simultaneous kons sessions', () => {
 test('rejects unknown kons ids and empty reservations', () => {
   const rules = makeRules();
   assert.equal(rules.reserve('kons-99', 'viewer-a'), false);
-  assert.equal(rules.reserve('kons-1', ''), true);
+  assert.equal(rules.reserve('kons-1', ''), false);
 });
 
 test('releases both sides of a kons reservation', () => {
