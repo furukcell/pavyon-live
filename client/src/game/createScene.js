@@ -45,12 +45,13 @@ export function createGame(canvas) {
   label('DANS PİSTİ',0,1,'#f4d4a5');
 
   const tablePositions=[[-7,3],[-3,6],[4,6],[8,2],[-8,-1],[4,-1]];
+  const seatSpots=[];
   tablePositions.forEach(([x,z],i)=>{
     const table=new THREE.Mesh(new THREE.CylinderGeometry(.8,.85,.18,24),new THREE.MeshStandardMaterial({color:'#6e3d36',metalness:.35,roughness:.35}));
     table.position.set(x,.9,z);table.castShadow=true;scene.add(table);
     const top=new THREE.Mesh(new THREE.CylinderGeometry(.83,.83,.06,24),new THREE.MeshStandardMaterial({color:'#d0a260',metalness:.72,roughness:.28}));
     top.position.set(x,1.02,z);scene.add(top);
-    for(let j=0;j<3;j++){const a=j*Math.PI*2/3;const seat=new THREE.Mesh(new THREE.BoxGeometry(.9,.65,.75),new THREE.MeshStandardMaterial({color:'#8c2545',roughness:.8}));seat.position.set(x+Math.cos(a)*1.45,.35,z+Math.sin(a)*1.45);seat.rotation.y=-a;seat.castShadow=true;scene.add(seat);}
+    for(let j=0;j<3;j++){const a=j*Math.PI*2/3;const sx=x+Math.cos(a)*1.45,sz=z+Math.sin(a)*1.45;const seat=new THREE.Mesh(new THREE.BoxGeometry(.9,.65,.75),new THREE.MeshStandardMaterial({color:'#8c2545',roughness:.8}));seat.position.set(sx,.35,sz);seat.rotation.y=-a;seat.castShadow=true;scene.add(seat);seatSpots.push({x:sx,z:sz,rotation:-a,occupied:false});}
     label('MASA '+(i+1),x,z+1.8,'#e8c78e');
   });
   for(let i=0;i<7;i++){const post=box('gold-post',-11+i*3.65,2,-10.5,.09,4,.09,'#b9864c',.8);post.castShadow=false;}
@@ -119,7 +120,7 @@ export function createGame(canvas) {
       if(target){
         const dx=target.x-actor.position.x,dz=target.z-actor.position.z,distance=Math.hypot(dx,dz);
         if(distance>.08){actor.position.x+=dx/distance*Math.min(distance,dt*2.4);actor.position.z+=dz/distance*Math.min(distance,dt*2.4);actor.rotation.y=Math.atan2(dx,dz);}
-        else actor.userData.target=null;
+        else {actor.userData.target=null;if(actor.userData.targetRotation!==undefined){actor.rotation.y=actor.userData.targetRotation;delete actor.userData.targetRotation;}}
       }
       if(actor.userData.motion==='dance'){
         actor.rotation.z=Math.sin(time*7+actor.userData.phase)*.16;
