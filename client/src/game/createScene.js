@@ -135,6 +135,7 @@ export function createGame(canvas) {
     const variant=customerSequence++;
     const actor=makeActor(viewer.id,'customer',variant);actor.userData.name=viewer.name;
     actor.position.set((Math.random()-.5)*14,0,(Math.random()-.5)*11);
+    actor.userData.home=actor.position.clone();
   }
   function releaseSeat(actor){if(actor.userData.seat){actor.userData.seat.occupied=false;actor.userData.seat=null;}}
   function seatCustomer(id){
@@ -218,6 +219,7 @@ export function createGame(canvas) {
     konsDance:(k,id)=>{const hostess=actors.get(k);if(hostess)hostess.userData.motion='dance';animateActor(id,'dance');},
     vip:(k,id)=>{const hostess=actors.get(k);if(hostess)hostess.userData.motion='flirt';moveTo(k,8,-4);moveTo(id,7,-4);},
     releaseKons:k=>{const home=konsHomes.get(k);if(home){moveTo(k,home.x,home.z);const actor=actors.get(k);if(actor)actor.userData.motion='idle';}},
+    releaseGuest:id=>{const actor=actors.get(id);if(actor){releaseSeat(actor);actor.userData.motion='idle';const home=actor.userData.home;if(home)moveTo(id,home.x,home.z);}},
     show:id=>animateActor(id,'stage'),
     setLikes:value=>{redGlow.intensity=35+Math.min(value,500)*.08;goldGlow.intensity=28+Math.min(value,500)*.04;},
     dispose:()=>{cancelAnimationFrame(raf);observer.disconnect();renderer.dispose();}
