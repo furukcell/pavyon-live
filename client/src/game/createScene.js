@@ -279,7 +279,13 @@ export function createGame(canvas) {
       ? currentSeat
       : seatSpots
           .filter(item=>!item.occupied)
-          .sort((a,b)=>Math.hypot(a.x-actor.position.x,a.z-actor.position.z)-Math.hypot(b.x-actor.position.x,b.z-actor.position.z))[0];
+          // Balance walking distance against current table occupancy so guests naturally share tables.
+          .sort((a,b)=>{
+            const tableA=tableStates[a.tableId-1],tableB=tableStates[b.tableId-1];
+            const scoreA=Math.hypot(a.x-actor.position.x,a.z-actor.position.z)+tableA.occupied*1.25;
+            const scoreB=Math.hypot(b.x-actor.position.x,b.z-actor.position.z)+tableB.occupied*1.25;
+            return scoreA-scoreB;
+          })[0];
     if(!spot)return false;
     if(currentSeat!==spot){
       releaseSeat(actor);
