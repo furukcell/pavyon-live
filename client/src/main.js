@@ -92,6 +92,16 @@ function gift(rawName, type, konsId) {
   };
   if (actions[type]) occupyKons(konsId,name,duration,actions[type]);
 }
+document.querySelector('#send-comment').addEventListener('click', () => {
+  const comment = document.querySelector('#comment-input').value.trim();
+  if (!comment) return;
+  log(`Yorum simülasyonu: <b>@${escapeHtml(username())}</b> → ${escapeHtml(comment)}`);
+  command(username(), comment);
+  document.querySelector('#comment-input').value = '';
+});
+document.querySelector('#comment-input').addEventListener('keydown', event => {
+  if (event.key === 'Enter') document.querySelector('#send-comment').click();
+});
 document.querySelectorAll('[data-command]').forEach(button=>button.addEventListener('click',()=>command(username(),button.dataset.command)));
 document.querySelectorAll('[data-gift]').forEach(button=>button.addEventListener('click',()=>gift(username(),button.dataset.gift,konsSelect.value)));
 document.querySelectorAll('[data-spawn]').forEach(button => {
