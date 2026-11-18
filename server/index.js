@@ -14,6 +14,9 @@ const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(currentDir, '../dist');
 const io = new Server(httpServer, { transports: ['websocket', 'polling'] });
 const giftMapping = parseGiftMapping(process.env.LIVE_GIFT_MAP || '{}');
+const liveMetrics = { accepted: 0, comments: 0, likes: 0, gifts: 0, lastEventAt: null, lastEventType: null };
+function publicLiveStatus() { return { ...liveMetrics, integration: process.env.LIVE_PROVIDER_WEBHOOK_SECRET ? 'signed-provider-bridge' : 'simulator-only', connectedClients: io.engine.clientsCount, configuredGiftMappings: giftMapping.size }; }
+function recordLiveEvent(event) { liveMetrics.accepted += 1; liveMetrics[event.type === 'comment' ? 'comments' : event.type === 'like' ? 'likes' : 'gifts'] += 1; liveMetrics.lastEventAt = new Date().toISOString(); liveMetrics.lastEventType = event.type; io.emit('live:status', publicLiveStatus()); }
 
 // Signed provider bridge: connectors normalize their payload and sign the exact raw JSON bytes.
 app.post('/integrations/events', express.raw({ type: 'application/json', limit: '32kb' }), (req, res) => {
@@ -35,14 +38,13 @@ app.post('/integrations/events', express.raw({ type: 'application/json', limit: 
   if (seenEventIds.size >= MAX_SEEN_EVENT_IDS) { const oldestId = seenEventIds.keys().next().value; if (oldestId) seenEventIds.delete(oldestId); }
   seenEventIds.set(event.eventId, now + EVENT_ID_TTL_MS);
   io.emit('live:event', event);
+  recordLiveEvent(event);
   return res.status(202).json({ accepted: true, duplicate: false });
 });
 
 app.use(express.json({ limit: '32kb' }));
 app.get('/health', (_req, res) => res.json({ ok: true, service: 'pavyon-live-server' }));
-app.get('/api/status', (_req, res) => res.json({
-  ok: true, integration: process.env.LIVE_PROVIDER_WEBHOOK_SECRET ? 'signed-provider-bridge' : 'simulator-only', connectedClients: io.engine.clientsCount, configuredGiftMappings: giftMapping.size
-}));
+app.get('/api/status', (_req, res) => res.json({ ok: true, ...publicLiveStatus() }));
 
 // Development-only event bridge. It is not a public TikTok webhook.
 const seenEventIds = new Map();
@@ -81,6 +83,7 @@ app.use((req, res, next) => {
 
 io.on('connection', socket => {
   console.log(`Game client connected: ${socket.id}`);
+  socket.emit('live:status', publicLiveStatus());
   socket.on('disconnect', () => console.log(`Game client disconnected: ${socket.id}`));
 });
 httpServer.listen(port, '0.0.0.0', () => console.log(`PAVYON LIVE server listening on port ${port}`));
