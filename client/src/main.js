@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import { createGame } from './game/createScene.js';
 import { createSessionRules } from './game/sessionRules.js';
 import { normalizeViewerName } from './game/viewerRules.js';
+import { GIFT_ACTIONS, getGiftActionRule } from './game/giftRules.js';
 
 // In development Vite proxies /socket.io to the local game server.
 // In production the Express server serves both the built game and Socket.IO.
@@ -17,7 +18,7 @@ const state = {
 const usernameEl = document.querySelector('#username');
 const konsSelect = document.querySelector('#kons-select');
 const allowedCommands = new Set(['!gel', '!dans', '!masa', '!sahne', '!cik']);
-const allowedGiftActions = new Set(['invite', 'dance', 'drink', 'vip', 'stage']);
+const allowedGiftActions = new Set(GIFT_ACTIONS);
 const sessionRules = createSessionRules(Object.keys(state.kons));
 const musicAudio = new Audio();
 musicAudio.preload = 'metadata';
@@ -261,7 +262,8 @@ function occupyKons(konsId, name, duration, action) {
 function gift(rawName, type, konsId) {
   const name = cleanUsername(rawName);
   if (!name) { log('Geçersiz kullanıcı adı nedeniyle hediye aksiyonu uygulanmadı.'); return; }
-  if (!allowedGiftActions.has(type)) {
+  const giftRule = getGiftActionRule(type);
+  if (!giftRule) {
     log('Tanımlanmamış hediye aksiyonu reddedildi.');
     return;
   }
@@ -273,7 +275,7 @@ function gift(rawName, type, konsId) {
   }
   if (type === 'drink') { const result=game.drink(guest.id);if(result==='serving')log(`Garson, <b>@${escapeHtml(name)}</b> için servis götürüyor.`);else if(result==='queued')log(`@<b>${escapeHtml(name)}</b> servis sırasına alındı. Garson boşalınca içeceği gelecek.`);else if(result==='duplicate')log(`@<b>${escapeHtml(name)}</b> için zaten aktif bir servis veya kuyruk talebi var.`);else log('Servis kapasitesi dolu. Biraz sonra tekrar dene.');return; }
   if (type === 'stage') { game.show(guest.id);log(`<b>@${escapeHtml(name)}</b> için sahne gösterisi başladı.`);return; }
-  const duration = type === 'dance' || type === 'invite' ? 5*60_000 : 3*60_000;
+  const duration = giftRule.durationMs;
   const actions = {
     invite:()=>{const ok=game.konsToTable(konsId,guest.id);if(ok)log(`<b>${escapeHtml(konsId)}</b>, @${escapeHtml(name)} kullanıcısının masasına gidiyor.`);return ok;},
     dance:()=>{const ok=game.konsDance(konsId,guest.id);if(ok)log(`<b>${escapeHtml(konsId)}</b> ve @${escapeHtml(name)} birlikte dans ediyor (5 dk).`);return ok;},
