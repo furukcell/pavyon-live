@@ -8,14 +8,14 @@
 
 > Bu yüzdeler tamamlanmış bir ürünün ölçümü değil, ilk yayınlanabilir sürüme giden iş planının yaklaşık durumudur.
 
-- **Etkileşimli oyun prototipi: %55** — mekân, karakterler, komutlar, hediye simülasyonu ve temel oyun döngüleri var; görsel kalite ve davranış testleri sürüyor.
-- **İlk yayınlanabilir ürün hedefi: yaklaşık %30** — gerçek TikTok LIVE entegrasyonu, profesyonel karakter varlıkları, güvenlik, performans ve uçtan uca testler henüz tamamlanmadı.
+- **Etkileşimli oyun prototipi: %60** — mekân, karakterler, komutlar, hediye simülasyonu ve temel oyun döngüleri var; görsel kalite ve davranış testleri sürüyor.
+- **İlk yayınlanabilir ürün hedefi: yaklaşık %32** — gerçek TikTok LIVE entegrasyonu, profesyonel karakter varlıkları, güvenlik, performans ve uçtan uca testler henüz tamamlanmadı.
 
 | İş paketi | Tahmini tamamlanma |
 |---|---:|
-| 3D mekân ve dekor | %60 |
-| Karakter model/animasyon kalitesi | %35 |
-| Oyun kuralları ve etkileşimler | %55 |
+| 3D mekân ve dekor | %68 |
+| Karakter model/animasyon kalitesi | %40 |
+| Oyun kuralları ve etkileşimler | %58 |
 | Sunucu ve test simülatörü | %45 |
 | Gerçek TikTok LIVE entegrasyonu | %0 |
 | Performans, güvenlik ve yayın testleri | %5 |
@@ -25,7 +25,7 @@
 
 | Aşama | Durum | Açıklama |
 |---|---|---|
-| 3D mekân ve kamera | Prototip hazır | Sahne, dans pisti, bar/servis, VIP alanı, 6 masa, mobil kamera, hareketli sahne spotları, hoparlör/LED ve bar dekorları |
+| 3D mekân ve kamera | Prototip geliştiriliyor | Sahne, dans pisti, bar/servis, VIP alanı, 6 masa, mobil kamera, art-deco sahne, VIP ambiyansı, dekoratif giriş kapısı ve girişten salona yürüyen müşteri akışı |
 | Kons karakterleri | Prototip geliştiriliyor | 10 ayrı görünüm varyantı; sahne kıyafeti, saç, aksesuar, makyaj, yüz detayları ve vücut oranı varyasyonu; yüz/saç geometrisinde daha yüksek segment, göz akı-iris-göz bebeği-küçük ışık yansıması katmanları, saç tutamları ve kumaşta fiziksel malzeme/clearcoat iyileştirmeleri |
 | Kons tavırları | Prototip animasyonlar | Göz kırpma, gülümseme/kahkaha, hafif salınım, cilveli duruş, yürüyüş ve üç farklı prosedürel dans stili |
 | Müşteri görünüş kataloğu | Hazır (parametrik) | 100 kadın + 100 erkek görünüş profili; bunlar 200 ayrı model dosyası değildir |
@@ -47,7 +47,7 @@
 - Kırmızı/bordo tonlar, altın detaylar ve pavyon sahne atmosferi.
 - Altı masada dekoratif mum ışığı, iki bardak ve içecek detayları.
 - Sahne, dans pisti, servis alanı, VIP loca ve 6 müşteri masası.
-- Sahne yanında hoparlör kuleleri, sahne önü LED şeridi ve servis barında şişe dekorları.
+- Sahne yanında hoparlör kuleleri, sahne önü LED şeridi ve servis barında şişe dekorları; ön girişte art-deco kapı çerçevesi ve sıcak eşik ışıkları.
 - Her masada 3 koltuk olmak üzere 18 koltuk noktası; müşteriye en yakın boş koltuk atanır; oturan müşteri tekrar otur komutu verirse mevcut koltuğunu korur. Her koltuk kendi masa numarasını taşır; masa bazında dolu koltuk sayısı rezervasyon sırasında artar, müşteri koltuğu bırakınca azalır. Test arayüzünün üst çubuğunda altı masanın anlık doluluğu `dolu/3` biçiminde gösterilir. 3D sahnede rezerve koltuklar altın tonunda parlar; boşalan koltuklar bordo rengine döner. Yeni oturma isteğinde en yakın boş koltuk, masanın mevcut doluluğu da hesaba katılarak seçilir; böylece müşteriler yalnızca tek tek en yakın sandalyeye değil, daha dengeli masa gruplarına yönlendirilir.
 - Üstten perspektif kamera; dar ekranlarda daha geniş dikey kadraj.
 - Sahne üzerinde renkli, ritmik hareket eden dört spot ışığı.
@@ -71,7 +71,7 @@
 
 - `characterCatalog.js` içinde 100 kadın ve 100 erkek parametrik görünüş profili bulunur.
 - Profiller saç, ten, kıyafet rengi, boy, yapı ve aksesuar parametreleri sağlar. 200 ayrı elle modellenmiş karakter dosyası değildir.
-- Oyuncu girişlerinde aynı anda en fazla 100 müşteri kabul edilir. Yeni müşteriler sahne, bar, VIP ve masa çevresindeki sabit alanlardan kaçınan aday konumlar arasından seçilir; mümkünse mevcut aktörlerden en az 1,05 birim uzaklık korunur. Salon kalabalıksa denenen geçerli konumlar içinden en az sıkışık olan seçilir; bu kesin boşluk garantisi değildir.
+- Oyuncu girişlerinde aynı anda en fazla 100 müşteri kabul edilir. Yeni müşteri dekoratif ana kapıdan, aynı anda gelenleri üst üste bindirmemek için yedi giriş şeridine dağıtılmış başlangıç noktalarından salona yürür; hedef konum sahne, bar, VIP ve masa çevresinden kaçınan adaylar arasından seçilir. Mümkünse mevcut aktörlerden en az 1,05 birim uzaklık korunur; salon kalabalıksa en az sıkışık geçerli aday seçilir. Bu kesin boşluk veya tam yol bulma garantisi değildir.
 - 5 garson örneği sahneye eklenir; aynı temel placeholder modelinden türetilir.
 - Müşteriler kendisine en yakın boş koltuğa yürür; varışta gövde alçalması, hafif öne eğilme ve bacak/kol pozisyonuyla oturma pozu alır. Zaten oturuyorsa tekrar komutunda koltuğunu değiştirmez. Dans sırasında kollar ve bacaklar ritmik hareket eder. 18 koltuk doluysa müşteri rastgele dolaştırılmaz; açık kapasite mesajı verilir. Oturan müşteri tekrar otur komutu verirse kendi koltuğunu korur.
 - Kons etkileşimi devam eden izleyici `!dans`, `!masa`, `!sahne` komutlarıyla görevini yarıda kesemez; etkileşim süresi tamamlanınca normal komutları kullanabilir.
@@ -173,7 +173,7 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 1. **Karakter görsel kalitesi:** Kons yüzü, saç, kıyafet ve aksesuar detaylarını geliştirmek; garson ve müşteri modellerini tutarlılaştırmak. Son eklenenler: at kuyruğu/bob saç varyantı, iki taraflı küpe, kolye, bileklik, etek ucu detayı, sahne makyajı, kaş/kirpik/burun/dudak ve vücut oranı varyasyonu.
 2. **Animasyon kalitesi:** Daha doğal yürüme, oturma, dans, gülme ve etkileşim geçişleri; mevcut pivot animasyonlarını iyileştirmek. Son eklenenler: kons ve müşteri yürüyüş/oturma/dans hareketleri; garson tepsi-servis pozu; VIP çiftlerinin yüz yüze yönlenmesi.
 3. **Etkileşim yaşam döngüsü:** Masa/VIP konumları, daha güçlü çakışma önleme/navigasyon, kuyruk, dolu masa yönetimi ve her aksiyon sonrası doğru başlangıç konumuna dönüş. VIP için dört, dans pisti için altı çift konumu rezervasyonu; aynı izleyici için eşzamanlı kons etkileşimi engeli, müşteriye en yakın boş koltuk seçimi ve masa bazlı koltuk doluluk sayacı, mobilya/servis/VIP bölgelerinden kaçınan ve mevcut aktörlerden uzaklık puanlayan müşteri giriş konumları, yürüyen karakterler için uzamsal ızgara destekli hafif yerel ayrışma yönlendirmesi ve hedef ve hareket konumlarını oynanabilir salon sınırları içinde tutan hareket sınırlandırması eklendi. Genel fiziksel çarpışma ve kuyruk sistemi hâlâ yapılacak.
-4. **Sahne ve arayüz cilası:** Işık, dekor, masa durumları, kons müsaitlik göstergesi ve yayın overlay'i. Son eklenenler: dört hareketli sahne spotu ve görsel ışık huzmeleri, dokuz armatürlü üst ışık kirişi ve sahne yan LED barları, dans pistinde yumuşak renkli ışık havuzu, VIP locada dört ayrı sıcak/pembe ambiyans ışığı, art-deco sahne çerçevesi/arka paneli, bordo yan perdeler ve altın bağlar, sahne üstü ampul sırası ve beş dekoratif LED paneli, sahne hoparlörleri/LED şeridi, bar şişe dekorları ve detaylı tezgâh/ayaklı tabureler, katmanlı arka duvar panelleri ve aplik ışıkları, VIP locada döşemeli sedirler/yan sehpalar, masalarda altın ayak-pedestal ve üst yüzey kakması, minderli sırtlıklı altın ayaklı sandalyeler, zeminde ince geometrik hatlar ve halı bordürü. VIP mobilyaları ayrılmış ziyaretçi konumlarının çevresine yerleştirildi; gerçek cihazda erişim/çakışma kontrolü ve ışık performansı henüz doğrulanmadı.
+4. **Sahne ve arayüz cilası:** Işık, dekor, masa durumları, kons müsaitlik göstergesi ve yayın overlay'i. Son eklenenler: ana giriş kapısı/ışıklı eşik ve yedi şeritli kademeli müşteri girişi, dört hareketli sahne spotu ve görsel ışık huzmeleri, dokuz armatürlü üst ışık kirişi ve sahne yan LED barları, dans pistinde yumuşak renkli ışık havuzu, VIP locada dört ayrı sıcak/pembe ambiyans ışığı, art-deco sahne çerçevesi/arka paneli, bordo yan perdeler ve altın bağlar, sahne üstü ampul sırası ve beş dekoratif LED paneli, sahne hoparlörleri/LED şeridi, bar şişe dekorları ve detaylı tezgâh/ayaklı tabureler, katmanlı arka duvar panelleri ve aplik ışıkları, VIP locada döşemeli sedirler/yan sehpalar, masalarda altın ayak-pedestal ve üst yüzey kakması, minderli sırtlıklı altın ayaklı sandalyeler, zeminde ince geometrik hatlar ve halı bordürü. VIP mobilyaları ayrılmış ziyaretçi konumlarının çevresine yerleştirildi; gerçek cihazda erişim/çakışma kontrolü ve ışık performansı henüz doğrulanmadı.
 5. **Test ve optimizasyon:** 10/25/50/100 müşteri yük testi, mobil GPU ve bellek ölçümü, gerçek tarayıcı testleri.
 6. **TikTok LIVE entegrasyonu:** Uygun ve izinli olay kaynağına bağlanma; hediye-adım eşlemesi ve güvenli sunucu doğrulaması.
 7. **Yayın hazırlığı:** OBS/TikTok LIVE Studio Browser Source, hosting ve canlı prova.
