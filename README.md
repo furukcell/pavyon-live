@@ -89,7 +89,7 @@
 ## Sahne ve canlı müzik ekibi
 
 - Sahne düzeni DJ kabini yerine pavyon orkestrası mantığına göre kuruldu: bağlama, klavye, darbuka ve klarnet çalan dört müzisyen.
-- Solist sahne arkasından öne doğru yaklaşık 3,2 saniyelik yumuşak bir giriş yapar; sahne önüne ulaştıktan sonra mikrofonla şarkı performansını sürdürür. Performans döngüsünde serbest koluyla seyirciye seslenme, ritmik el hareketi ve orkestraya dönük kısa jestler yapar.
+- Solist sahne arkasından öne doğru yaklaşık 3,2 saniyelik yumuşak bir giriş yapar; sahne önüne ulaştıktan sonra mikrofonla şarkı performansını sürdürür. Performans döngüsünde serbest koluyla seyirciye seslenme, ritmik el hareketi ve orkestraya dönük kısa jestler yapar. Ağız geometrisi şarkı ritmi hissi verecek şekilde açılıp kapanır; bu gerçek ses analizi veya fonem/dudak senkronizasyonu değildir.
 - Solistin iki yanında iki yetişkin NPC sahne dansçısı bulunur; düşük genlikli gövde/kol hareketleriyle müziğe eşlik ederler. Bunlar hediye ile seçilebilen 10 kons listesinden ayrı dekoratif sahne karakterleridir.
 - Müzisyenler sahnede sabit konumlarda durur; enstrümanları ve çalma hareketleri kodla üretilir. Bağlama, klavye ve darbuka müzisyenlerine tabure/oturma pozu; klarnetçiye ayakta performans pozu verildi. Sahne ekibine koyu ceket, yaka, papyon ve altın düğme detayları eklendi. Bağlamada el/tezene hareketi, klavyede tuş vuruşları, darbukada ritmik el-vuruşu ve klarnette perde/tuşe hareketi canlandırılır.
 - Ankara Havaları seçildiğinde sahne spotları daha hızlı tarar, ışık renkleri sıcak pembe/amber tonlarına geçer ve ışık nabzı hızlanır; Pavyon modunda daha yumuşak altın/bordo sahne ışığı kullanılır.
