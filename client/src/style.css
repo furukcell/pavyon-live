@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+:root{font-family:Inter,system-ui,sans-serif;color:#fff;background:#100912;font-synthesis:none}
+*{box-sizing:border-box}
+body{margin:0;min-width:320px;min-height:100vh;background:#100912}
+button,input,select{font:inherit}
+#game-shell{position:relative;width:100%;height:100vh;min-height:760px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#4a172e 0,#1e1021 55%,#100912 100%)}
+#game-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hud{position:absolute;inset:0;padding:24px;display:flex;flex-direction:column;pointer-events:none}
+.hud>*{pointer-events:auto}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between}
+.eyebrow,.panel-heading,.stat small{font-size:10px;letter-spacing:1.7px;color:#d6a9b7;font-weight:700}
+h1{font:800 42px/.9 'Barlow Condensed',sans-serif;letter-spacing:2px;margin:7px 0;text-shadow:0 2px 18px #0008}
+h1 em{font-style:normal;color:#e5b761}
+.live-pill{border:1px solid #e65c70;border-radius:30px;padding:8px 13px;font-size:10px;letter-spacing:1px;background:#3c1425cc}
+.live-pill span{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff5268;margin-right:7px;box-shadow:0 0 10px #ff5268}
+.status-row{display:flex;gap:9px;margin-top:17px}
+.stat{min-width:105px;padding:10px 13px;border:1px solid #ffffff1c;border-radius:10px;background:#170d1ccc;backdrop-filter:blur(12px)}
+.stat small{display:block;font-size:9px}
+.stat strong{display:block;margin-top:4px;font-size:16px}
+.bottom-grid{margin-top:auto;display:grid;grid-template-columns:minmax(220px,1fr) minmax(300px,380px);gap:12px;align-items:end}
+.panel{border:1px solid #e5bd7538;border-radius:14px;background:#160d1bee;box-shadow:0 12px 40px #0006;backdrop-filter:blur(14px);padding:15px}
+.panel-heading{display:flex;justify-content:space-between;margin-bottom:12px;color:#e9c783}
+.muted{color:#987f8d;font-size:9px}
+.event-log{height:170px;overflow:auto;font-size:12px;color:#eadfe4}
+.event-log p{margin:0 0 8px;line-height:1.45}
+.event-log .empty{color:#987f8d}
+.event-log b{color:#e8c47c}
+.controls label{display:block;margin:9px 0;color:#c7aeb9;font-size:10px;letter-spacing:.6px}
+input,select{width:100%;margin-top:6px;padding:9px 10px;border:1px solid #6b4255;border-radius:7px;color:#fff;background:#281522;outline:none}
+.button-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+button{cursor:pointer;border:1px solid #80526a;border-radius:7px;padding:9px 7px;color:#f7eaf0;background:linear-gradient(135deg,#54243d,#32182c);font-size:11px;font-weight:600;transition:transform .15s,border-color .15s}
+button:hover{transform:translateY(-1px);border-color:#e5bd75}
+button:active{transform:scale(.98)}
+.gifts button{font-size:10px}
+.divider{height:1px;background:#ffffff18;margin:12px 0}
+.like-button{width:100%;margin-top:9px;background:linear-gradient(90deg,#8f294b,#57213d);border-color:#ce6c8c}
+footer{text-align:center;color:#b08e9d;font-size:9px;letter-spacing:.4px;margin-top:10px}
+@media(max-width:700px){#game-shell{min-height:900px}.hud{padding:14px}.bottom-grid{grid-template-columns:1fr}.command-panel{display:none}.controls{padding:12px}.status-row{margin-top:12px}.stat{min-width:0;flex:1}h1{font-size:34px}}
