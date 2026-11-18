@@ -267,3 +267,11 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 - Desteklenen beş aksiyon (`invite`, `dance`, `drink`, `vip`, `stage`) tek bir istemci kural modülünde tanımlıdır.
 - Davet ve dans 5 dakika, VIP 3 dakika sürer; içecek ve sahne aksiyonları süreli kons rezervasyonu gerektirmez.
 - Ana oyun akışı aynı kural modülünü kullanır; testler aksiyon listesini, süreleri, kons gereksinimini ve bilinmeyen aksiyonların reddini doğrular.
+
+
+### Kons oturum zamanlayıcısı
+- Kons oturum süreleri ayrı bir test edilebilir zamanlayıcı yöneticisiyle tutulur.
+- Müşteri ayrıldığında ilgili zamanlayıcı iptal edilir; uygulama kapanırken tüm oturum zamanlayıcıları temizlenir.
+- Aynı kons için yeni zamanlayıcı kurulursa eski zamanlayıcı iptal edilir; eski oturumun geç gelen callback'i yeni oturumu bitiremez.
+- Süre dolunca zamanlayıcı kaydı callback çalıştırılmadan önce silinir; aynı oturum iki kez tamamlanmaz.
+- Testler süre dolumu, müşteri ayrılışı, zamanlayıcı değiştirme, toplu temizleme ve geçersiz girdileri kapsar.
