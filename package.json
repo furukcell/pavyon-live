@@ -10,7 +10,7 @@
     "dev:server": "node --watch server/index.js",
     "build": "vite build",
     "start": "node server/index.js",
-    "test": "node --test server/*.test.js"
+    "test": "node --test server/*.test.js client/src/game/*.test.js"
   },
   "dependencies": {
     "express": "^5.1.0",
