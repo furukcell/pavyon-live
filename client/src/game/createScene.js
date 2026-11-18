@@ -58,10 +58,13 @@ export function createGame(canvas) {
   const actorGroup=new THREE.Group();scene.add(actorGroup);
   const actors=new Map();
   const konsHomes=new Map();
+  const waiterHomes=new Map();
+  const waiterBusy=new Set();
+  const konsColors=['#a92f59','#692b62','#bd7544','#345e77','#8d3b45','#75539a','#b08a36','#3f786a','#934c70','#5c4a37'];
   const colors=['#4b9a8c','#c28b48','#5572a8','#a84e6b','#77914d','#8967a6','#cf7950'];
-  function makeActor(id,role='customer'){
+  function makeActor(id,role='customer',variant=0){
     const group=new THREE.Group();group.userData={id,role,target:null,phase:Math.random()*6,motion:'idle'};
-    const color=role==='kons'?'#b74b75':role==='waiter'?'#e7dfd3':colors[actors.size%colors.length];
+    const color=role==='kons'?konsColors[variant%konsColors.length]:role==='waiter'?'#e7dfd3':colors[variant%colors.length];
     const body=new THREE.Mesh(new THREE.CapsuleGeometry(.28,.68,3,7),new THREE.MeshStandardMaterial({color,roughness:.75}));
     body.position.y=.72;body.castShadow=true;group.add(body);
     const head=new THREE.Mesh(new THREE.SphereGeometry(.23,12,10),new THREE.MeshStandardMaterial({color:'#d9a783',roughness:.85}));
@@ -124,7 +127,7 @@ export function createGame(canvas) {
     dance:id=>animateActor(id,'dance'),
     seat:id=>animateActor(id,'seat'),
     stage:id=>animateActor(id,'stage'),
-    drink:()=>{const waiter=actors.get('waiter-1');if(waiter){moveTo('waiter-1',-7,3);waiter.userData.motion='serve';window.setTimeout(()=>{const home=waiter.userData.home;if(home)moveTo('waiter-1',home.x,home.z);},4500);}},
+    drink:(customerId)=>{const customer=actors.get(customerId);if(!customer)return;const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));if(!waiterId)return;waiterBusy.add(waiterId);moveTo(waiterId,customer.position.x-1.1,customer.position.z);window.setTimeout(()=>{const home=waiterHomes.get(waiterId);if(home)moveTo(waiterId,home.x,home.z);waiterBusy.delete(waiterId);},4500);},
     konsToTable:(k,id)=>{const customer=actors.get(id);if(customer)moveTo(k,customer.position.x+1.2,customer.position.z);},
     konsDance:(k,id)=>{animateActor(k,'dance');animateActor(id,'dance');},
     vip:(k,id)=>{moveTo(k,8,-4);moveTo(id,7,-4);},
