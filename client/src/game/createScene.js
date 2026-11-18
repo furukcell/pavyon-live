@@ -811,11 +811,20 @@ export function createGame(canvas) {
         const seatedNow=motion==='seated'||sittingDown;
         const sitBlend=seatedNow?THREE.MathUtils.smoothstep((time-(actor.userData.sitStarted??time))/.62,0,1):0;
         if(sittingDown&&sitBlend>=1)actor.userData.motion='seated';
+        const idleStanding=motion==='idle'&&!walking&&!seatedNow;
+        const idleSeated=motion==='seated'||sittingDown;
+        const idlePhase=time*.85+actor.userData.phase;
+        const breathing=idleStanding||idleSeated?Math.sin(idlePhase)*.008:0;
         if(actor.userData.body){
-          actor.userData.body.position.y=.72-.16*sitBlend;
-          actor.userData.body.rotation.x=.12*sitBlend;
+          actor.userData.body.position.y=.72-.16*sitBlend+breathing;
+          actor.userData.body.rotation.x=.12*sitBlend+(idleStanding?Math.sin(idlePhase*.7)*.012:0);
+          actor.userData.body.rotation.z=dancing?Math.sin(time*3.1+actor.userData.phase)*.035:(idleStanding?Math.sin(idlePhase*.55)*.012:0);
         }
-        if(actor.userData.head)actor.userData.head.position.y=1.35-.16*sitBlend;
+        if(actor.userData.head){
+          actor.userData.head.position.y=1.35-.16*sitBlend;
+          actor.userData.head.rotation.y=idleStanding||idleSeated?Math.sin(time*.48+actor.userData.phase)*.075:0;
+          actor.userData.head.rotation.z=idleStanding?Math.sin(time*.72+actor.userData.phase)*.018:0;
+        }
         actor.position.y=walking?Math.abs(gait)*.025:(dancing?Math.abs(Math.sin(time*5.8+actor.userData.phase))*.035:0);
         actor.rotation.z=walking?gait*.025:(dancing?Math.sin(time*5.8+actor.userData.phase)*.08:(seatedNow?-.035:0));
         if(actor.userData.body)actor.userData.body.rotation.z=dancing?Math.sin(time*3.1+actor.userData.phase)*.035:0;
@@ -825,10 +834,10 @@ export function createGame(canvas) {
           leg.rotation.x=activeAngle+(seatedAngle-activeAngle)*sitBlend;
         });
         actor.userData.armPivots?.forEach((arm,index)=>{
-          const activeX=dancing?Math.sin(time*6.2+index*Math.PI)*.16:(walking?gait*.08:0);
-          const activeZ=dancing?(index===0?-1:1)*(.36+Math.sin(time*6.2+index)*.2):(walking?(index===0?1:-1)*gait*.16:0);
+          const activeX=dancing?Math.sin(time*6.2+index*Math.PI)*.16:(walking?gait*.08:(idleStanding?Math.sin(idlePhase+index*1.4)*.018:0));
+          const activeZ=dancing?(index===0?-1:1)*(.36+Math.sin(time*6.2+index)*.2):(walking?(index===0?1:-1)*gait*.16:(idleStanding?Math.sin(idlePhase*.8+index)*.012:0));
           arm.rotation.x=activeX+(-.25-activeX)*sitBlend;
-          const seatedZ=index===0?-.12:.12;
+          const seatedZ=(index===0?-.12:.12)+(idleSeated?Math.sin(idlePhase*.7+index)*.012:0);
           arm.rotation.z=activeZ+(seatedZ-activeZ)*sitBlend;
         });
         if(dancing)actor.rotation.z=Math.sin(time*5.8+actor.userData.phase)*.08;
