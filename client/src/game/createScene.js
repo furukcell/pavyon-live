@@ -256,8 +256,8 @@ export function createGame(canvas) {
   }
   function addCustomer(viewer){
     const variant=customerSequence++;
-    const actor=makeActor(viewer.id,'customer',variant);actor.userData.name=viewer.name;
     const spawn=findCustomerSpawn();
+    const actor=makeActor(viewer.id,'customer',variant);actor.userData.name=viewer.name;
     actor.position.set(spawn.x,0,spawn.z);
     actor.userData.home=actor.position.clone();
   }
