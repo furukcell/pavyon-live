@@ -84,7 +84,7 @@ export function createGame(canvas) {
     table.position.set(x,.9,z);table.castShadow=true;scene.add(table);
     const top=new THREE.Mesh(new THREE.CylinderGeometry(.83,.83,.06,24),new THREE.MeshStandardMaterial({color:'#d0a260',metalness:.72,roughness:.28}));
     top.position.set(x,1.02,z);scene.add(top);
-    for(let j=0;j<3;j++){const a=j*Math.PI*2/3;const sx=x+Math.cos(a)*1.45,sz=z+Math.sin(a)*1.45;const seat=new THREE.Mesh(new THREE.BoxGeometry(.9,.65,.75),new THREE.MeshStandardMaterial({color:'#8c2545',roughness:.8}));seat.position.set(sx,.35,sz);seat.rotation.y=-a;seat.castShadow=true;scene.add(seat);const spot={x:sx,z:sz,rotation:-a,occupied:false,tableId:i+1};seatSpots.push(spot);tableStates[i].seats.push(spot);}
+    for(let j=0;j<3;j++){const a=j*Math.PI*2/3;const sx=x+Math.cos(a)*1.45,sz=z+Math.sin(a)*1.45;const seat=new THREE.Mesh(new THREE.BoxGeometry(.9,.65,.75),new THREE.MeshStandardMaterial({color:'#8c2545',roughness:.8}));seat.position.set(sx,.35,sz);seat.rotation.y=-a;seat.castShadow=true;scene.add(seat);const spot={x:sx,z:sz,rotation:-a,occupied:false,tableId:i+1,mesh:seat};seatSpots.push(spot);tableStates[i].seats.push(spot);}
     // Warm candlelight and glassware add detail to each guest table.
     const candle=new THREE.Mesh(new THREE.CylinderGeometry(.055,.065,.22,10),new THREE.MeshStandardMaterial({color:'#f0d8ad',roughness:.45}));
     candle.position.set(x,.14,z);scene.add(candle);
@@ -266,6 +266,7 @@ export function createGame(canvas) {
     const spot=actor.userData.seat;
     if(!spot)return;
     spot.occupied=false;
+    if(spot.mesh?.material){spot.mesh.material.color.set('#8c2545');spot.mesh.material.emissive.set('#000000');spot.mesh.material.emissiveIntensity=0;}
     const table=tableStates[spot.tableId-1];
     if(table)table.occupied=Math.max(0,table.occupied-1);
     actor.userData.seat=null;
@@ -283,6 +284,7 @@ export function createGame(canvas) {
     if(currentSeat!==spot){
       releaseSeat(actor);
       spot.occupied=true;
+      if(spot.mesh?.material){spot.mesh.material.color.set('#d6a65d');spot.mesh.material.emissive.set('#6a3c1d');spot.mesh.material.emissiveIntensity=.35;}
       const table=tableStates[spot.tableId-1];
       if(table)table.occupied+=1;
       actor.userData.seat=spot;
