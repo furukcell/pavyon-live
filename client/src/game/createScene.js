@@ -537,6 +537,7 @@ export function createGame(canvas) {
     releaseKons:k=>{const home=konsHomes.get(k);if(home){moveTo(k,home.x,home.z);const actor=actors.get(k);if(actor)actor.userData.motion='idle';}vipAssignments.delete(k);danceAssignments.delete(k);},
     releaseGuest:id=>{const actor=actors.get(id);if(actor){releaseSeat(actor);actor.userData.motion='idle';if(actor.userData.body)actor.userData.body.position.y=.72;if(actor.userData.head)actor.userData.head.position.y=1.35;actor.userData.legPivots?.forEach(leg=>leg.rotation.x=0);actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});const home=actor.userData.home;if(home)moveTo(id,home.x,home.z);}},
     show:id=>animateActor(id,'stage'),
+    getTableStatus:()=>tableStates.map(table=>({id:table.id,occupied:table.occupied,capacity:table.seats.length})),
     setLikes:value=>{redGlow.intensity=35+Math.min(value,500)*.08;goldGlow.intensity=28+Math.min(value,500)*.04;},
     dispose:()=>{cancelAnimationFrame(raf);observer.disconnect();renderer.dispose();}
   };
