@@ -658,6 +658,7 @@ export function createGame(canvas) {
     const brass=new THREE.MeshStandardMaterial({color:'#d7ae62',roughness:.24,metalness:.78});
     const ivory=new THREE.MeshStandardMaterial({color:'#eee2c9',roughness:.5});
     if(kind==='baglama'){
+      const playingHand=new THREE.Group();playingHand.position.set(.27,.91,.4);actor.add(playingHand);actor.userData.instrumentHands=[playingHand];
       const bowl=new THREE.Mesh(new THREE.SphereGeometry(.22,18,12),wood);
       bowl.scale.set(.72,.48,.34);bowl.position.set(0,.76,.34);actor.add(bowl);
       const neck=new THREE.Mesh(new THREE.CylinderGeometry(.035,.045,.92,10),wood);
@@ -665,19 +666,20 @@ export function createGame(canvas) {
       for(let n=0;n<3;n++){const string=new THREE.Mesh(new THREE.CylinderGeometry(.003,.003,.91,5),brass);string.position.set(.25+(n-1)*.014,.91,.395);string.rotation.z=-.28;actor.add(string);}
       const bridge=new THREE.Mesh(new THREE.BoxGeometry(.2,.025,.035),brass);bridge.position.set(0,.76,.62);actor.add(bridge);
     }else if(kind==='keyboard'){
-      const stand=new THREE.Group();
+      const stand=new THREE.Group();actor.userData.instrumentKeys=[];
       const top=new THREE.Mesh(new THREE.BoxGeometry(.95,.11,.28),dark);top.position.y=.92;stand.add(top);
-      for(let n=0;n<14;n++){const key=new THREE.Mesh(new THREE.BoxGeometry(.061,.018,.19),ivory);key.position.set(-.42+n*.064,.985,.055);stand.add(key);}
+      for(let n=0;n<14;n++){const key=new THREE.Mesh(new THREE.BoxGeometry(.061,.018,.19),ivory);key.position.set(-.42+n*.064,.985,.055);stand.add(key);actor.userData.instrumentKeys.push(key);}
       for(let n=0;n<10;n++){const key=new THREE.Mesh(new THREE.BoxGeometry(.035,.024,.1),dark);key.position.set(-.385+n*.064,1.005,-.005);stand.add(key);}
       const legA=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.82,7),dark);legA.position.set(-.34,.46,0);stand.add(legA);
       const legB=legA.clone();legB.position.x=.34;stand.add(legB);actor.add(stand);
     }else if(kind==='darbuka'){
       const drum=new THREE.Mesh(new THREE.CylinderGeometry(.12,.2,.48,18,1),new THREE.MeshStandardMaterial({color:'#b7a2a0',metalness:.5,roughness:.3}));
-      drum.position.set(0,.67,.34);drum.rotation.x=-.18;actor.add(drum);
+      drum.position.set(0,.67,.34);drum.rotation.x=-.18;actor.add(drum);actor.userData.drum=drum;
       const rim=new THREE.Mesh(new THREE.TorusGeometry(.12,.018,8,24),brass);rim.position.set(0,.91,.36);actor.add(rim);
     }else{
       const tube=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.78,12),dark);tube.position.set(0,.83,.35);tube.rotation.z=.12;actor.add(tube);
-      for(let n=0;n<7;n++){const ring=new THREE.Mesh(new THREE.TorusGeometry(.037,.009,5,12),brass);ring.position.set(0,.5+n*.105,.35);ring.rotation.x=Math.PI/2;actor.add(ring);}
+      actor.userData.clarinetRings=[];
+      for(let n=0;n<7;n++){const ring=new THREE.Mesh(new THREE.TorusGeometry(.037,.009,5,12),brass);ring.position.set(0,.5+n*.105,.35);ring.rotation.x=Math.PI/2;actor.add(ring);actor.userData.clarinetRings.push(ring);}
       const bell=new THREE.Mesh(new THREE.ConeGeometry(.095,.2,14),brass);bell.position.set(.01,.38,.35);bell.rotation.x=Math.PI;actor.add(bell);
     }
   }
@@ -771,14 +773,16 @@ export function createGame(canvas) {
   function tick(){
     raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;
     stageSpotlights.forEach(({beam,phase})=>{
-      const sweep=Math.sin(time*.42+phase);
+      const ankara=musicMood==='ankara';
+      beam.color.set(ankara?(phase%Math.PI===0?'#f05b91':'#f6c66e'):(phase%Math.PI===0?'#f6c5d2':'#f4d28c'));
+      const sweep=Math.sin(time*(ankara?.72:.42)+phase);
       beam.target.position.x=sweep*3.8;
       beam.target.position.z=-2.5+Math.cos(time*.31+phase)*1.6;
-      beam.intensity=13+Math.max(0,Math.sin(time*1.7+phase))*8;
+      beam.intensity=(ankara?15:13)+Math.max(0,Math.sin(time*(ankara?2.5:1.7)+phase))* (ankara?10:8);
     });
     vipLights.forEach((light,index)=>{light.intensity=2.5+Math.sin(time*1.15+index*1.7)*.55;});
     danceWash.intensity=6.5+Math.sin(time*2.2)*1.5;
-    stageWash.forEach((wash,index)=>{const phase=index*Math.PI/2;wash.position.y=3.5;wash.position.x=-3+index*2;wash.rotation.x=Math.PI/2;wash.rotation.z=Math.sin(time*.42+phase)*.13;wash.material.opacity=.035+Math.max(0,Math.sin(time*1.7+phase))*.035;});
+    stageWash.forEach((wash,index)=>{const phase=index*Math.PI/2;const ankara=musicMood==='ankara';wash.material.color.set(ankara?(index%2?'#e34d8b':'#ef9b55'):(index%2?'#e6b8d0':'#f1d49c'));wash.position.y=3.5;wash.position.x=-3+index*2;wash.rotation.x=Math.PI/2;wash.rotation.z=Math.sin(time*(ankara?.72:.42)+phase)*.13;wash.material.opacity=.035+Math.max(0,Math.sin(time*(ankara?2.5:1.7)+phase))*.035;});
     // Build a lightweight spatial hash once per frame so moving actors only inspect nearby neighbors.
     const separationCellSize=.82;
     const separationGrid=new Map();
@@ -948,13 +952,18 @@ export function createGame(canvas) {
         if(dancing)actor.rotation.z=Math.sin(time*5.8+actor.userData.phase)*.08;
       }else if(actor.userData.role==='musician'){
         const beat=time*(musicMood==='ankara'?7.4:5.8)+actor.userData.phase;
+        const instrument=actor.userData.instrument;
         if(actor.userData.body)actor.userData.body.rotation.z=Math.sin(beat)*.018;
         actor.position.y=Math.abs(Math.sin(beat*2))*.012;
         actor.userData.armPivots?.forEach((arm,index)=>{
-          const instrument=actor.userData.instrument;
-          arm.rotation.x=instrument==='darbuka'?Math.sin(beat*2+index*Math.PI)*.24:instrument==='keyboard'?Math.sin(beat*3+index)*.055:Math.sin(beat+index*Math.PI)*.12;
-          arm.rotation.z=instrument==='baglama'?(index===0?-.28:.22)+Math.sin(beat*1.5+index)*.045:instrument==='clarinet'?(index===0?-.32:.18)+Math.sin(beat*1.2+index)*.035:instrument==='darbuka'?(index===0?-.15:.15)+Math.sin(beat*2+index)*.12:Math.sin(beat*2+index)*.08;
+          const handBeat=instrument==='darbuka'?beat*2:instrument==='keyboard'?beat*2.8:beat*1.35;
+          arm.rotation.x=instrument==='darbuka'?Math.sin(handBeat+index*Math.PI)*.28:instrument==='keyboard'?Math.sin(handBeat+index)*.075:instrument==='clarinet'?Math.sin(handBeat+index)*.045:Math.sin(handBeat+index*Math.PI)*.13;
+          arm.rotation.z=instrument==='baglama'?(index===0?-.28:.22)+Math.sin(handBeat+index)*.07:instrument==='clarinet'?(index===0?-.32:.18)+Math.sin(handBeat+index)*.045:instrument==='darbuka'?(index===0?-.15:.15)+Math.sin(handBeat+index)*.16:Math.sin(handBeat+index)*.09;
         });
+        if(instrument==='baglama'&&actor.userData.instrumentHands?.[0])actor.userData.instrumentHands[0].rotation.x=Math.sin(beat*3.2)*.3;
+        if(instrument==='keyboard')actor.userData.instrumentKeys?.forEach((key,index)=>{key.position.y=.985-Math.max(0,Math.sin(beat*3+index*.8))*.018;});
+        if(instrument==='darbuka'&&actor.userData.drum)actor.userData.drum.rotation.x=-.18+Math.sin(beat*2)*.035;
+        if(instrument==='clarinet')actor.userData.clarinetRings?.forEach((ring,index)=>{ring.scale.setScalar(1+Math.max(0,Math.sin(beat*1.6+index))*.045);});
         actor.userData.head.rotation.y=Math.sin(beat*.5)*.035;
       }else if(actor.userData.role==='waiter'){
         const serving=actor.userData.motion==='serving';
