@@ -32,7 +32,7 @@
 ## İlerleme takibi — sabit hesap yöntemi
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
-- **V1 yayın hedefi: %45 (son doğrulanmış oturum sonrası)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
+- **V1 yayın hedefi: %40 (hediye eşleme testleri düzeltiliyor; artış henüz sayılmadı)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
 - Yüzde yalnızca aşağıdaki V1 kabul kriterleri tamamlanıp doğrulandığında artar. Kodun yazılmış olması tek başına tamamlandı sayılmaz; ilgili akışın test edilmesi gerekir.
 - Bir iş paketi tamamlandıktan sonra yeni fikir eklenmesi o paketin yüzdesini düşürmez. V1 için zorunlu yeni bir hata bulunursa yalnızca ilgili kriter yeniden açılır ve nedeni not edilir.
 
