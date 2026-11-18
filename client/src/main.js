@@ -22,6 +22,17 @@ function setServerConnection(connected) {
 socket.on('connect', () => setServerConnection(true));
 socket.on('disconnect', () => setServerConnection(false));
 socket.on('connect_error', () => setServerConnection(false));
+socket.on('live:status', status => {
+  if (!status || typeof status !== 'object') return;
+  const count = document.querySelector('#live-event-count');
+  const detail = document.querySelector('#live-event-detail');
+  if (count) count.textContent = String(Number(status.accepted) || 0);
+  if (detail) {
+    const last = status.lastEventAt ? new Date(status.lastEventAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'Henüz olay yok';
+    detail.textContent = status.lastEventType ? `Son: ${status.lastEventType} · ${last}` : last;
+    detail.title = `Yorum: ${status.comments || 0} · Beğeni: ${status.likes || 0} · Hediye: ${status.gifts || 0}`;
+  }
+});
 const game = createGame(document.querySelector('#game-canvas'));
 const logEl = document.querySelector('#event-log');
 const state = {
