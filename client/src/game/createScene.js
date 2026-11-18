@@ -1071,7 +1071,13 @@ export function createGame(canvas) {
         if(instrument==='keyboard')actor.userData.instrumentKeys?.forEach((key,index)=>{key.position.y=.985-Math.max(0,Math.sin(beat*3+index*.8))*.018;});
         if(instrument==='darbuka'&&actor.userData.drum)actor.userData.drum.rotation.x=-.18+Math.sin(beat*2)*.035;
         if(instrument==='clarinet')actor.userData.clarinetRings?.forEach((ring,index)=>{ring.scale.setScalar(1+Math.max(0,Math.sin(beat*1.6+index))*.045);});
-        actor.userData.head.rotation.y=Math.sin(beat*.5)*.035;
+        // The ensemble briefly acknowledges the vocalist at the end of each musical phrase.
+        const phraseTime=time%8.5;
+        const bandAcknowledgement=phraseTime>6.35&&phraseTime<7.65;
+        const singerLook=bandAcknowledgement?THREE.MathUtils.clamp(-actor.position.x*.12,-.32,.32):0;
+        actor.userData.head.rotation.y=Math.sin(beat*.5)*.035+singerLook;
+        actor.userData.head.rotation.x=Math.sin(beat*.72)*.018+(bandAcknowledgement?-.025:0);
+        if(actor.userData.body)actor.userData.body.rotation.y=bandAcknowledgement?singerLook*.42:Math.sin(beat*.24)*.012;
       }else if(actor.userData.role==='waiter'){
         const serving=actor.userData.motion==='serving';
         const gait=walking?Math.sin(actor.userData.gaitPhase):0;
