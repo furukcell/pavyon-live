@@ -107,7 +107,7 @@ export function createGame(canvas) {
         bobSide.scale.set(.75,1.5,.8);bobSide.position.set(side*.18,1.25,.005);group.add(bobSide);
       }
     }
-    if(role==='kons'||role==='customer'){
+    if(role==='kons'||role==='customer'||role==='waiter'){
       const limbMaterial=new THREE.MeshStandardMaterial({color:skin,roughness:.82});
       const armPivots=[];
       const legPivots=[];
@@ -118,6 +118,14 @@ export function createGame(canvas) {
         upperArm.position.y=-.2;upperArm.castShadow=true;armPivot.add(upperArm);
         const hand=new THREE.Mesh(new THREE.SphereGeometry(.07,8,7),limbMaterial);
         hand.position.y=-.39;armPivot.add(hand);
+        if(role==='waiter'&&side===1){
+          const tray=new THREE.Group();
+          const plate=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.025,16),new THREE.MeshStandardMaterial({color:'#c9cbd0',metalness:.72,roughness:.24}));
+          plate.position.set(0,-.34,.08);tray.add(plate);
+          const glass=new THREE.Mesh(new THREE.CylinderGeometry(.045,.05,.18,10),new THREE.MeshStandardMaterial({color:'#b9dce8',transparent:true,opacity:.7,roughness:.12}));
+          glass.position.set(.04,-.23,.08);tray.add(glass);
+          armPivot.add(tray);group.userData.tray=tray;
+        }
         group.add(armPivot);armPivots.push(armPivot);
         const legPivot=new THREE.Group();
         legPivot.position.set(side*.13,.38,0);
@@ -274,6 +282,7 @@ export function createGame(canvas) {
         if(laughing)actor.position.y+=Math.abs(Math.sin(time*10+actor.userData.phase))*.025;
       }else if(actor.userData.role==='customer'){
         const motion=actor.userData.motion;
+        const dancing=motion==='dance';
         const sitting=motion==='sitting-down'||motion==='seated';
         const gait=walking?Math.sin(time*9+actor.userData.phase):0;
         if(motion==='sitting-down'&&!walking)actor.userData.motion='seated';
@@ -284,16 +293,23 @@ export function createGame(canvas) {
         actor.position.y=walking?Math.abs(gait)*.035:0;
         actor.rotation.z=walking?gait*.025:(seatedNow?-.035:0);
         actor.userData.legPivots?.forEach((leg,index)=>{
-          leg.rotation.x=seatedNow?-.95+(index*.04):(walking?Math.sin(time*9+index*Math.PI+actor.userData.phase)*.3:0);
+          leg.rotation.x=seatedNow?-.95+(index*.04):(dancing?Math.sin(time*8+index*Math.PI)*.48:(walking?Math.sin(time*9+index*Math.PI+actor.userData.phase)*.3:0));
         });
         actor.userData.armPivots?.forEach((arm,index)=>{
-          arm.rotation.x=seatedNow?-.25:0;
-          arm.rotation.z=seatedNow?(index===0?-.12:.12):(walking?gait*.18:0);
+          arm.rotation.x=seatedNow?-.25:(dancing?Math.sin(time*8+index*Math.PI)*.22:0);
+          arm.rotation.z=seatedNow?(index===0?-.12:.12):(dancing?(index===0?-1:1)*(.55+Math.sin(time*8+index)*.28):(walking?gait*.18:0));
         });
+        if(dancing)actor.rotation.z=Math.sin(time*7+actor.userData.phase)*.13;
       }else if(actor.userData.role==='waiter'){
+        const serving=actor.userData.motion==='serving';
         const gait=walking?Math.sin(time*9+actor.userData.phase):0;
         actor.position.y=walking?Math.abs(gait)*.035:0;
         actor.rotation.z=walking?gait*.025:0;
+        actor.userData.armPivots?.forEach((arm,index)=>{
+          arm.rotation.x=serving?(index===1?-.22:0):(walking?gait*.16:Math.sin(time*1.4+index)*.025);
+          arm.rotation.z=serving?(index===1?-.16:.08):(walking?(index===0?1:-1)*gait*.16:0);
+        });
+        if(actor.userData.tray)actor.userData.tray.rotation.z=serving?-.04:0;
       }else if(actor.userData.motion==='dance'){
         actor.rotation.z=Math.sin(time*7+actor.userData.phase)*.16;
         actor.position.y=Math.abs(Math.sin(time*7+actor.userData.phase))*.08;
@@ -307,7 +323,7 @@ export function createGame(canvas) {
     dance:id=>animateActor(id,'dance'),
     seat:id=>animateActor(id,'seat'),
     stage:id=>animateActor(id,'stage'),
-    drink:(customerId)=>{const customer=actors.get(customerId);if(!customer)return;const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));if(!waiterId)return;waiterBusy.add(waiterId);moveTo(waiterId,customer.position.x-1.1,customer.position.z);window.setTimeout(()=>{const home=waiterHomes.get(waiterId);if(home)moveTo(waiterId,home.x,home.z);waiterBusy.delete(waiterId);},4500);},
+    drink:(customerId)=>{const customer=actors.get(customerId);if(!customer)return;const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));if(!waiterId)return;waiterBusy.add(waiterId);const waiter=actors.get(waiterId);if(waiter)waiter.userData.motion='serving';moveTo(waiterId,customer.position.x-1.1,customer.position.z);window.setTimeout(()=>{const home=waiterHomes.get(waiterId);if(home)moveTo(waiterId,home.x,home.z);if(waiter)waiter.userData.motion='idle';waiterBusy.delete(waiterId);},4500);},
     konsToTable:(k,id)=>{const customer=actors.get(id);if(customer){const hostess=actors.get(k);if(hostess){hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;}moveTo(k,customer.position.x+1.2,customer.position.z);}},
     konsDance:(k,id)=>{const hostess=actors.get(k);if(hostess)hostess.userData.motion='dance';animateActor(id,'dance');},
     vip:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(hostess){hostess.userData.motion='flirt';hostess.userData.targetRotation=Math.PI/2;}if(guest)guest.userData.targetRotation=-Math.PI/2;moveTo(k,8,-4);moveTo(id,7,-4);},
