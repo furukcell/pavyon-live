@@ -33,7 +33,7 @@
 | Müşteri oturma/dans hareketi | İlk prototip hazır | Boş koltuğa yürüme, oturma pozu, kol/bacak hareketleri ve bireysel dans döngüsü; 18 koltuk dolduğunda yeni oturma isteği reddedilir |
 | Garson servis animasyonu | İlk prototip hazır | Tepsi/bardak taşıma görseli, servis pozisyonu, müşteriye gidip dönme ve beş garson meşgulse FIFO servis kuyruğu (en fazla 30 talep) |
 | VIP yerleşimi | İlk prototip hazır | Aynı locaya üst üste karakter yığılmasını azaltan dört ayrı çift konumu |
-| Kons-müşteri etkileşimi | İlk prototip hazır | Masaya göre yaklaşma, müşteriye dönme; konsun müşterinin dört yanından daha uygun/boş yaklaşma noktasını seçmesi ve yan yana eşli dans başlangıç pozisyonu |
+| Kons-müşteri etkileşimi | İlk prototip hazır | Masaya göre yaklaşma, müşteriye dönme; konsun müşterinin dört yanından daha uygun/boş yaklaşma noktasını seçmesi, eşli dans/VIP/davet öncesi müşterinin koltuğunu serbest bırakma ve oturma pozunu sıfırlama |
 | Etkileşim rezervasyonları | İlk prototip hazır | Dans pisti için altı çift noktası, VIP için dört çift noktası ve aynı izleyicinin eşzamanlı iki kons etkileşimine girmesini engelleme |
 | Yorum ve hediye testleri | Prototip hazır | Komutlar ve normalize edilmiş test hediye olayları |
 | Kons kullanım süresi | İlk akış hazır | Kons meşguliyet kontrolü; davet/dans 5 dk, VIP 3 dk; süre bitince dönüş ve test panelinde müsait/meşgul durumu |
@@ -78,6 +78,7 @@
 - Garsonların eline tepsi ve bardak görseli eklendi; servis sırasında kol pozisyonu değişir ve garson müşteriye gidip başlangıç noktasına döner. Beş garsonun tamamı meşgulse talepler FIFO sıraya alınır; sıra 30 istekte sınırlıdır. Sırası gelen müşteri silinmişse atlanır; servis başlatılamayan geçersiz talepten sonra garson kuyruğu işlemeye devam eder. Servis bitince sıradaki geçerli müşteri alınır, kuyruk boşsa garson evine döner.
 - VIP locada dört ayrı çift konumu ayrıldı; dolu konumlar yeni VIP çiftine atanmaz. Bu ilk seviye konum ayırmadır, genel fiziksel çarpışma motoru değildir. Yürüyen karakterlere yakındaki aktörlerden uzaklaşmaları için hafif yerel yönlendirme eklendi; bu tam navigasyon/çarpışma motoru değildir.
 - Kons davetinde yaklaşma noktası müşterinin baktığı yöne göre hesaplanır; kons müşteriye doğru döner. Eşli dans aksiyonunda müşteri ve kons pistte yan yana ayrı noktalara gider ve birbirlerine dönük dans eder.
+- Kons daveti, dansı veya VIP etkileşimi başlarken müşteri varsa mevcut koltuk rezervasyonu serbest bırakılır ve oturma pozu sıfırlanır; böylece müşteri başka alana geçtiğinde boş koltuk gereksiz yere dolu kalmaz.
 - Garsonların yürüyüş sırasında bacak salınımı da eklendi; kons davetinde hafif baş hareketi kullanılır.
 - Dans pisti için altı ayrı çift noktası rezerve edilir; dolu noktalar yeni dans çiftine verilmez. VIP ve dans alanı doluysa aksiyon reddedilir, kons gereksiz yere meşgul gösterilmez.
 - Aynı izleyici başka bir kons etkileşimi sürerken ikinci bir konsla eşzamanlı davet/dans/VIP başlatamaz. Süre bitince izleyici ve kons serbest bırakılır.
