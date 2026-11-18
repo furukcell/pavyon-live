@@ -32,7 +32,7 @@
 ## İlerleme takibi — sabit hesap yöntemi
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
-- **V1 yayın hedefi: %32 (başlangıç baz çizgisi)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
+- **V1 yayın hedefi: %45 (son doğrulanmış oturum sonrası)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
 - Yüzde yalnızca aşağıdaki V1 kabul kriterleri tamamlanıp doğrulandığında artar. Kodun yazılmış olması tek başına tamamlandı sayılmaz; ilgili akışın test edilmesi gerekir.
 - Bir iş paketi tamamlandıktan sonra yeni fikir eklenmesi o paketin yüzdesini düşürmez. V1 için zorunlu yeni bir hata bulunursa yalnızca ilgili kriter yeniden açılır ve nedeni not edilir.
 
@@ -92,6 +92,14 @@
 - Gövde, mevcut normalize olay şemasına uymalı ve tekrarları engellemek için benzersiz `eventId` içermelidir. Event kimliği 60 saniye saklanır; aynı olay ikinci kez yayınlanmaz.
 - Desteklenen normalize olaylar `comment`, `like`, `gift`; hediye aksiyonları `invite`, `dance`, `drink`, `vip`, `stage`.
 - Bu endpoint TikTok'a doğrudan bağlanmış değildir. İzinli/uyumlu bir LIVE olay sağlayıcısı veya yerel connector, sağlayıcı payload'ını bu şemaya dönüştürüp imzalı isteği göndermelidir. Gerçek TikTok hesabıyla uçtan uca test henüz yapılmadı.
+
+## Hediye eşlemesi ve bağlantı göstergesi
+
+- Sağlayıcıdan gelen hediye adı, sunucu tarafında `LIVE_GIFT_MAP` ortam değişkenindeki JSON eşlemesine göre oyun aksiyonuna dönüştürülür. Örnek: `LIVE_GIFT_MAP={"Rose":"invite","Dance Gift":"dance","VIP Star":"vip"}`.
+- Hediye adları Unicode uyumlu biçimde normalize edilir; büyük/küçük harf ve boşluk/tire/alt çizgi farkları eşlemeyi bozmaz.
+- Eşlemede bulunmayan hediye otomatik olarak bir aksiyon çalıştırmaz; varsayılan eşleme boştur. Örnek hediye adları gerçek platform katalogundan alınmadığı için otomatik tanımlanmaz.
+- `/api/status` imzalı sağlayıcı sırrının yapılandırılıp yapılandırılmadığını ve tanımlı hediye eşlemesi sayısını raporlar. Bu, gerçek TikTok bağlantısının aktif olduğunu kanıtlamaz.
+- Oyun arayüzündeki durum rozeti Socket.IO sunucu bağlantısını bağlı/bağlantı yok olarak gösterir. Yayın görünümünde de görünür; bu TikTok bağlantısı değil, oyun sunucusu bağlantısıdır.
 
 ## Oyun dünyası
 
