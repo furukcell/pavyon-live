@@ -13,7 +13,7 @@
       <section class="hud">
         <header class="topbar">
           <div><span class="eyebrow">CANLI ETKİLEŞİM SİMÜLATÖRÜ</span><h1>PAVYON <em>LIVE</em></h1></div>
-          <div class="live-pill"><span></span> TEST YAYINI</div>
+          <div class="top-actions"><button id="music-toggle" class="music-toggle" aria-expanded="false">♫ MÜZİK</button><div class="live-pill"><span></span> TEST YAYINI</div></div>
         </header>
         <div class="status-row">
           <div class="stat"><small>MEKÂNDA</small><strong id="guest-count">0 / 100</strong></div>
@@ -21,6 +21,26 @@
           <div class="stat"><small>BEĞENİ</small><strong id="like-count">0</strong></div>
           <div class="stat table-stat"><small>MASALAR</small><strong id="table-status">1:0/3 · 2:0/3 · 3:0/3 · 4:0/3 · 5:0/3 · 6:0/3</strong></div>
         </div>
+        <section class="panel music-panel" id="music-panel" hidden>
+          <div class="panel-heading"><span>MEKÂN MÜZİĞİ</span><button id="music-close" class="music-close" aria-label="Müzik panelini kapat">×</button></div>
+          <div class="music-categories">
+            <button class="active" data-music-category="pavyon">Pavyon</button>
+            <button data-music-category="ankara">Ankara Havaları</button>
+            <button data-music-category="favorites">Favoriler</button>
+          </div>
+          <label class="music-import">Kendi müzik dosyalarını ekle
+            <input id="music-files" type="file" accept="audio/*" multiple />
+          </label>
+          <div id="music-track-list" class="music-track-list"><p class="music-empty">Henüz müzik eklenmedi. Lisanslı MP3/WAV dosyalarını buradan seçebilirsin.</p></div>
+          <div class="music-now"><strong id="music-now-title">Müzik seçilmedi</strong><span id="music-now-category">Pavyon listesi</span></div>
+          <div class="music-controls">
+            <button id="music-prev" aria-label="Önceki müzik">|◀</button>
+            <button id="music-play" class="music-play" aria-label="Çal">▶</button>
+            <button id="music-next" aria-label="Sonraki müzik">▶|</button>
+            <label class="music-volume">Ses <input id="music-volume" type="range" min="0" max="100" value="65" /></label>
+          </div>
+          <p class="music-note">Müzikler cihazından seçilir. Yayında kullanacağın dosyaların yayın/lisans iznini kontrol et.</p>
+        </section>
         <div class="bottom-grid">
           <section class="panel command-panel">
             <div class="panel-heading"><span>ETKİLEŞİM AKIŞI</span><span class="muted">TEST</span></div>
