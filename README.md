@@ -89,6 +89,7 @@
 ## Sahne ve canlı müzik ekibi
 
 - Sahne düzeni DJ kabini yerine pavyon orkestrası mantığına göre kuruldu: bağlama, klavye, darbuka ve klarnet çalan dört müzisyen.
+- Solist sahnenin önünde mikrofon standı ve elde mikrofonla durur; şarkı söylerken baş, gövde, mikrofon tutan kol ve diğer kol için ayrı performans hareketleri yapar.
 - Müzisyenler sahnede sabit konumlarda durur; enstrümanları ve çalma hareketleri kodla üretilir. Bağlama, klavye ve darbuka müzisyenlerine tabure/oturma pozu; klarnetçiye ayakta performans pozu verildi. Sahne ekibine koyu ceket, yaka, papyon ve altın düğme detayları eklendi. Bağlamada el/tezene hareketi, klavyede tuş vuruşları, darbukada ritmik el-vuruşu ve klarnette perde/tuşe hareketi canlandırılır.
 - Ankara Havaları seçildiğinde sahne spotları daha hızlı tarar, ışık renkleri sıcak pembe/amber tonlarına geçer ve ışık nabzı hızlanır; Pavyon modunda daha yumuşak altın/bordo sahne ışığı kullanılır.
 - Şu an müzisyen animasyonları ritim hissi verir; seçilen gerçek ses kaydıyla nota/performans senkronizasyonu veya canlı müzisyen sesi entegrasyonu henüz bulunmaz.
