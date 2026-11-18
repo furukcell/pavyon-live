@@ -616,6 +616,31 @@ export function createGame(canvas) {
     actor.position.set(-10+((i-1)%5)*1.5,0,-5);actor.userData.home=actor.position.clone();waiterHomes.set(id,actor.position.clone());
   }
 
+  function findWaiterApproach(waiter,guest){
+    // Pick a clear side of the guest instead of sending every waiter to the same offset.
+    const candidates=[
+      {x:guest.position.x-1.05,z:guest.position.z},
+      {x:guest.position.x+1.05,z:guest.position.z},
+      {x:guest.position.x,z:guest.position.z-1.05},
+      {x:guest.position.x,z:guest.position.z+1.05}
+    ];
+    let best=null,bestScore=Infinity;
+    candidates.forEach((candidate,index)=>{
+      const point=clampRoomPosition(candidate.x,candidate.z);
+      const distance=Math.hypot(point.x-waiter.position.x,point.z-waiter.position.z);
+      let clearance=Infinity;
+      actors.forEach(other=>{
+        if(other===waiter||other===guest)return;
+        clearance=Math.min(clearance,Math.hypot(point.x-other.position.x,point.z-other.position.z));
+      });
+      // Prefer short routes, but penalize standing too close to another actor.
+      const crowdPenalty=clearance<.9?( .9-clearance)*3.2:0;
+      const edgePenalty=(point.x!==candidate.x||point.z!==candidate.z)?.35:0;
+      const score=distance+crowdPenalty+edgePenalty+index*.0001;
+      if(score<bestScore){bestScore=score;best=point;}
+    });
+    return best||clampRoomPosition(guest.position.x-1.05,guest.position.z);
+  }
   function finishWaiterService(waiterId){
     const waiter=actors.get(waiterId);
     if(!waiter)return;
@@ -641,7 +666,7 @@ export function createGame(canvas) {
     }
     waiterBusy.add(waiterId);
     waiter.userData.motion='serving';
-    moveTo(waiterId,guest.position.x-1.1,guest.position.z);
+    const approach=findWaiterApproach(waiter,guest);\n    moveTo(waiterId,approach.x,approach.z);
     window.setTimeout(()=>finishWaiterService(waiterId),4500);
     return true;
   }
