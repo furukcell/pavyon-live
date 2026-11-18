@@ -247,6 +247,7 @@ export function createGame(canvas) {
   const waiterBusy=new Set();
   const waiterQueue=createWaiterQueue(30);
   const waiterServiceTimers=new Map();
+  const activeCustomerServices=new Map();
   const vipSlots=[{x:7,z:-5},{x:8.5,z:-5},{x:7,z:-2.8},{x:8.5,z:-2.8}];
   const vipAssignments=new Map();
   const danceSlots=[{x:-3,z:1},{x:0,z:1},{x:3,z:1},{x:-3,z:3},{x:0,z:3},{x:3,z:3}];
@@ -800,6 +801,8 @@ export function createGame(canvas) {
   function finishWaiterService(waiterId){
     const waiter=actors.get(waiterId);
     if(!waiter)return;
+    const currentGuestId=[...activeCustomerServices.entries()].find(([,activeWaiterId])=>activeWaiterId===waiterId)?.[0];
+    if(currentGuestId)activeCustomerServices.delete(currentGuestId);
     let nextGuestId=null;
     const previousTimer=waiterServiceTimers.get(waiterId);
     if(previousTimer){window.clearTimeout(previousTimer);waiterServiceTimers.delete(waiterId);}
@@ -823,6 +826,7 @@ export function createGame(canvas) {
       return false;
     }
     waiterBusy.add(waiterId);
+    activeCustomerServices.set(guestId,waiterId);
     waiter.userData.motion='serving';
     const approach=findWaiterApproach(waiter,guest);
     moveTo(waiterId,approach.x,approach.z);
@@ -832,10 +836,11 @@ export function createGame(canvas) {
   }
   function requestDrink(customerId){
     if(!actors.has(customerId))return false;
+    if(activeCustomerServices.has(customerId)||waiterQueue.has(customerId))return 'duplicate';
     const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));
     if(!waiterId){
       const queued=waiterQueue.enqueue(customerId);
-      return queued===true?'queued':false;
+      return queued===true?'queued':queued==='duplicate'?'duplicate':false;
     }
     return startWaiterService(waiterId,customerId)?'serving':false;
   }
@@ -1220,6 +1225,6 @@ export function createGame(canvas) {
     show:id=>animateActor(id,'stage'),
     getTableStatus:()=>tableStates.map(table=>({id:table.id,occupied:table.occupied,capacity:table.seats.length})),
     setLikes:value=>{redGlow.intensity=35+Math.min(value,500)*.08;goldGlow.intensity=28+Math.min(value,500)*.04;},
-    dispose:()=>{cancelAnimationFrame(raf);observer.disconnect();waiterServiceTimers.forEach(timer=>window.clearTimeout(timer));waiterServiceTimers.clear();waiterQueue.clear();renderer.dispose();}
+    dispose:()=>{cancelAnimationFrame(raf);observer.disconnect();waiterServiceTimers.forEach(timer=>window.clearTimeout(timer));waiterServiceTimers.clear();waiterQueue.clear();activeCustomerServices.clear();renderer.dispose();}
   };
 }
