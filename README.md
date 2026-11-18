@@ -20,12 +20,12 @@
 | Rol | İlk prototip | Nihai hedef |
 |---|---:|---:|
 | Müşteri | 10 test karakteri | Aynı anda en fazla 100 |
-| Kons | 3 | 10 farklı karakter |
-| Garson | 2 | 5 (aynı temel modelin kopyaları) |
+| Kons | 10 | 10 farklı karakter |
+| Garson | 5 | 5 (aynı temel modelin kopyaları) |
 
 Müşteri görünüm havuzu 100 erkek ve 100 kadın varyantından oluşacaktır. Bunlar aynı anda sahneye konmaz; aktif 100 müşteri bu havuzdan seçilir. Nihai aktif sahne hedefi 115 aktördür: 100 müşteri + 10 kons + 5 garson.
 
-İlk prototipte kullanılan basit geometrik karakterler geçici placeholder'lardır. Nihai karakterler riglenmiş, optimize edilmiş 3D modeller ve animasyonlar gerektirir. Her modelin lisansı kontrol edilmelidir.
+Sahnede 10 ayrı renk/stil varyantlı kons ve aynı temel görünümden türetilen 5 garson örneği oluşturulur. Müşteri görünümü şu an prosedürel renk, ten, saç ve gövde varyasyonlarıyla çeşitlendirilir; bu henüz 100 ayrı, elle tasarlanmış model değildir. İlk prototipte kullanılan basit geometrik karakterler geçici placeholder'lardır. Nihai karakterler riglenmiş, optimize edilmiş 3D modeller ve animasyonlar gerektirir. Her modelin lisansı kontrol edilmelidir.
 
 ## İzleyici komutları
 
@@ -134,6 +134,8 @@ Desteklenen olay türleri `comment`, `like`, `gift`. Hediye olayında `action` a
 - Tarayıcıda 3D sahne açılır.
 - Mobil ekranda arayüz taşmadan kullanılabilir.
 - Test paneliyle izleyici eklenir ve komutlar aksiyon üretir.
+- +10 ve +25 test müşteri butonlarıyla kapasite yükü denenebilir.
+- Sahne başlangıcında 10 kons ve 5 garson yer alır.
 - Kons aynı anda iki izleyiciye atanamaz.
 - Hediye testleri davet, dans, servis, VIP ve sahne aksiyonlarını tetikler.
 - Sunucu ve istemci aynı origin üzerinden production modunda çalışabilir.
