@@ -35,6 +35,21 @@ export function createGame(canvas) {
   border.position.y=-.28;scene.add(border);
   const carpet = new THREE.Mesh(new THREE.PlaneGeometry(10,7),new THREE.MeshStandardMaterial({color:'#751d3d',roughness:.95}));
   carpet.rotation.x=-Math.PI/2;carpet.position.set(0,.015,1);scene.add(carpet);
+  // Subtle geometric floor inlays add depth without creating a dense high-cost tile mesh.
+  const floorGold=new THREE.MeshStandardMaterial({color:'#9b7049',metalness:.62,roughness:.38});
+  const floorRose=new THREE.MeshStandardMaterial({color:'#54253d',roughness:.72});
+  for(let i=0;i<10;i++){
+    const line=new THREE.Mesh(new THREE.BoxGeometry(.035,.012,18),floorGold);
+    line.position.set(-11.5+i*2.55,.022,0);scene.add(line);
+  }
+  for(let i=0;i<8;i++){
+    const line=new THREE.Mesh(new THREE.BoxGeometry(24,.012,.025),floorRose);
+    line.position.set(0,.024,-9.5+i*2.7);scene.add(line);
+  }
+  const carpetBorder=new THREE.Mesh(new THREE.PlaneGeometry(10.25,7.25),new THREE.MeshStandardMaterial({color:'#c49a5d',roughness:.6}));
+  carpetBorder.rotation.x=-Math.PI/2;carpetBorder.position.set(0,.018,1);scene.add(carpetBorder);
+  const carpetInset=new THREE.Mesh(new THREE.PlaneGeometry(9.95,6.95),new THREE.MeshStandardMaterial({color:'#751d3d',roughness:.95}));
+  carpetInset.rotation.x=-Math.PI/2;carpetInset.position.set(0,.021,1);scene.add(carpetInset);
 
   function box(name,x,y,z,sx,sy,sz,color,metalness=0){
     const mesh=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),new THREE.MeshStandardMaterial({color,metalness,roughness:.55}));
@@ -49,6 +64,21 @@ export function createGame(canvas) {
   box('stage',0,.2,-8,8,.4,2.2,'#61213c',.25);
   box('stage-trim',0,.43,-8,8,.12,.12,'#d6a65d',.7);label('SAHNE',0,-8.2);
   box('bar',-10,.65,-5,2.2,1.3,5,'#5a2b3c');label('SERVİS',-10,-5);
+  box('bar-countertop',-10,1.34,-5,2.48,.16,5.2,'#3a2430',.48);
+  box('bar-front-gold',-10,.82,-2.47,2.25,.08,.045,'#c49a5d',.78);
+  for(let i=0;i<5;i++){
+    const panel=box('bar-front-panel',-10.82+i*.41,.78,-2.445,.28,.66,.035,i%2?'#4b263b':'#382033',.2);
+    panel.castShadow=false;
+  }
+  for(let i=0;i<4;i++){
+    const stoolX=-11.05+i*.7;
+    const stem=new THREE.Mesh(new THREE.CylinderGeometry(.045,.065,.55,10),new THREE.MeshStandardMaterial({color:'#b58a54',metalness:.72,roughness:.3}));
+    stem.position.set(stoolX,.31,-1.72);scene.add(stem);
+    const seat=new THREE.Mesh(new THREE.CylinderGeometry(.24,.24,.13,16),new THREE.MeshStandardMaterial({color:'#6b2945',roughness:.72}));
+    seat.position.set(stoolX,.62,-1.72);scene.add(seat);
+    const foot=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,.045,16),new THREE.MeshStandardMaterial({color:'#b58a54',metalness:.7}));
+    foot.position.set(stoolX,.055,-1.72);scene.add(foot);
+  }
   box('vip-wall',9,.6,-7,.25,1.2,5,'#bc8d50',.7);
   box('vip-floor',8,.05,-4,5,.1,5,'#48233b');label('VIP LOCA',8,-4);
   label('DANS PİSTİ',0,1,'#f4d4a5');
@@ -80,11 +110,31 @@ export function createGame(canvas) {
   const tableStates=tablePositions.map((position,index)=>({id:index+1,x:position[0],z:position[1],seats:[],occupied:0}));
   const seatSpots=[];
   tablePositions.forEach(([x,z],i)=>{
-    const table=new THREE.Mesh(new THREE.CylinderGeometry(.8,.85,.18,24),new THREE.MeshStandardMaterial({color:'#6e3d36',metalness:.35,roughness:.35}));
+    const pedestal=new THREE.Mesh(new THREE.CylinderGeometry(.16,.27,.78,16),new THREE.MeshStandardMaterial({color:'#3a2630',metalness:.48,roughness:.34}));
+    pedestal.position.set(x,.48,z);pedestal.castShadow=true;scene.add(pedestal);
+    const foot=new THREE.Mesh(new THREE.CylinderGeometry(.48,.48,.08,20),new THREE.MeshStandardMaterial({color:'#b88b50',metalness:.72,roughness:.3}));
+    foot.position.set(x,.09,z);scene.add(foot);
+    const table=new THREE.Mesh(new THREE.CylinderGeometry(.8,.85,.18,32),new THREE.MeshStandardMaterial({color:'#6e3d36',metalness:.35,roughness:.35}));
     table.position.set(x,.9,z);table.castShadow=true;scene.add(table);
-    const top=new THREE.Mesh(new THREE.CylinderGeometry(.83,.83,.06,24),new THREE.MeshStandardMaterial({color:'#d0a260',metalness:.72,roughness:.28}));
+    const top=new THREE.Mesh(new THREE.CylinderGeometry(.83,.83,.06,32),new THREE.MeshStandardMaterial({color:'#d0a260',metalness:.72,roughness:.28}));
     top.position.set(x,1.02,z);scene.add(top);
-    for(let j=0;j<3;j++){const a=j*Math.PI*2/3;const sx=x+Math.cos(a)*1.45,sz=z+Math.sin(a)*1.45;const seat=new THREE.Mesh(new THREE.BoxGeometry(.9,.65,.75),new THREE.MeshStandardMaterial({color:'#8c2545',roughness:.8}));seat.position.set(sx,.35,sz);seat.rotation.y=-a;seat.castShadow=true;scene.add(seat);const spot={x:sx,z:sz,rotation:-a,occupied:false,tableId:i+1,mesh:seat};seatSpots.push(spot);tableStates[i].seats.push(spot);}
+    const inlay=new THREE.Mesh(new THREE.TorusGeometry(.64,.018,6,40),new THREE.MeshStandardMaterial({color:'#f0d29b',metalness:.82,roughness:.2}));
+    inlay.rotation.x=Math.PI/2;inlay.position.set(x,1.055,z);scene.add(inlay);
+    for(let j=0;j<3;j++){
+      const a=j*Math.PI*2/3,sx=x+Math.cos(a)*1.45,sz=z+Math.sin(a)*1.45;
+      const seatGroup=new THREE.Group();seatGroup.position.set(sx,.02,sz);seatGroup.rotation.y=-a;scene.add(seatGroup);
+      const seatMaterial=new THREE.MeshStandardMaterial({color:'#8c2545',roughness:.78});
+      const cushion=new THREE.Mesh(new THREE.BoxGeometry(.82,.16,.68),seatMaterial);
+      cushion.position.y=.39;cushion.castShadow=true;seatGroup.add(cushion);
+      const back=new THREE.Mesh(new THREE.BoxGeometry(.82,.62,.14),seatMaterial);
+      back.position.set(0,.72,-.25);back.castShadow=true;seatGroup.add(back);
+      for(const legX of [-.31,.31])for(const legZ of [-.23,.23]){
+        const chairLeg=new THREE.Mesh(new THREE.BoxGeometry(.055,.35,.055),new THREE.MeshStandardMaterial({color:'#b58a54',metalness:.68,roughness:.32}));
+        chairLeg.position.set(legX,.18,legZ);seatGroup.add(chairLeg);
+      }
+      const spot={x:sx,z:sz,rotation:-a,occupied:false,tableId:i+1,mesh:cushion};
+      seatSpots.push(spot);tableStates[i].seats.push(spot);
+    }
     // Warm candlelight and glassware add detail to each guest table.
     const candle=new THREE.Mesh(new THREE.CylinderGeometry(.055,.065,.22,10),new THREE.MeshStandardMaterial({color:'#f0d8ad',roughness:.45}));
     candle.position.set(x,.14,z);scene.add(candle);
