@@ -77,6 +77,13 @@
 
 **Önemli ayrım:** Şu anki konslar profesyonel, dışarıdan hazırlanmış, iskelet (skeletal) rig'li karakterler değildir. Son görsel kalite turunda yüz, saç ve kıyafet geometrilerinin pürüzsüzlüğü ile göz detayları ve kumaşın ışık tepkisi iyileştirildi; bunlar hâlâ prosedürel düşük/orta poligon oyun modelleridir. Sonraki model turunda kons elbisesine ayrı üst beden/bodice ve etek katmanı, topuklu ayakkabıya ayrı ayakkabı ve topuk geometrisi, kolye ucu ve elbise üzerinde küçük taş detayları eklendi; bunlar silüeti ve yakın plan okunabilirliğini artıran prosedürel ayrıntılardır. Son yüz/saç turunda baş oranı ve yanak formu düzenlendi; kulaklar, burun köprüsü/uç/nostril detayları, ayrı üst-alt dudak katmanları ve beş ince saç tutamı eklendi. Bunlar stilize yüz okunabilirliğini artırır; gerçekçi insan yüzü veya profesyonel saç simülasyonu değildir. Müşteri ve garson modellerine de sade göz/burun/ağız detayları eklendi; yan saç tutamları ve bazı müşteri saçlarında perçem varyasyonu oluşturuldu. Garsonlara koyu yelek panelleri, açık gömlek önü, papyon ve düğme detayları; bazı müşteri varyantlarına yaka detayı eklendi. Kalabalık sahne performansı gözetilerek bu detaylar kons yüzündeki kadar yoğun tutulmadı. Son anatomi turunda kol ve bacaklar tek parça kapsül yerine üst/alt segment, dirsek/diz ve el/ayak parçalarına ayrıldı; ellerde kısa parmak detayları, gövde ölçeğinde hafif oran düzeltmesi ve bel dikişi eklendi. Mevcut pivot animasyonları korunur; bu hâlâ tam iskelet rig'i değildir. Sonraki model turunda kons elbisesine ayrı üst beden/bodice ve etek katmanı, topuklu ayakkabıya ayrı ayakkabı ve topuk geometrisi, kolye ucu ve elbise üzerinde küçük taş detayları eklendi; bunlar silüeti ve yakın plan okunabilirliğini artıran prosedürel ayrıntılardır. Gövde, saç, kıyafet ve aksesuarları Three.js temel geometrilerinden oluşur. Kol ve bacaklarda pivot tabanlı hareket noktaları vardır; bu, tam vücut iskelet rig'i veya motion-capture animasyonu değildir.
 
+## Yayın ekranı (OBS / TikTok LIVE Studio)
+
+- Oyunu `?view=stream` parametresiyle açınca izleyiciye dönük sade yayın görünümü etkinleşir. Örnek: `https://oyun-adresin/?view=stream`.
+- Yayın görünümünde test paneli, etkileşim günlüğü, müzik yükleme kontrolleri ve geliştirme alt bilgisi gizlenir; sahne, izleyici/kons/beğeni sayaçları ve son etkileşim bandı kalır.
+- Son etkileşim bandı oyun olay günlüğüne gelen en güncel mesajı güvenli metin olarak gösterir.
+- Normal URL test/kontrol panelini korur. Bu görünüm OBS Browser Source için arayüz hazırlığıdır; gerçek TikTok bağlantısı veya OBS üzerinde görsel doğrulama yapıldığı anlamına gelmez.
+
 ## Oyun dünyası
 
 - Kırmızı/bordo tonlar, altın detaylar ve pavyon sahne atmosferi.
