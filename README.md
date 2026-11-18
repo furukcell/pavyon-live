@@ -23,9 +23,9 @@
 | Kons | 10 | 10 farklı karakter |
 | Garson | 5 | 5 (aynı temel modelin kopyaları) |
 
-Müşteri görünüm havuzu 100 erkek ve 100 kadın varyantından oluşacaktır. Bunlar aynı anda sahneye konmaz; aktif 100 müşteri bu havuzdan seçilir. Nihai aktif sahne hedefi 115 aktördür: 100 müşteri + 10 kons + 5 garson.
+Müşteri görünüm kataloğunda 100 erkek ve 100 kadın olmak üzere 200 prosedürel görünüm tanımı bulunur (`characterCatalog.js`). Bunlar aynı anda sahneye konmaz; aktif 100 müşteri bu havuzdan sırayla seçilir. Bu katalog şu an renk, ten, saç stili, boy ve vücut oranı parametreleridir; henüz 200 ayrı profesyonel 3D model dosyası değildir. Nihai aktif sahne hedefi 115 aktördür: 100 müşteri + 10 kons + 5 garson.
 
-Sahnede 10 ayrı renk/stil varyantlı kons ve aynı temel görünümden türetilen 5 garson örneği oluşturulur. Müşteri görünümü şu an prosedürel renk, ten, saç ve gövde varyasyonlarıyla çeşitlendirilir; bu henüz 100 ayrı, elle tasarlanmış model değildir. İlk prototipte kullanılan basit geometrik karakterler geçici placeholder'lardır. Nihai karakterler riglenmiş, optimize edilmiş 3D modeller ve animasyonlar gerektirir. Her modelin lisansı kontrol edilmelidir.
+Sahnede 10 ayrı renk/stil varyantlı kons ve aynı temel görünümden türetilen 5 garson örneği oluşturulur. Müşteri görünümü şu an prosedürel renk, ten, saç ve gövde varyasyonlarıyla çeşitlendirilir; bu henüz 100 ayrı, elle tasarlanmış model değildir. Sahnede 10 farklı renk/aksesuar varyantlı kons ve aynı temel görünümden türetilen 5 garson örneği oluşturulur. Müşteriler 200 girişli prosedürel görünüm kataloğundan beslenir. İlk prototipte kullanılan basit geometrik karakterler geçici placeholder'lardır. Nihai karakterler riglenmiş, optimize edilmiş 3D modeller ve animasyonlar gerektirir. Her modelin lisansı kontrol edilmelidir.
 
 ## İzleyici komutları
 
@@ -134,6 +134,8 @@ Desteklenen olay türleri `comment`, `like`, `gift`. Hediye olayında `action` a
 - Tarayıcıda 3D sahne açılır.
 - Mobil ekranda arayüz taşmadan kullanılabilir.
 - Test paneliyle izleyici eklenir ve komutlar aksiyon üretir.
+- +10 ve +25 test müşteri butonlarıyla 100 kişilik kapasite denenebilir.
+- Müşteriler boş masa koltuklarına oturabilir; dolu koltuklar yeniden atanmaz.
 - +10 ve +25 test müşteri butonlarıyla kapasite yükü denenebilir.
 - Sahne başlangıcında 10 kons ve 5 garson yer alır.
 - Kons aynı anda iki izleyiciye atanamaz.
