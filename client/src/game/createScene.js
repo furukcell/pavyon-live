@@ -232,7 +232,12 @@ export function createGame(canvas) {
   function seatCustomer(id){
     const actor=actors.get(id);if(!actor)return false;
     const currentSeat=actor.userData.seat;
-    const spot=seatSpots.find(item=>!item.occupied||item===currentSeat);
+    // Keep an already assigned seat; otherwise choose the closest free chair.
+    const spot=currentSeat&&currentSeat.occupied
+      ? currentSeat
+      : seatSpots
+          .filter(item=>!item.occupied)
+          .sort((a,b)=>Math.hypot(a.x-actor.position.x,a.z-actor.position.z)-Math.hypot(b.x-actor.position.x,b.z-actor.position.z))[0];
     if(!spot)return false;
     releaseSeat(actor);
     spot.occupied=true;actor.userData.seat=spot;actor.userData.motion='walking-to-seat';actor.userData.targetRotation=spot.rotation;
