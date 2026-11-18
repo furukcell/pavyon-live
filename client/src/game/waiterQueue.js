@@ -35,3 +35,35 @@ export function createWaiterQueue(limit = 30) {
     }
   };
 }
+
+export function createWaiterServiceLedger() {
+  const waiterByCustomer = new Map();
+  const customerByWaiter = new Map();
+
+  return {
+    start(waiterId, customerId) {
+      if (typeof waiterId !== 'string' || !waiterId || typeof customerId !== 'string' || !customerId) return false;
+      if (waiterByCustomer.has(customerId) || customerByWaiter.has(waiterId)) return false;
+      waiterByCustomer.set(customerId, waiterId);
+      customerByWaiter.set(waiterId, customerId);
+      return true;
+    },
+    finish(waiterId) {
+      const customerId = customerByWaiter.get(waiterId) ?? null;
+      if (customerId === null) return null;
+      customerByWaiter.delete(waiterId);
+      waiterByCustomer.delete(customerId);
+      return customerId;
+    },
+    hasCustomer(customerId) {
+      return waiterByCustomer.has(customerId);
+    },
+    waiterFor(customerId) {
+      return waiterByCustomer.get(customerId) ?? null;
+    },
+    clear() {
+      waiterByCustomer.clear();
+      customerByWaiter.clear();
+    }
+  };
+}
