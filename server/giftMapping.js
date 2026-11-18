@@ -1,7 +1,7 @@
 const ACTIONS = new Set(['invite', 'dance', 'drink', 'vip', 'stage']);
 
 export function normalizeGiftKey(value) {
-  return String(value || '').normalize('NFKC').toLocaleLowerCase('tr-TR').trim().replace(/[\\s_-]+/g, '');
+  return String(value || '').normalize('NFKC').toLocaleLowerCase('tr-TR').trim().split('').filter(char => char.trim() !== '' && char !== '_' && char !== '-').join('');
 }
 
 export function parseGiftMapping(raw = '{}') {
