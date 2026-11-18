@@ -101,6 +101,8 @@ export function createGame(canvas) {
       const smileCurve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(-.055,1.25,.205),new THREE.Vector3(0,1.22,.23),new THREE.Vector3(.055,1.25,.205));
       const smile=new THREE.Mesh(new THREE.TubeGeometry(smileCurve,8,.012,5,false),new THREE.MeshBasicMaterial({color:'#7e263c'}));
       smile.name='kons-smile';group.add(smile);
+      const laughMouth=new THREE.Mesh(new THREE.SphereGeometry(.035,8,6),new THREE.MeshBasicMaterial({color:'#4a1428'}));
+      laughMouth.name='kons-laugh-mouth';laughMouth.scale.set(1,.08,.35);laughMouth.position.set(0,1.235,.205);group.add(laughMouth);
       const earring=new THREE.Mesh(new THREE.TorusGeometry(.035,.009,5,10),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.8}));
       earring.position.set(.22,1.2,.01);group.add(earring);
     }
@@ -165,7 +167,11 @@ export function createGame(canvas) {
         actor.rotation.z=(actor.userData.motion==='dance'?Math.sin(time*7+actor.userData.phase)*.18:flirt*.035);
         actor.position.y=actor.userData.motion==='dance'?Math.abs(Math.sin(time*7+actor.userData.phase))*.08:Math.max(0,flirt)*.018;
         const smile=actor.getObjectByName('kons-smile');
-        if(smile)smile.scale.y=actor.userData.motion==='laugh'?1.8:1+Math.max(0,flirt)*.25;
+        const laughMouth=actor.getObjectByName('kons-laugh-mouth');
+        const laughing=actor.userData.motion==='laugh'||(Math.sin(time*.72+actor.userData.flirtPhase*2)>.985);
+        if(smile)smile.scale.y=laughing?.45:1+Math.max(0,flirt)*.25;
+        if(laughMouth){laughMouth.scale.y=laughing?1:.08;}
+        if(laughing)actor.position.y+=Math.abs(Math.sin(time*10+actor.userData.phase))*.025;
       }else if(actor.userData.motion==='dance'){
         actor.rotation.z=Math.sin(time*7+actor.userData.phase)*.16;
         actor.position.y=Math.abs(Math.sin(time*7+actor.userData.phase))*.08;
