@@ -86,6 +86,25 @@ export function createGame(canvas) {
       backHair.scale.set(.9,1.75,.78);backHair.position.set(0,1.02,-.12);group.add(backHair);
     }
     if(role==='kons'){
+      const limbMaterial=new THREE.MeshStandardMaterial({color:skin,roughness:.82});
+      const armPivots=[];
+      const legPivots=[];
+      for(const side of [-1,1]){
+        const armPivot=new THREE.Group();
+        armPivot.position.set(side*.29,1.02,0);
+        const upperArm=new THREE.Mesh(new THREE.CapsuleGeometry(.065,.28,3,7),limbMaterial);
+        upperArm.position.y=-.2;upperArm.castShadow=true;armPivot.add(upperArm);
+        const hand=new THREE.Mesh(new THREE.SphereGeometry(.07,8,7),limbMaterial);
+        hand.position.y=-.39;armPivot.add(hand);
+        group.add(armPivot);armPivots.push(armPivot);
+        const legPivot=new THREE.Group();
+        legPivot.position.set(side*.13,.38,0);
+        const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.075,.34,3,7),limbMaterial);
+        leg.position.y=-.2;leg.castShadow=true;legPivot.add(leg);
+        group.add(legPivot);legPivots.push(legPivot);
+      }
+      group.userData.armPivots=armPivots;
+      group.userData.legPivots=legPivots;
       const dress=new THREE.Mesh(new THREE.CylinderGeometry(.19,.39,.42,12,1,true),new THREE.MeshStandardMaterial({color:appearance.outfit,metalness:.28,roughness:.32,side:THREE.DoubleSide}));
       dress.position.y=.43;dress.castShadow=true;group.add(dress);
       const belt=new THREE.Mesh(new THREE.CylinderGeometry(.245,.245,.045,16),new THREE.MeshStandardMaterial({color:'#e7bd79',metalness:.8,roughness:.22}));
@@ -168,6 +187,15 @@ export function createGame(canvas) {
         actor.position.y=actor.userData.motion==='dance'?Math.abs(Math.sin(time*7+actor.userData.phase))*.08:Math.max(0,flirt)*.018;
         const smile=actor.getObjectByName('kons-smile');
         const laughMouth=actor.getObjectByName('kons-laugh-mouth');
+        const dancing=actor.userData.motion==='dance';
+        actor.userData.armPivots?.forEach((arm,index)=>{
+          const side=index===0?-1:1;
+          arm.rotation.z=dancing?side*(.75+Math.sin(time*8+index)*.28):side*(.16+Math.sin(time*1.8+actor.userData.flirtPhase+index)*.12);
+          arm.rotation.x=dancing?Math.sin(time*5+index)*.18:Math.sin(time*1.3+index)*.06;
+        });
+        actor.userData.legPivots?.forEach((leg,index)=>{
+          leg.rotation.x=dancing?Math.sin(time*8+index*Math.PI)*.32:Math.sin(time*1.4+index)*.025;
+        });
         const laughing=actor.userData.motion==='laugh'||(Math.sin(time*.72+actor.userData.flirtPhase*2)>.985);
         if(smile)smile.scale.y=laughing?.45:1+Math.max(0,flirt)*.25;
         if(laughMouth){laughMouth.scale.y=laughing?1:.08;}
