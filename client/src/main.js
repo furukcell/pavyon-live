@@ -11,7 +11,17 @@ import { createSessionTimers } from './game/sessionTimers.js';
 const socket = io({ transports: ['websocket', 'polling'], reconnectionAttempts: 5 });
 const streamMode = new URLSearchParams(window.location.search).get('view') === 'stream';
 document.documentElement.classList.toggle('stream-mode', streamMode);
-if (streamMode) document.querySelector('#broadcast-label').textContent = 'YAYIN EKRANI';
+const broadcastLabel = document.querySelector('#broadcast-label');
+function setServerConnection(connected) {
+  document.querySelector('.live-pill')?.classList.toggle('server-connected', connected);
+  document.querySelector('.live-pill')?.classList.toggle('server-disconnected', !connected);
+  broadcastLabel.textContent = streamMode
+    ? (connected ? 'YAYIN EKRANI · SUNUCU BAĞLI' : 'YAYIN EKRANI · BAĞLANTI YOK')
+    : (connected ? 'SUNUCU BAĞLI' : 'SUNUCU BAĞLANTISI YOK');
+}
+socket.on('connect', () => setServerConnection(true));
+socket.on('disconnect', () => setServerConnection(false));
+socket.on('connect_error', () => setServerConnection(false));
 const game = createGame(document.querySelector('#game-canvas'));
 const logEl = document.querySelector('#event-log');
 const state = {
