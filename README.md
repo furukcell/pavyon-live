@@ -29,6 +29,7 @@
 | Kons karakterleri | Prototip geliştiriliyor | 10 ayrı görünüm varyantı; sahne kıyafeti, saç, aksesuar, makyaj, yüz detayları ve vücut oranı varyasyonu; yüz/saç geometrisinde daha yüksek segment, göz akı-iris-göz bebeği-küçük ışık yansıması katmanları, saç tutamları ve kumaşta fiziksel malzeme/clearcoat iyileştirmeleri |
 | Kons tavırları | Prototip animasyonlar | Göz kırpma, gülümseme/kahkaha, hafif salınım, cilveli duruş, yürüyüş ve üç farklı prosedürel dans stili; pistte sürekli dans eden 3 sabit arka plan kons NPC'si |
 | Müşteri görünüş kataloğu | Hazır (parametrik) | 100 kadın + 100 erkek görünüş profili; bunlar 200 ayrı model dosyası değildir; dans pistinde 3 sabit müşteri NPC'si konslarla eşli dans eder |
+| Canlı müzik ekibi | İlk prototip hazır | Sahneye dört müzisyen yerleştirildi: bağlama, klavye, darbuka ve klarnet; enstrümanlar prosedürel geometrilerle oluşturuldu ve müzisyenlere temel çalma hareketleri verildi. Gerçek ses kaydı/performans senkronizasyonu henüz yok |
 | Garsonlar | İlk prototip hazır | 5 karakter örneği ve müşteriye servis hareketi |
 | Müşteri oturma/dans hareketi | İlk prototip hazır | Boş koltuğa yürüme, oturma pozu, kol/bacak hareketleri; müşterilerde ve garsonlarda yürüyüşe bağlı senkron adım fazı, dengeli kol salınımı ve daha yumuşak dans adımları; boşta ayakta duran ve oturan müşterilerde çok hafif nefes, baş yönü ve kol ağırlık değişimleri; yakındaki başka müşterilere kısa ve sınırlı sosyal bakışlar; 18 koltuk dolduğunda yeni oturma isteği reddedilir |
 | Garson servis animasyonu | İlk prototip hazır | Tepsi/bardak taşıma görseli, servis pozisyonu, müşteriye gidip dönme; servis öncesi müşterinin dört yanındaki yaklaşma noktalarını mesafe ve çevredeki aktör yoğunluğuna göre puanlayıp daha uygun noktayı seçme; beş garson meşgulse FIFO servis kuyruğu (en fazla 30 talep) |
@@ -84,6 +85,12 @@
 - Aynı izleyici başka bir kons etkileşimi sürerken ikinci bir konsla eşzamanlı davet/dans/VIP başlatamaz. Süre bitince izleyici ve kons serbest bırakılır.
 - Dans pistinin boş görünmemesi için 3 sabit arka plan dans çifti oluşturulur: 3 NPC kons + 3 NPC müşteri sürekli dans eder. Bu NPC konslar izleyici hediyesiyle seçilen 10 gerçek kons listesinden ayrıdır; üç dans çifti için pistteki altı çift konumunun üçü rezerve edilir, böylece canlı hediye etkileşimleri kalan üç konumu kullanabilir. Bu NPC'ler izleyici/müşteri kapasitesine dahil değildir.
 - Hedef aktif aktör sayısı: 100 izleyici müşterisi + 10 etkileşim konsu + 5 garson + 6 arka plan dans NPC'si = 121. Bu kapasite henüz performans testinden geçmedi.
+
+## Sahne ve canlı müzik ekibi
+
+- Sahne düzeni DJ kabini yerine pavyon orkestrası mantığına göre kuruldu: bağlama, klavye, darbuka ve klarnet çalan dört müzisyen.
+- Müzisyenler sahnede sabit konumlarda durur; enstrümanları ve temel çalma hareketleri kodla üretilir.
+- Şu an müzisyen animasyonları ritim hissi verir; seçilen gerçek ses kaydıyla nota/performans senkronizasyonu veya canlı müzisyen sesi entegrasyonu henüz bulunmaz.
 
 ## Müzik sistemi
 
