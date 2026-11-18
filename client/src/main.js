@@ -94,7 +94,7 @@ function gift(rawName, type, konsId) {
   const name = cleanUsername(rawName);
   const guest = state.viewers.get(name) || addViewer(name);
   if (!guest) return;
-  if (type === 'drink') { if(game.drink(guest.id))log(`Garson, <b>@${escapeHtml(name)}</b> için servis götürüyor.`);else log('Şu anda bütün garsonlar serviste. Biraz sonra tekrar dene.');return; }
+  if (type === 'drink') { const result=game.drink(guest.id);if(result==='serving')log(`Garson, <b>@${escapeHtml(name)}</b> için servis götürüyor.`);else if(result==='queued')log(`@<b>${escapeHtml(name)}</b> servis sırasına alındı. Garson boşalınca içeceği gelecek.`);else log('Servis kapasitesi dolu. Biraz sonra tekrar dene.');return; }
   if (type === 'stage') { game.show(guest.id);log(`<b>@${escapeHtml(name)}</b> için sahne gösterisi başladı.`);return; }
   const duration = type === 'dance' || type === 'invite' ? 5*60_000 : 3*60_000;
   const actions = {
