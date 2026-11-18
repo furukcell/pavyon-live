@@ -821,9 +821,34 @@ export function createGame(canvas) {
           actor.userData.body.rotation.x=.12*sitBlend+(idleStanding?Math.sin(idlePhase*.7)*.012:0);
           actor.userData.body.rotation.z=dancing?Math.sin(time*3.1+actor.userData.phase)*.035:(idleStanding?Math.sin(idlePhase*.55)*.012:0);
         }
+        let socialYaw=0;
+        if(idleStanding||idleSeated){
+          let nearest=null,nearestDistance=3.4;
+          const cellX=Math.floor(actor.position.x/separationCellSize);
+          const cellZ=Math.floor(actor.position.z/separationCellSize);
+          for(let gx=cellX-4;gx<=cellX+4;gx++){
+            for(let gz=cellZ-4;gz<=cellZ+4;gz++){
+              const nearby=separationGrid.get(`${gx},${gz}`)||[];
+              nearby.forEach(other=>{
+                if(other===actor||other.userData.role!=='customer')return;
+                const ox=other.position.x-actor.position.x,oz=other.position.z-actor.position.z;
+                const distance=Math.hypot(ox,oz);
+                if(distance>1.15&&distance<nearestDistance){nearest=other;nearestDistance=distance;}
+              });
+            }
+          }
+          if(nearest){
+            const worldAngle=Math.atan2(nearest.position.x-actor.position.x,nearest.position.z-actor.position.z);
+            let relative=worldAngle-actor.rotation.y;
+            relative=Math.atan2(Math.sin(relative),Math.cos(relative));
+            socialYaw=THREE.MathUtils.clamp(relative,-.28,.28);
+          }
+        }
         if(actor.userData.head){
           actor.userData.head.position.y=1.35-.16*sitBlend;
-          actor.userData.head.rotation.y=idleStanding||idleSeated?Math.sin(time*.48+actor.userData.phase)*.075:0;
+          const idleYaw=(idleStanding||idleSeated)?Math.sin(time*.48+actor.userData.phase)*.045:0;
+          const desiredHeadYaw=socialYaw+idleYaw;
+          actor.userData.head.rotation.y=THREE.MathUtils.lerp(actor.userData.head.rotation.y,desiredHeadYaw,Math.min(1,dt*1.8));
           actor.userData.head.rotation.z=idleStanding?Math.sin(time*.72+actor.userData.phase)*.018:0;
         }
         actor.position.y=walking?Math.abs(gait)*.025:(dancing?Math.abs(Math.sin(time*5.8+actor.userData.phase))*.035:0);
