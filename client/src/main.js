@@ -32,6 +32,22 @@ socket.on('live:status', status => {
     detail.textContent = status.lastEventType ? `Son: ${status.lastEventType} · ${last}` : last;
     detail.title = `Yorum: ${status.comments || 0} · Beğeni: ${status.likes || 0} · Hediye: ${status.gifts || 0}`;
   }
+  const history = document.querySelector('#live-event-history');
+  if (history && Array.isArray(status.recentEvents)) {
+    history.replaceChildren();
+    status.recentEvents.slice(0, 3).forEach(event => {
+      const item = document.createElement('span');
+      const who = event.username ? `@${event.username} · ` : '';
+      const label = event.type === 'gift'
+        ? `${who}${event.giftName || 'Hediye'}${event.action ? ` → ${event.action}` : ''}`
+        : event.type === 'like'
+          ? `${who}${Number(event.count) || 1} beğeni`
+          : `${who}${event.command || 'yorum'}`;
+      item.textContent = label;
+      history.append(item);
+    });
+    if (!history.childElementCount) history.textContent = 'Henüz olay yok';
+  }
 });
 const game = createGame(document.querySelector('#game-canvas'));
 const logEl = document.querySelector('#event-log');
