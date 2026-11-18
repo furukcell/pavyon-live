@@ -4,6 +4,23 @@
 
 > **Proje durumu (18 Kasım 2026):** Görsel ve etkileşim prototipi geliştiriliyor. Oyun henüz gerçek TikTok LIVE hesabına bağlı değil. Bu depoda profesyonel harici 3D model dosyaları bulunmuyor; karakterler Three.js geometrileriyle kod üzerinden üretiliyor.
 
+## İlerleme tahmini
+
+> Bu yüzdeler tamamlanmış bir ürünün ölçümü değil, ilk yayınlanabilir sürüme giden iş planının yaklaşık durumudur.
+
+- **Etkileşimli oyun prototipi: %55** — mekân, karakterler, komutlar, hediye simülasyonu ve temel oyun döngüleri var; görsel kalite ve davranış testleri sürüyor.
+- **İlk yayınlanabilir ürün hedefi: yaklaşık %30** — gerçek TikTok LIVE entegrasyonu, profesyonel karakter varlıkları, güvenlik, performans ve uçtan uca testler henüz tamamlanmadı.
+
+| İş paketi | Tahmini tamamlanma |
+|---|---:|
+| 3D mekân ve dekor | %60 |
+| Karakter model/animasyon kalitesi | %35 |
+| Oyun kuralları ve etkileşimler | %55 |
+| Sunucu ve test simülatörü | %45 |
+| Gerçek TikTok LIVE entegrasyonu | %0 |
+| Performans, güvenlik ve yayın testleri | %5 |
+| Yayın/hosting hazırlığı | %10 |
+
 ## Şu an neredeyiz?
 
 | Aşama | Durum | Açıklama |
