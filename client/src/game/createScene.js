@@ -123,8 +123,12 @@ export function createGame(canvas) {
     const generatedColor=role==='customer'?appearance.outfit:new THREE.Color().setHSL((variant*0.137)%1,.34,.43);
     const color=role==='kons'?konsColors[variant%konsColors.length]:role==='waiter'?'#e7dfd3':generatedColor;
     const body=new THREE.Mesh(new THREE.CapsuleGeometry(role==='kons'?.235:.26+(variant%4)*.012,role==='kons'?.58:.64+(variant%3)*.045,6,16),new THREE.MeshStandardMaterial({color,roughness:role==='kons'?.34:.58,metalness:role==='kons'?.16:0}));
-    body.position.y=.72;body.castShadow=true;group.add(body);
+    body.position.y=.72;body.scale.set(role==='kons'?.92:1,1,role==='kons'?.88:1);body.castShadow=true;body.receiveShadow=true;group.add(body);
     group.userData.body=body;
+    if(role!=='kons'){
+      const waistSeam=new THREE.Mesh(new THREE.TorusGeometry(role==='waiter'?.205:.22,.012,6,24),new THREE.MeshStandardMaterial({color:role==='waiter'?'#b58a54':'#4b3b3e',metalness:.28,roughness:.48}));
+      waistSeam.rotation.x=Math.PI/2;waistSeam.position.y=.54;group.add(waistSeam);
+    }
     const skin=role==='waiter'?'#d6ad8c':appearance.skin;
     const head=new THREE.Mesh(new THREE.SphereGeometry(.22+(variant%3)*.012,28,20),new THREE.MeshStandardMaterial({color:skin,roughness:.72}));
     head.position.y=1.35;head.scale.set(.91,1.08,.9);head.castShadow=true;group.add(head);
@@ -212,10 +216,18 @@ export function createGame(canvas) {
       for(const side of [-1,1]){
         const armPivot=new THREE.Group();
         armPivot.position.set(side*(role==='kons'?.29:.27),1.02,0);
-        const upperArm=new THREE.Mesh(new THREE.CapsuleGeometry(.065,.28,3,7),limbMaterial);
-        upperArm.position.y=-.2;upperArm.castShadow=true;armPivot.add(upperArm);
-        const hand=new THREE.Mesh(new THREE.SphereGeometry(.07,8,7),limbMaterial);
-        hand.position.y=-.39;armPivot.add(hand);
+        const upperArm=new THREE.Mesh(new THREE.CapsuleGeometry(.066,.19,5,10),limbMaterial);
+        upperArm.position.y=-.145;upperArm.castShadow=true;armPivot.add(upperArm);
+        const elbow=new THREE.Mesh(new THREE.SphereGeometry(.061,10,8),limbMaterial);
+        elbow.position.y=-.285;armPivot.add(elbow);
+        const forearm=new THREE.Mesh(new THREE.CapsuleGeometry(.052,.17,5,10),limbMaterial);
+        forearm.position.set(0,-.365,.006);forearm.castShadow=true;armPivot.add(forearm);
+        const hand=new THREE.Mesh(new THREE.SphereGeometry(.057,12,9),limbMaterial);
+        hand.scale.set(.82,1.12,.72);hand.position.set(0,-.49,.012);armPivot.add(hand);
+        for(let finger=0;finger<3;finger++){
+          const digit=new THREE.Mesh(new THREE.CapsuleGeometry(.012,.045,3,6),limbMaterial);
+          digit.position.set((finger-1)*.025,-.545,.025);digit.rotation.z=(finger-1)*-.12;armPivot.add(digit);
+        }
         if(role==='waiter'&&side===1){
           const tray=new THREE.Group();
           const plate=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.025,16),new THREE.MeshStandardMaterial({color:'#c9cbd0',metalness:.72,roughness:.24}));
@@ -227,8 +239,14 @@ export function createGame(canvas) {
         group.add(armPivot);armPivots.push(armPivot);
         const legPivot=new THREE.Group();
         legPivot.position.set(side*.13,.38,0);
-        const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.075,.34,3,7),limbMaterial);
-        leg.position.y=-.2;leg.castShadow=true;legPivot.add(leg);
+        const thigh=new THREE.Mesh(new THREE.CapsuleGeometry(.078,.2,5,10),limbMaterial);
+        thigh.position.y=-.12;thigh.castShadow=true;legPivot.add(thigh);
+        const knee=new THREE.Mesh(new THREE.SphereGeometry(.071,10,8),limbMaterial);
+        knee.position.y=-.255;legPivot.add(knee);
+        const shin=new THREE.Mesh(new THREE.CapsuleGeometry(.055,.19,5,10),limbMaterial);
+        shin.position.set(0,-.36,.012);shin.castShadow=true;legPivot.add(shin);
+        const foot=new THREE.Mesh(new THREE.SphereGeometry(1,12,8),new THREE.MeshStandardMaterial({color:role==='kons'?'#241522':role==='waiter'?'#211b20':'#30252a',roughness:.48,metalness:role==='kons'?.18:0}));
+        foot.scale.set(.075,.045,.14);foot.position.set(0,-.48,.065);legPivot.add(foot);
         group.add(legPivot);legPivots.push(legPivot);
       }
       group.userData.armPivots=armPivots;
