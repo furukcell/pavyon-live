@@ -307,6 +307,22 @@ export function createGame(canvas) {
     actor.userData.legPivots?.forEach(leg=>leg.rotation.x=0);
     actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});
   }
+  function capturePose(actor){
+    const rotations=list=>(list||[]).map(part=>({x:part.rotation.x,y:part.rotation.y,z:part.rotation.z}));
+    return {
+      root:{x:actor.rotation.x,y:actor.rotation.y,z:actor.rotation.z},
+      y:actor.position.y,
+      body:actor.userData.body?{positionY:actor.userData.body.position.y,rotation:{x:actor.userData.body.rotation.x,y:actor.userData.body.rotation.y,z:actor.userData.body.rotation.z}}:null,
+      head:actor.userData.head?{positionY:actor.userData.head.position.y,rotation:{x:actor.userData.head.rotation.x,y:actor.userData.head.rotation.y,z:actor.userData.head.rotation.z}}:null,
+      arms:rotations(actor.userData.armPivots),legs:rotations(actor.userData.legPivots)
+    };
+  }
+  function beginMotion(actor,nextMotion){
+    if(actor.userData.motion===nextMotion)return;
+    actor.userData.poseFrom=capturePose(actor);
+    actor.userData.poseStarted=clock?.elapsedTime||0;
+    actor.userData.motion=nextMotion;
+  }
   function animateActor(id,kind){
     const actor=actors.get(id);if(!actor)return false;
     if(kind==='seat')return seatCustomer(id);
@@ -318,7 +334,7 @@ export function createGame(canvas) {
       actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});
     }
     const targets={dance:[(Math.random()-.5)*4,1],stage:[0,-8.5]};
-    const target=targets[kind]||targets.dance;moveTo(id,target[0],target[1]);actor.userData.motion=kind;return true;
+    const target=targets[kind]||targets.dance;moveTo(id,target[0],target[1]);beginMotion(actor,kind);return true;
   }
   for(let i=1;i<=10;i++){
     const id='kons-'+i;const actor=makeActor(id,'kons',i-1);
@@ -455,7 +471,7 @@ export function createGame(canvas) {
         const laughMouth=actor.getObjectByName('kons-laugh-mouth');
         const blink=Math.pow(Math.max(0,Math.sin(time*.9+actor.userData.flirtPhase*3)),36);
         [-1,1].forEach(side=>{const eye=actor.getObjectByName(`kons-eye-${side}`);if(eye)eye.scale.y=Math.max(.08,1-blink);});
-        const dancing=actor.userData.motion==='dance';
+        const dancing=actor.userData.motion==='dance'&&!walking;
         const danceStyle=(Number(actor.userData.id.split('-')[1])-1)%3;
         const stride=walking?Math.sin(actor.userData.gaitPhase):0;
         const walkCounter=walking?Math.sin(actor.userData.gaitPhase+Math.PI):0;
@@ -483,7 +499,7 @@ export function createGame(canvas) {
         if(laughing)actor.position.y+=Math.abs(Math.sin(time*10+actor.userData.phase))*.025;
       }else if(actor.userData.role==='customer'){
         const motion=actor.userData.motion;
-        const dancing=motion==='dance';
+        const dancing=motion==='dance'&&!walking;
         const sitting=motion==='sitting-down'||motion==='seated';
         const gait=walking?Math.sin(actor.userData.gaitPhase):0;
         if(motion==='sitting-down'&&!walking)actor.userData.motion='seated';
@@ -517,6 +533,32 @@ export function createGame(canvas) {
         actor.rotation.z=Math.sin(time*7+actor.userData.phase)*.16;
         actor.position.y=Math.abs(Math.sin(time*7+actor.userData.phase))*.08;
       }else{actor.rotation.z=0;actor.position.y=0;}
+      const transition=actor.userData.poseFrom;
+      if(transition){
+        const blend=THREE.MathUtils.smoothstep((time-actor.userData.poseStarted)/.42,0,1);
+        const mix=(current,from)=>from+(current-from)*blend;
+        actor.rotation.x=mix(actor.rotation.x,transition.root.x);
+        actor.rotation.y=mix(actor.rotation.y,transition.root.y);
+        actor.rotation.z=mix(actor.rotation.z,transition.root.z);
+        actor.position.y=mix(actor.position.y,transition.y);
+        const blendPart=(part,from)=>{
+          if(!part||!from)return;
+          part.rotation.x=mix(part.rotation.x,from.rotation.x);
+          part.rotation.y=mix(part.rotation.y,from.rotation.y);
+          part.rotation.z=mix(part.rotation.z,from.rotation.z);
+        };
+        if(actor.userData.body&&transition.body){
+          actor.userData.body.position.y=mix(actor.userData.body.position.y,transition.body.positionY);
+          blendPart(actor.userData.body,transition.body);
+        }
+        if(actor.userData.head&&transition.head){
+          actor.userData.head.position.y=mix(actor.userData.head.position.y,transition.head.positionY);
+          blendPart(actor.userData.head,transition.head);
+        }
+        actor.userData.armPivots?.forEach((part,index)=>blendPart(part,transition.arms[index]));
+        actor.userData.legPivots?.forEach((part,index)=>blendPart(part,transition.legs[index]));
+        if(blend>=1)delete actor.userData.poseFrom;
+      }
     });
     renderer.render(scene,camera);
   }
