@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizeDevEvent } from './eventValidation.js';
+import { verifyProviderSignature } from './providerWebhook.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -11,6 +12,28 @@ const port = Number(process.env.PORT) || 3001;
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(currentDir, '../dist');
 const io = new Server(httpServer, { transports: ['websocket', 'polling'] });
+
+// Signed provider bridge: connectors normalize their payload and sign the exact raw JSON bytes.
+app.post('/integrations/events', express.raw({ type: 'application/json', limit: '32kb' }), (req, res) => {
+  const secret = process.env.LIVE_PROVIDER_WEBHOOK_SECRET;
+  const timestamp = req.get('x-pavyon-timestamp');
+  const signature = req.get('x-pavyon-signature');
+  if (!secret) return res.status(503).json({ error: 'Live provider integration is not configured.' });
+  if (!verifyProviderSignature({ rawBody: req.body, timestamp, signature, secret })) return res.status(401).json({ error: 'Invalid or expired provider signature.' });
+  let payload;
+  try { payload = JSON.parse(req.body.toString('utf8')); } catch { return res.status(400).json({ error: 'Invalid JSON payload.' }); }
+  const result = normalizeDevEvent(payload);
+  if (!result.ok) return res.status(400).json({ error: result.error });
+  const event = result.event;
+  if (!event.eventId) return res.status(400).json({ error: 'A unique eventId is required.' });
+  const now = Date.now();
+  for (const [id, expiresAt] of seenEventIds) if (expiresAt <= now) seenEventIds.delete(id);
+  if (seenEventIds.has(event.eventId)) return res.status(200).json({ accepted: true, duplicate: true });
+  if (seenEventIds.size >= MAX_SEEN_EVENT_IDS) { const oldestId = seenEventIds.keys().next().value; if (oldestId) seenEventIds.delete(oldestId); }
+  seenEventIds.set(event.eventId, now + EVENT_ID_TTL_MS);
+  io.emit('live:event', event);
+  return res.status(202).json({ accepted: true, duplicate: false });
+});
 
 app.use(express.json({ limit: '32kb' }));
 app.get('/health', (_req, res) => res.json({ ok: true, service: 'pavyon-live-server' }));
