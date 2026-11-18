@@ -1,83 +1,106 @@
 # PAVYON LIVE
 
-**TikTok LIVE izleyicilerinin yorum, beğeni ve hediyelerle gerçek zamanlı katıldığı 3D pavyon simülasyonu.**
+**TikTok LIVE izleyicilerinin yorum, beğeni ve hediyelerle katılacağı 3D pavyon oyunu.**
 
-> Durum: Mobil uyumlu oynanabilir prototip geliştirme aşamasında. TikTok LIVE entegrasyonu henüz etkin değildir; mevcut sürüm test paneli ve yerel olay köprüsü kullanır.
+> **Proje durumu (18 Kasım 2026):** Görsel ve etkileşim prototipi geliştiriliyor. Oyun henüz gerçek TikTok LIVE hesabına bağlı değil. Bu depoda profesyonel harici 3D model dosyaları bulunmuyor; karakterler Three.js geometrileriyle kod üzerinden üretiliyor.
 
-## Ürün hedefi
+## Şu an neredeyiz?
 
-Üstten izometrik kameraya sahip 3D pavyon oyunu. İzleyici, kullanıcı adına bağlı karakteriyle mekâna katılır; dans eder, masaya oturur veya sahneye çıkar. Hediye olayları, açıkça tanımlanmış sanal oyun aksiyonlarını tetikler.
+| Aşama | Durum | Açıklama |
+|---|---|---|
+| 3D mekân ve kamera | Prototip hazır | Sahne, dans pisti, bar/servis, VIP alanı, sahne, 6 masa ve mobil kamera kadrajı |
+| Kons karakterleri | Prototip geliştiriliyor | 10 ayrı görünüm varyantı; sahne kıyafeti, saç, aksesuar, makyaj ve temel yüz detayları |
+| Kons tavırları | İlk animasyonlar eklendi | Göz kırpma, gülümseme/kahkaha, hafif salınım, cilveli duruş ve dans hareketleri |
+| Müşteri görünüş kataloğu | Hazır (parametrik) | 100 kadın + 100 erkek görünüş profili; bunlar 200 ayrı model dosyası değildir |
+| Garsonlar | İlk prototip hazır | 5 karakter örneği ve müşteriye servis hareketi |
+| Yorum ve hediye testleri | Prototip hazır | Komutlar ve normalize edilmiş test hediye olayları |
+| Kons kullanım süresi | İlk akış hazır | Kons meşguliyet kontrolü; davet/dans 5 dk, VIP 3 dk; süre bitince dönüş |
+| Gerçek TikTok bağlantısı | Başlanmadı | Olay kaynağı, izinler ve platforma uygun entegrasyon ayrıca yapılacak |
+| Performans ve yayın testi | Bekliyor | 100 müşteri/115 aktör hedefi gerçek cihazlarda henüz ölçülmedi |
+
+**Önemli ayrım:** Şu anki konslar profesyonel, dışarıdan hazırlanmış, iskelet (skeletal) rig'li karakterler değildir. Gövde, saç, kıyafet ve aksesuarları Three.js temel geometrilerinden oluşur. Kol ve bacaklarda pivot tabanlı hareket noktaları vardır; bu, tam vücut iskelet rig'i veya motion-capture animasyonu değildir.
 
 ## Oyun dünyası
 
-- Kırmızı kadife oturma grupları ve altın detaylar.
-- Dans pisti, müşteri masaları, VIP loca, sahne ve servis alanı.
-- Ankara havası / bireysel oyun havası yaklaşımı; halay mekaniği yok.
-- İlk hedef dikey 9:16 yayın ekranı ve telefon tarayıcısıdır.
+- Kırmızı/bordo tonlar, altın detaylar ve pavyon sahne atmosferi.
+- Sahne, dans pisti, servis alanı, VIP loca ve 6 müşteri masası.
+- Her masada 3 koltuk olmak üzere 18 koltuk noktası; boş koltuklar sırayla atanır.
+- Üstten perspektif kamera; dar ekranlarda daha geniş dikey kadraj.
+- Oyun havası / bireysel dans yaklaşımı; halay mekaniği yok.
 
-## Karakter hedefleri
+## Karakter sistemi
 
-| Rol | İlk prototip | Nihai hedef |
-|---|---:|---:|
-| Müşteri | 10 test karakteri | Aynı anda en fazla 100 |
-| Kons | 10 | 10 farklı karakter |
-| Garson | 5 | 5 (aynı temel modelin kopyaları) |
+### Konslar
 
-Müşteri görünüm kataloğunda 100 erkek ve 100 kadın olmak üzere 200 prosedürel görünüm tanımı bulunur (`characterCatalog.js`). Bunlar aynı anda sahneye konmaz; aktif 100 müşteri bu havuzdan sırayla seçilir. Bu katalog şu an renk, ten, saç stili, boy ve vücut oranı parametreleridir; henüz 200 ayrı profesyonel 3D model dosyası değildir. Nihai aktif sahne hedefi 115 aktördür: 100 müşteri + 10 kons + 5 garson.
+- 10 ayrı kons karakter örneği oluşturulur.
+- Yetişkin, stilize sahne kostümleri: parlak renkler, kısa sahne elbisesi silüeti, altın kemer/etek ucu detayları ve topuklu ayakkabı.
+- Saç rengi ve stil varyasyonları; uzun saç, at kuyruğu ve bob kesim detayları.
+- Küpe, kolye, bileklik, sahne makyajı/yanak rengi ve yüz gülümseme detayları.
+- Boştayken hafif salınım ve ara sıra kahkaha; göz kırpma; davette cilveli duruş; dans sırasında kol/bacak pivot hareketleri.
 
-Sahnede 10 ayrı renk/stil varyantlı kons ve aynı temel görünümden türetilen 5 garson örneği oluşturulur. Müşteri görünümü şu an prosedürel renk, ten, saç ve gövde varyasyonlarıyla çeşitlendirilir; bu henüz 100 ayrı, elle tasarlanmış model değildir. Sahnede 10 farklı renk/aksesuar varyantlı kons ve aynı temel görünümden türetilen 5 garson örneği oluşturulur. Müşteriler 200 girişli prosedürel görünüm kataloğundan beslenir. İlk prototipte kullanılan basit geometrik karakterler geçici placeholder'lardır. Nihai karakterler riglenmiş, optimize edilmiş 3D modeller ve animasyonlar gerektirir. Her modelin lisansı kontrol edilmelidir.
+### Müşteriler ve garsonlar
+
+- `characterCatalog.js` içinde 100 kadın ve 100 erkek parametrik görünüş profili bulunur.
+- Profiller saç, ten, kıyafet rengi, boy, yapı ve aksesuar parametreleri sağlar. 200 ayrı elle modellenmiş karakter dosyası değildir.
+- Oyuncu girişlerinde aynı anda en fazla 100 müşteri kabul edilir.
+- 5 garson örneği sahneye eklenir; aynı temel placeholder modelinden türetilir.
+- Hedef aktif aktör sayısı: 100 müşteri + 10 kons + 5 garson = 115. Bu kapasite henüz performans testinden geçmedi.
 
 ## İzleyici komutları
 
 | Yorum | Aksiyon |
 |---|---|
-| `!gel` | Oyuncuyu mekâna alır. |
+| `!gel` | Kullanıcıyı mekâna alır. |
 | `!dans` | Karakteri dans pistine gönderir. |
-| `!masa` | Karakteri masaya gönderir. |
+| `!masa` | Boş koltuklardan birine oturtur. |
 | `!sahne` | Karakteri sahneye gönderir. |
 
-Komutlar sunucu tarafında doğrulanmalı ve spam sınırına tabi olmalıdır. Beğeniler ortak ışık/atmosfer göstergesini etkiler.
+Yorum simülatörü ve test paneli oyun içinde kullanılabilir. Komutlarda kullanıcı başına kısa bir bekleme süresi vardır.
 
 ## Hediye aksiyonları
 
-- **Konsu masaya davet:** Müsait kons müşterinin masasına gider. İlk prototip zamanlayıcısı 5 dakikadır.
-- **Konsla dans:** İki karakter dans alanına gider. Varsayılan süre 5 dakikadır.
-- **İçecek:** Garson servis animasyonu yapar.
-- **VIP daveti:** Kons ve izleyici VIP locaya geçer.
-- **Sahne gösterisi:** İzleyici sahneye gider.
+| Aksiyon | Davranış | Süre |
+|---|---|---:|
+| Kons daveti | Müsait kons izleyicinin yanına/masasına gider | 5 dk |
+| Konsla dans | Kons ve izleyici dans eder | 5 dk |
+| VIP daveti | Kons ve izleyici VIP locaya geçer | 3 dk |
+| İçecek | Müsait garson müşteriye servis yapar | Yaklaşık 4,5 sn servis turu |
+| Sahne | İzleyici sahneye çıkar | Otomatik süre tanımlı değil |
 
-Bir kons aynı anda tek etkileşimde olabilir. İlk sürümde daha yüksek hediyeyle mevcut etkileşimi kesen açık artırma mekaniği yoktur. Hediye karşılıkları ve süreleri yayında açıkça belirtilmelidir. Bunlar yalnızca sanal oyun içi eğlence aksiyonlarıdır.
+- Bir kons aynı anda yalnızca bir izleyiciyle etkileşimde olabilir.
+- Zamanlı kons etkileşimi bitince kons ve ilgili müşteri başlangıç konumlarına döndürülür.
+- Daha yüksek hediyeyle devam eden etkileşimi kesen açık artırma/kons kapma sistemi uygulanmadı.
+- Bunlar yalnızca sanal oyun içi aksiyonlardır; gerçek içecek veya gerçek hizmet satışı değildir.
 
 ## Teknik mimari
 
 - İstemci: Vite + JavaScript + Three.js.
 - Sunucu: Node.js + Express.
 - Gerçek zamanlı iletişim: Socket.IO.
-- Geliştirme olayı: Test paneli ve `/dev/event` yerel köprüsü.
-- Üretim: Express, `dist/` klasöründeki istemciyi ve Socket.IO'yu aynı origin üzerinden sunar.
+- Geliştirme testleri: yorum/hediye simülatörü ve geliştirme amaçlı `/dev/event` uç noktası.
+- Üretimde Express, `dist/` klasöründeki istemciyi ve Socket.IO'yu aynı origin üzerinden sunacak şekilde yapılandırılmıştır.
 
-TikTok LIVE olay erişimi entegrasyon yöntemine, hesap izinlerine ve platformun güncel koşullarına bağlıdır. Resmî erişim garanti varsayılmaz. Oyun TikTok bağlantısı olmadan test edilebilir kalmalıdır.
-
-## Repo yapısı
+### Repo yapısı
 
 ```text
 pavyon-live/
 ├── README.md
 ├── package.json
 ├── vite.config.js
-├── .gitignore
-├── .env.example
+├── render.yaml
+├── .github/workflows/build.yml
 ├── client/
 │   ├── index.html
 │   └── src/
 │       ├── main.js
 │       ├── style.css
-│       └── game/createScene.js
-├── server/index.js
-└── dist/                 # build çıktısı; repoya eklenmez
+│       └── game/
+│           ├── createScene.js
+│           └── characterCatalog.js
+└── server/index.js
 ```
 
-## Geliştirme
+## Yerel çalıştırma
 
 Gereksinim: Node.js 20.19+.
 
@@ -86,67 +109,47 @@ npm install
 npm run dev
 ```
 
-- Oyun: `http://localhost:5173`
+- Oyun istemcisi: `http://localhost:5173`
 - Sunucu sağlık kontrolü: `http://localhost:3001/health`
-- Vite, Socket.IO bağlantısını geliştirme sırasında 3001 portuna proxy eder.
+- Üretim derlemesi: `npm run build`
+- Üretim sunucusu: `npm start`
 
-Üretim derlemesi ve tek sunucu üzerinde çalıştırma:
+## Test olay biçimi
 
-```bash
-npm run build
-npm start
+Geliştirme modunda `/dev/event` uç noktasına normalize edilmiş olaylar gönderilebilir. Örnek hediye olayı:
+
+```json
+{
+  "type": "gift",
+  "username": "test_user",
+  "giftName": "Rose",
+  "action": "dance",
+  "konsId": "kons-1"
+}
 ```
 
-Sunucu varsayılan olarak `http://localhost:3001` üzerinde hem oyunu hem Socket.IO bağlantısını sunar. Hosting ortamında PORT değişkeni desteklenir.
-
-## Test olay köprüsü
-
-Geliştirme modunda sunucuya HTTP POST gönderilebilir:
-
-```bash
-curl -X POST http://localhost:3001/dev/event ^
-  -H "Content-Type: application/json" ^
-  -d "{\"type\":\"comment\",\"username\":\"test_user\",\"comment\":\"!gel\"}"
-```
-
-Desteklenen olay türleri `comment`, `like`, `gift`. Hediye olayında `action` alanı `invite`, `dance`, `drink`, `vip` veya `stage` değerlerinden biri olursa istemci ilgili oyun aksiyonunu başlatır. Örnek: `{ "type": "gift", "username": "test_user", "giftName": "Rose", "action": "dance", "konsId": "kons-1" }`. Bu uç nokta geliştirme içindir; production ortamında kapalıdır ve TikTok webhook'u değildir.
-
-## Güvenlik
-
-- Token, API anahtarı veya gerçek yayın kimlik bilgisi repoya eklenmez.
-- `.env` dosyası Git tarafından yok sayılır.
-- İstemci tarafındaki komutlar güvenilir ödeme/hediye kanıtı sayılmaz.
-- Gerçek hediye olayları gelecekte kaynak doğrulaması ve olay tekilleştirmesi yapan adaptörden geçirilmelidir.
-- İzleyici adları ekranda HTML olarak basılmadan önce kaçışlanır.
+Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu örnek yalnızca test formatıdır; TikTok'tan otomatik hediye alındığı anlamına gelmez. Gerçek yayın olayları için ayrıca kaynak adaptörü, doğrulama, tekrar olaylarını tekilleştirme ve platform izinleri gerekir.
 
 ## Yol haritası
 
-1. Mobil görünüm ve 3D mekân prototipi.
-2. Müşteri/kons/garson hareketleri ve animasyonları.
-3. Kons meşguliyet, süre ve dönüş yönetimi.
-4. Gelişmiş test paneli ve olay simülatörü.
-5. 10 kons + 5 garson + 100 müşteri kapasitesi.
-6. TikTok LIVE adaptörü ve platform uygunluk kontrolü.
-7. Hosting, OBS ve telefon tarayıcısı testleri.
+1. **Karakter görsel kalitesi:** Kons yüzü, saç, kıyafet ve aksesuar detaylarını geliştirmek; garson ve müşteri modellerini tutarlılaştırmak.
+2. **Animasyon kalitesi:** Daha doğal yürüme, oturma, dans, gülme ve etkileşim geçişleri; mevcut pivot animasyonlarını iyileştirmek.
+3. **Etkileşim yaşam döngüsü:** Masa/VIP konumları, çakışma önleme, kuyruk ve her aksiyon sonrası doğru başlangıç konumuna dönüş.
+4. **Sahne ve arayüz cilası:** Işık, dekor, masa durumları, kons müsaitlik göstergesi ve yayın overlay'i.
+5. **Test ve optimizasyon:** 10/25/50/100 müşteri yük testi, mobil GPU ve bellek ölçümü, gerçek tarayıcı testleri.
+6. **TikTok LIVE entegrasyonu:** Uygun ve izinli olay kaynağına bağlanma; hediye-adım eşlemesi ve güvenli sunucu doğrulaması.
+7. **Yayın hazırlığı:** OBS/TikTok LIVE Studio Browser Source, hosting ve canlı prova.
 
-## İlk prototip kabul kriterleri
+## Test durumu ve bilinen eksikler
 
-- Tarayıcıda 3D sahne açılır.
-- Mobil ekranda arayüz taşmadan kullanılabilir.
-- Test panelindeki yorum simülatörüyle `!gel`, `!dans`, `!masa`, `!sahne` komutları denenebilir.
-- +10 ve +25 test müşteri butonlarıyla 100 kişilik kapasite denenebilir.
-- +10 ve +25 test müşteri butonlarıyla 100 kişilik kapasite denenebilir.
-- Müşteriler boş masa koltuklarına oturabilir; dolu koltuklar yeniden atanmaz.
-- +10 ve +25 test müşteri butonlarıyla kapasite yükü denenebilir.
-- Sahne başlangıcında 10 kons ve 5 garson yer alır.
-- Kons aynı anda iki izleyiciye atanamaz.
-- Hediye testleri davet, dans, servis, VIP ve sahne aksiyonlarını tetikler.
-- Sunucu ve istemci aynı origin üzerinden production modunda çalışabilir.
+- Bu geliştirme turunda kod değişiklikleri GitHub'a yazıldı; ancak bu oturumda `npm install`, `npm run build` veya gerçek cihaz tarayıcı testi çalıştırılmadı.
+- Kons animasyonları prosedürel Three.js hareketleridir; sesli kahkaha, gerçekçi yüz kasları, dudak senkronu ve profesyonel dans koreografisi yoktur.
+- Karakterlerin gerçekçi/kaliteli hale gelmesi için ileride lisanslı veya özgün hazırlanmış rig'li 3D varlıklar kullanılabilir. Bu dosyaların lisans ve optimizasyonu kontrol edilmelidir.
+- TikTok LIVE bağlantısı, canlı yayın performansı ve 115 aktör hedefi henüz doğrulanmadı.
 
+## Güvenlik notları
 
-### Kons karakterleri ve sahne tavrı
-
-- Kons karakterleri yetişkin, stilize pavyon sahne kostümleriyle (parlak renkler, altın detaylar, kısa sahne elbisesi silüeti ve topuklu ayakkabı) çizilir.
-- Uzun/dalgalı saç, küpe ve gülümseme detayları görünüşe çeşitlilik katar.
-- Boştayken hafif salınım ve ara sıra kahkaha/ağız animasyonu; masaya veya VIP alana giderken cilveli tavır; dans hediyesinde eşli dans hareketi kullanılır.
-- Bunlar Three.js ile oluşturulmuş prototip geometrileridir; henüz profesyonel karakter modeli, yüz rig'i veya motion-capture animasyonu değildir.
+- API anahtarı, token veya yayın kimlik bilgisi repoya eklenmemelidir.
+- İstemci tarafından gelen bir hediye aksiyonu tek başına ödeme/hediye kanıtı sayılmaz.
+- Gerçek hediye entegrasyonu sunucu tarafında kaynak doğrulaması ve olay tekilleştirmesi yapmalıdır.
+- Kullanıcı adları HTML'e yazılmadan önce kaçışlanmalıdır.
