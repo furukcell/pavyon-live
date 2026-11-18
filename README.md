@@ -26,7 +26,7 @@
 | Aşama | Durum | Açıklama |
 |---|---|---|
 | 3D mekân ve kamera | Prototip hazır | Sahne, dans pisti, bar/servis, VIP alanı, 6 masa, mobil kamera, hareketli sahne spotları, hoparlör/LED ve bar dekorları |
-| Kons karakterleri | Prototip geliştiriliyor | 10 ayrı görünüm varyantı; sahne kıyafeti, saç, aksesuar, makyaj, yüz detayları ve vücut oranı varyasyonu |
+| Kons karakterleri | Prototip geliştiriliyor | 10 ayrı görünüm varyantı; sahne kıyafeti, saç, aksesuar, makyaj, yüz detayları ve vücut oranı varyasyonu; yüz/saç geometrisinde daha yüksek segment, göz akı-iris-göz bebeği-küçük ışık yansıması katmanları, saç tutamları ve kumaşta fiziksel malzeme/clearcoat iyileştirmeleri |
 | Kons tavırları | Prototip animasyonlar | Göz kırpma, gülümseme/kahkaha, hafif salınım, cilveli duruş, yürüyüş ve üç farklı prosedürel dans stili |
 | Müşteri görünüş kataloğu | Hazır (parametrik) | 100 kadın + 100 erkek görünüş profili; bunlar 200 ayrı model dosyası değildir |
 | Garsonlar | İlk prototip hazır | 5 karakter örneği ve müşteriye servis hareketi |
@@ -40,7 +40,7 @@
 | Gerçek TikTok bağlantısı | Başlanmadı | Olay kaynağı, izinler ve platforma uygun entegrasyon ayrıca yapılacak |
 | Performans ve yayın testi | Bekliyor | 100 müşteri/115 aktör hedefi gerçek cihazlarda henüz ölçülmedi |
 
-**Önemli ayrım:** Şu anki konslar profesyonel, dışarıdan hazırlanmış, iskelet (skeletal) rig'li karakterler değildir. Gövde, saç, kıyafet ve aksesuarları Three.js temel geometrilerinden oluşur. Kol ve bacaklarda pivot tabanlı hareket noktaları vardır; bu, tam vücut iskelet rig'i veya motion-capture animasyonu değildir.
+**Önemli ayrım:** Şu anki konslar profesyonel, dışarıdan hazırlanmış, iskelet (skeletal) rig'li karakterler değildir. Son görsel kalite turunda yüz, saç ve kıyafet geometrilerinin pürüzsüzlüğü ile göz detayları ve kumaşın ışık tepkisi iyileştirildi; bunlar hâlâ prosedürel düşük/orta poligon oyun modelleridir. Gövde, saç, kıyafet ve aksesuarları Three.js temel geometrilerinden oluşur. Kol ve bacaklarda pivot tabanlı hareket noktaları vardır; bu, tam vücut iskelet rig'i veya motion-capture animasyonu değildir.
 
 ## Oyun dünyası
 
