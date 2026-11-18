@@ -186,6 +186,10 @@ export function createGame(canvas) {
     if(role==='kons'){
       const dress=new THREE.Mesh(new THREE.CylinderGeometry(.19,.39,.42,32,2,true),new THREE.MeshPhysicalMaterial({color:appearance.outfit,metalness:.22,roughness:.26,clearcoat:.48,clearcoatRoughness:.24,sheen:0.35,side:THREE.DoubleSide}));
       dress.position.y=.43;dress.castShadow=true;dress.receiveShadow=true;group.add(dress);
+      const bodice=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),new THREE.MeshPhysicalMaterial({color:appearance.outfit,metalness:.18,roughness:.25,clearcoat:.55,clearcoatRoughness:.2}));
+      bodice.scale.set(.235,.19,.145);bodice.position.set(0,.88,.045);bodice.castShadow=true;group.add(bodice);
+      const skirtLayer=new THREE.Mesh(new THREE.CylinderGeometry(.245,.405,.13,32,1,true),new THREE.MeshPhysicalMaterial({color:appearance.outfit,metalness:.24,roughness:.28,clearcoat:.42,side:THREE.DoubleSide}));
+      skirtLayer.position.y=.27;skirtLayer.castShadow=true;group.add(skirtLayer);
       const neckline=new THREE.Mesh(new THREE.TorusGeometry(.17,.018,8,32),new THREE.MeshStandardMaterial({color:'#e7bd79',metalness:.82,roughness:.2}));
       neckline.rotation.x=Math.PI/2;neckline.position.set(0,.88,.02);group.add(neckline);
       const belt=new THREE.Mesh(new THREE.CylinderGeometry(.245,.245,.045,16),new THREE.MeshStandardMaterial({color:'#e7bd79',metalness:.8,roughness:.22}));
@@ -193,8 +197,10 @@ export function createGame(canvas) {
       for(const side of [-1,1]){
         const strap=new THREE.Mesh(new THREE.BoxGeometry(.045,.28,.045),new THREE.MeshStandardMaterial({color:'#e7bd79',metalness:.65}));
         strap.position.set(side*.13,1.03,.015);strap.rotation.z=side*.13;group.add(strap);
-        const heel=new THREE.Mesh(new THREE.BoxGeometry(.12,.12,.28),new THREE.MeshStandardMaterial({color:'#1b101b',metalness:.3,roughness:.3}));
-        heel.position.set(side*.13,.08,.02);group.add(heel);
+        const shoe=new THREE.Mesh(new THREE.SphereGeometry(1,16,10),new THREE.MeshStandardMaterial({color:variant%2?'#21131f':'#6d263e',metalness:.22,roughness:.28}));
+        shoe.scale.set(.095,.055,.17);shoe.position.set(side*.13,.09,.055);group.add(shoe);
+        const heel=new THREE.Mesh(new THREE.CylinderGeometry(.018,.026,.13,10),new THREE.MeshStandardMaterial({color:'#d7b16e',metalness:.78,roughness:.24}));
+        heel.position.set(side*.13,.055,-.035);group.add(heel);
         const sclera=new THREE.Mesh(new THREE.SphereGeometry(.043,16,12),new THREE.MeshStandardMaterial({color:'#f5e9df',roughness:.42}));
         sclera.scale.set(1.25,.72,.42);sclera.position.set(side*.075,1.36,.187);group.add(sclera);
         const iris=new THREE.Mesh(new THREE.SphereGeometry(.024,14,10),new THREE.MeshStandardMaterial({color:variant%2?'#6a4938':'#405b57',roughness:.32}));
@@ -225,8 +231,14 @@ export function createGame(canvas) {
         const bracelet=new THREE.Mesh(new THREE.TorusGeometry(.07,.012,5,12),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.8}));
         bracelet.rotation.x=Math.PI/2;bracelet.position.set(side*.29,.73,0);group.add(bracelet);
       }
-      const necklace=new THREE.Mesh(new THREE.TorusGeometry(.13,.012,5,16,Math.PI),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.8}));
+      const necklace=new THREE.Mesh(new THREE.TorusGeometry(.13,.012,5,24,Math.PI),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.82,roughness:.2}));
       necklace.rotation.x=Math.PI/2;necklace.position.set(0,1.12,.04);group.add(necklace);
+      const pendant=new THREE.Mesh(new THREE.OctahedronGeometry(.045,1),new THREE.MeshStandardMaterial({color:'#f4dca4',metalness:.7,roughness:.18}));
+      pendant.position.set(0,1.075,.18);group.add(pendant);
+      for(let i=0;i<5;i++){
+        const gem=new THREE.Mesh(new THREE.SphereGeometry(.018,10,8),new THREE.MeshStandardMaterial({color:i%2?'#f3d7a0':'#d98b9f',metalness:.25,roughness:.2}));
+        gem.position.set(-.17+i*.085,.59,.23);group.add(gem);
+      }
       const hem=new THREE.Mesh(new THREE.TorusGeometry(.29,.018,5,18),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.8}));
       hem.rotation.x=Math.PI/2;hem.position.y=.22;group.add(hem);
     }
