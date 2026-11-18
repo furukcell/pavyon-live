@@ -115,7 +115,7 @@ export function createGame(canvas) {
         const heel=new THREE.Mesh(new THREE.BoxGeometry(.12,.12,.28),new THREE.MeshStandardMaterial({color:'#1b101b',metalness:.3,roughness:.3}));
         heel.position.set(side*.13,.08,.02);group.add(heel);
         const eye=new THREE.Mesh(new THREE.SphereGeometry(.025,8,8),new THREE.MeshBasicMaterial({color:'#24131c'}));
-        eye.position.set(side*.075,1.36,.195);group.add(eye);
+        eye.name=`kons-eye-${side}`;eye.position.set(side*.075,1.36,.195);group.add(eye);
       }
       const smileCurve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(-.055,1.25,.205),new THREE.Vector3(0,1.22,.23),new THREE.Vector3(.055,1.25,.205));
       const smile=new THREE.Mesh(new THREE.TubeGeometry(smileCurve,8,.012,5,false),new THREE.MeshBasicMaterial({color:'#7e263c'}));
@@ -188,6 +188,8 @@ export function createGame(canvas) {
         actor.position.y=actor.userData.motion==='dance'?Math.abs(Math.sin(time*7+actor.userData.phase))*.08:Math.max(0,flirt)*.018;
         const smile=actor.getObjectByName('kons-smile');
         const laughMouth=actor.getObjectByName('kons-laugh-mouth');
+        const blink=Math.pow(Math.max(0,Math.sin(time*.9+actor.userData.flirtPhase*3)),36);
+        [-1,1].forEach(side=>{const eye=actor.getObjectByName(`kons-eye-${side}`);if(eye)eye.scale.y=Math.max(.08,1-blink);});
         const dancing=actor.userData.motion==='dance';
         actor.userData.armPivots?.forEach((arm,index)=>{
           const side=index===0?-1:1;
