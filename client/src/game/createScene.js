@@ -343,6 +343,15 @@ export function createGame(canvas) {
       beam.target.position.z=-2.5+Math.cos(time*.31+phase)*1.6;
       beam.intensity=13+Math.max(0,Math.sin(time*1.7+phase))*8;
     });
+    // Build a lightweight spatial hash once per frame so moving actors only inspect nearby neighbors.
+    const separationCellSize=.82;
+    const separationGrid=new Map();
+    const separationKey=(x,z)=>`${Math.floor(x/separationCellSize)},${Math.floor(z/separationCellSize)}`;
+    actors.forEach(actor=>{
+      const key=separationKey(actor.position.x,actor.position.z);
+      if(!separationGrid.has(key))separationGrid.set(key,[]);
+      separationGrid.get(key).push(actor);
+    });
     actors.forEach(actor=>{
       const target=actor.userData.target;
       let walking=false;
@@ -353,16 +362,23 @@ export function createGame(canvas) {
           walking=true;
           // Soft local separation: moving actors steer around nearby people instead of walking through them.
           let avoidX=0,avoidZ=0;
-          actors.forEach(other=>{
-            if(other===actor)return;
-            const ox=actor.position.x-other.position.x,oz=actor.position.z-other.position.z;
-            const gap=Math.hypot(ox,oz);
-            if(gap>0.001&&gap<.82){
-              const force=(.82-gap)/.82;
-              avoidX+=(ox/gap)*force;
-              avoidZ+=(oz/gap)*force;
+          const cellX=Math.floor(actor.position.x/separationCellSize);
+          const cellZ=Math.floor(actor.position.z/separationCellSize);
+          for(let gx=cellX-1;gx<=cellX+1;gx++){
+            for(let gz=cellZ-1;gz<=cellZ+1;gz++){
+              const nearby=separationGrid.get(`${gx},${gz}`)||[];
+              nearby.forEach(other=>{
+                if(other===actor)return;
+                const ox=actor.position.x-other.position.x,oz=actor.position.z-other.position.z;
+                const gap=Math.hypot(ox,oz);
+                if(gap>0.001&&gap<separationCellSize){
+                  const force=(separationCellSize-gap)/separationCellSize;
+                  avoidX+=(ox/gap)*force;
+                  avoidZ+=(oz/gap)*force;
+                }
+              });
             }
-          });
+          }
           const avoidLength=Math.hypot(avoidX,avoidZ);
           if(avoidLength>.001){
             const strength=Math.min(.72,avoidLength*.42);
