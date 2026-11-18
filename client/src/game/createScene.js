@@ -20,6 +20,14 @@ export function createGame(canvas) {
   key.position.set(-7, 14, 8); key.castShadow = true; key.shadow.mapSize.set(1024,1024); scene.add(key);
   const redGlow = new THREE.PointLight('#e33368', 35, 22); redGlow.position.set(-6,4,-3); scene.add(redGlow);
   const goldGlow = new THREE.PointLight('#ffc66d', 28, 20); goldGlow.position.set(7,4,2); scene.add(goldGlow);
+  const stageSpotlights=[];
+  for(let i=0;i<4;i++){
+    const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.16,.24,.28,12),new THREE.MeshStandardMaterial({color:'#d7b16e',metalness:.8,roughness:.25,emissive:'#6b3b28',emissiveIntensity:.35}));
+    lamp.position.set(-3+i*2,3.7,-7.6);scene.add(lamp);
+    const beam=new THREE.SpotLight(i%2?'#f6c5d2':'#f4d28c',18,18,Math.PI/7,.55,1.2);
+    beam.position.set(-3+i*2,3.5,-7.4);beam.target.position.set(-2+i*1.3,.1,-3);scene.add(beam,beam.target);
+    stageSpotlights.push({beam,phase:i*Math.PI/2});
+  }
 
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(26,22),new THREE.MeshStandardMaterial({color:'#301c2c',roughness:.78}));
   floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
@@ -76,8 +84,10 @@ export function createGame(canvas) {
     const body=new THREE.Mesh(new THREE.CapsuleGeometry(role==='kons'?.235:.26+(variant%4)*.012,role==='kons'?.58:.64+(variant%3)*.045,3,7),new THREE.MeshStandardMaterial({color,roughness:.48,metalness:role==='kons'?.12:0}));
     body.position.y=.72;body.castShadow=true;group.add(body);
     const skin=role==='waiter'?'#d6ad8c':appearance.skin;
-    const head=new THREE.Mesh(new THREE.SphereGeometry(.22+(variant%3)*.012,12,10),new THREE.MeshStandardMaterial({color:skin,roughness:.85}));
+    const head=new THREE.Mesh(new THREE.SphereGeometry(.22+(variant%3)*.012,16,12),new THREE.MeshStandardMaterial({color:skin,roughness:.85}));
     head.position.y=1.35;head.castShadow=true;group.add(head);
+    const neck=new THREE.Mesh(new THREE.CylinderGeometry(.075,.09,.18,10),new THREE.MeshStandardMaterial({color:skin,roughness:.85}));
+    neck.position.y=1.12;group.add(neck);
     const hairColor=role==='waiter'?'#28212a':appearance.hair;
     const hair=new THREE.Mesh(new THREE.SphereGeometry(.23+(variant%5)*.008,10,7,0,Math.PI*2,0,Math.PI*(.48+(variant%4)*.08)),new THREE.MeshStandardMaterial({color:hairColor}));
     hair.position.set(0,1.42,0);group.add(hair);
@@ -126,7 +136,15 @@ export function createGame(canvas) {
         heel.position.set(side*.13,.08,.02);group.add(heel);
         const eye=new THREE.Mesh(new THREE.SphereGeometry(.025,8,8),new THREE.MeshBasicMaterial({color:'#24131c'}));
         eye.name=`kons-eye-${side}`;eye.position.set(side*.075,1.36,.195);group.add(eye);
+        const brow=new THREE.Mesh(new THREE.BoxGeometry(.085,.018,.025),new THREE.MeshStandardMaterial({color:hairColor,roughness:.8}));
+        brow.position.set(side*.075,1.415,.19);brow.rotation.z=side*.12;group.add(brow);
+        const lash=new THREE.Mesh(new THREE.BoxGeometry(.09,.012,.018),new THREE.MeshStandardMaterial({color:'#24131c'}));
+        lash.position.set(side*.075,1.385,.198);group.add(lash);
       }
+      const nose=new THREE.Mesh(new THREE.SphereGeometry(.035,8,8),new THREE.MeshStandardMaterial({color:skin,roughness:.9}));
+      nose.scale.set(.8,1,.7);nose.position.set(0,1.315,.215);group.add(nose);
+      const lip=new THREE.Mesh(new THREE.SphereGeometry(.045,8,6),new THREE.MeshStandardMaterial({color:'#a83e59',roughness:.55}));
+      lip.scale.set(1,.28,.35);lip.position.set(0,1.255,.205);group.add(lip);
       const smileCurve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(-.055,1.25,.205),new THREE.Vector3(0,1.22,.23),new THREE.Vector3(.055,1.25,.205));
       const smile=new THREE.Mesh(new THREE.TubeGeometry(smileCurve,8,.012,5,false),new THREE.MeshBasicMaterial({color:'#7e263c'}));
       smile.name='kons-smile';group.add(smile);
@@ -147,6 +165,7 @@ export function createGame(canvas) {
     }
     const ring=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.045,12),new THREE.MeshStandardMaterial({color:role==='kons'?'#e3bd76':'#8f6b7b',metalness:.55}));
     ring.position.y=.04;group.add(ring);
+    group.scale.set(appearance.build||1,appearance.height||1,appearance.build||1);
     group.position.set((Math.random()-.5)*14,0,(Math.random()-.5)*10);
     actorGroup.add(group);actors.set(id,group);return group;
   }
@@ -195,6 +214,12 @@ export function createGame(canvas) {
   let raf=0;
   function tick(){
     raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;
+    stageSpotlights.forEach(({beam,phase})=>{
+      const sweep=Math.sin(time*.42+phase);
+      beam.target.position.x=sweep*3.8;
+      beam.target.position.z=-2.5+Math.cos(time*.31+phase)*1.6;
+      beam.intensity=13+Math.max(0,Math.sin(time*1.7+phase))*8;
+    });
     actors.forEach(actor=>{
       const target=actor.userData.target;
       if(target){
