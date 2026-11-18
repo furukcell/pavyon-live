@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getCustomerAppearanceByIndex } from './characterCatalog.js';
 
 export function createGame(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -58,6 +59,7 @@ export function createGame(canvas) {
 
   const actorGroup=new THREE.Group();scene.add(actorGroup);
   const actors=new Map();
+  let customerSequence=0;
   const konsHomes=new Map();
   const waiterHomes=new Map();
   const waiterBusy=new Set();
@@ -77,6 +79,10 @@ export function createGame(canvas) {
     const hairColor=role==='kons'?'#241622':role==='waiter'?'#28212a':hairTones[(variant*3)%hairTones.length];
     const hair=new THREE.Mesh(new THREE.SphereGeometry(.23+(variant%5)*.008,10,7,0,Math.PI*2,0,Math.PI*(.48+(variant%4)*.08)),new THREE.MeshStandardMaterial({color:hairColor}));
     hair.position.set(0,1.42,0);group.add(hair);
+    if(appearance?.gender==='female'&&['long','wavy','curly'].includes(appearance.haircut)){
+      const backHair=new THREE.Mesh(new THREE.SphereGeometry(.2,10,8),new THREE.MeshStandardMaterial({color:hairColor}));
+      backHair.scale.set(.82,1.5,.72);backHair.position.set(0,1.12,-.12);group.add(backHair);
+    }
     const ring=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.045,12),new THREE.MeshStandardMaterial({color:role==='kons'?'#e3bd76':'#8f6b7b',metalness:.55}));
     ring.position.y=.04;group.add(ring);
     group.position.set((Math.random()-.5)*14,0,(Math.random()-.5)*10);
