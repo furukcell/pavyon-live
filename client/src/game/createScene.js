@@ -60,6 +60,7 @@ export function createGame(canvas) {
   const actorGroup=new THREE.Group();scene.add(actorGroup);
   const actors=new Map();
   let customerSequence=0;
+  let customerSequence=0;
   const konsHomes=new Map();
   const waiterHomes=new Map();
   const waiterBusy=new Set();
@@ -90,13 +91,24 @@ export function createGame(canvas) {
   }
   function moveTo(id,x,z){const actor=actors.get(id);if(actor)actor.userData.target=new THREE.Vector3(x,0,z);}
   function addCustomer(viewer){
-    const variant=actors.size+Math.floor(Math.random()*101);
+    const variant=customerSequence++;
     const actor=makeActor(viewer.id,'customer',variant);actor.userData.name=viewer.name;
     actor.position.set((Math.random()-.5)*14,0,(Math.random()-.5)*11);
   }
+  function releaseSeat(actor){if(actor.userData.seat){actor.userData.seat.occupied=false;actor.userData.seat=null;}}
+  function seatCustomer(id){
+    const actor=actors.get(id);if(!actor)return;
+    releaseSeat(actor);
+    const spot=seatSpots.find(item=>!item.occupied);
+    if(!spot){moveTo(id,(Math.random()-.5)*12,(Math.random()-.5)*8);return;}
+    spot.occupied=true;actor.userData.seat=spot;actor.userData.motion='idle';actor.userData.targetRotation=spot.rotation;
+    moveTo(id,spot.x,spot.z);
+  }
   function animateActor(id,kind){
     const actor=actors.get(id);if(!actor)return;
-    const targets={dance:[(Math.random()-.5)*4,1],stage:[0,-8.5],seat:[-7+Math.random()*15,5]};
+    if(kind==='seat'){seatCustomer(id);return;}
+    releaseSeat(actor);
+    const targets={dance:[(Math.random()-.5)*4,1],stage:[0,-8.5]};
     const target=targets[kind]||targets.dance;moveTo(id,target[0],target[1]);actor.userData.motion=kind;
   }
   for(let i=1;i<=10;i++){
