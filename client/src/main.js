@@ -167,8 +167,18 @@ function addViewer(rawName) {
   if (state.viewers.has(name)) return state.viewers.get(name);
   if (state.viewers.size >= 100) { log('<b>Kapasite dolu:</b> Mekânda 100 izleyici var.'); return null; }
   const guest = { name, id: `viewer-${crypto.randomUUID()}`, action: 'standing' };
+  let sceneAdded = false;
+  try {
+    sceneAdded = game.addCustomer(guest) === true;
+  } catch (error) {
+    log('Müşteri sahneye eklenirken hata oluştu; giriş iptal edildi.');
+    return null;
+  }
+  if (!sceneAdded) {
+    log('Müşteri sahneye eklenemedi; giriş kaydı oluşturulmadı.');
+    return null;
+  }
   state.viewers.set(name, guest);
-  game.addCustomer(guest);
   log(`<b>@${escapeHtml(name)}</b> pavyona giriş yaptı.`);
   updateHud();
   return guest;
@@ -251,6 +261,10 @@ function occupyKons(konsId, name, duration, action) {
 function gift(rawName, type, konsId) {
   const name = cleanUsername(rawName);
   if (!name) { log('Geçersiz kullanıcı adı nedeniyle hediye aksiyonu uygulanmadı.'); return; }
+  if (!allowedGiftActions.has(type)) {
+    log('Tanımlanmamış hediye aksiyonu reddedildi.');
+    return;
+  }
   const guest = state.viewers.get(name) || addViewer(name);
   if (!guest) return;
   if(guest.activeKons){
