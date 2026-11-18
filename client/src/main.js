@@ -69,6 +69,7 @@ function playMusic(id) {
   const track = musicState.tracks.find(item => item.id === id);
   if (!track) return;
   musicState.currentId = id;
+  game.setMusicMood(track.category);
   musicAudio.src = track.url;
   musicAudio.play().then(() => {
     musicNowTitle.textContent = track.name;
