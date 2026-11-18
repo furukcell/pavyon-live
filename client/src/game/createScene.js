@@ -77,13 +77,14 @@ export function createGame(canvas) {
   }
 
   const tablePositions=[[-7,3],[-3,6],[4,6],[8,2],[-8,-1],[4,-1]];
+  const tableStates=tablePositions.map((position,index)=>({id:index+1,x:position[0],z:position[1],seats:[],occupied:0}));
   const seatSpots=[];
   tablePositions.forEach(([x,z],i)=>{
     const table=new THREE.Mesh(new THREE.CylinderGeometry(.8,.85,.18,24),new THREE.MeshStandardMaterial({color:'#6e3d36',metalness:.35,roughness:.35}));
     table.position.set(x,.9,z);table.castShadow=true;scene.add(table);
     const top=new THREE.Mesh(new THREE.CylinderGeometry(.83,.83,.06,24),new THREE.MeshStandardMaterial({color:'#d0a260',metalness:.72,roughness:.28}));
     top.position.set(x,1.02,z);scene.add(top);
-    for(let j=0;j<3;j++){const a=j*Math.PI*2/3;const sx=x+Math.cos(a)*1.45,sz=z+Math.sin(a)*1.45;const seat=new THREE.Mesh(new THREE.BoxGeometry(.9,.65,.75),new THREE.MeshStandardMaterial({color:'#8c2545',roughness:.8}));seat.position.set(sx,.35,sz);seat.rotation.y=-a;seat.castShadow=true;scene.add(seat);seatSpots.push({x:sx,z:sz,rotation:-a,occupied:false});}
+    for(let j=0;j<3;j++){const a=j*Math.PI*2/3;const sx=x+Math.cos(a)*1.45,sz=z+Math.sin(a)*1.45;const seat=new THREE.Mesh(new THREE.BoxGeometry(.9,.65,.75),new THREE.MeshStandardMaterial({color:'#8c2545',roughness:.8}));seat.position.set(sx,.35,sz);seat.rotation.y=-a;seat.castShadow=true;scene.add(seat);const spot={x:sx,z:sz,rotation:-a,occupied:false,tableId:i+1};seatSpots.push(spot);tableStates[i].seats.push(spot);}
     // Warm candlelight and glassware add detail to each guest table.
     const candle=new THREE.Mesh(new THREE.CylinderGeometry(.055,.065,.22,10),new THREE.MeshStandardMaterial({color:'#f0d8ad',roughness:.45}));
     candle.position.set(x,.14,z);scene.add(candle);
@@ -261,7 +262,14 @@ export function createGame(canvas) {
     actor.position.set(spawn.x,0,spawn.z);
     actor.userData.home=actor.position.clone();
   }
-  function releaseSeat(actor){if(actor.userData.seat){actor.userData.seat.occupied=false;actor.userData.seat=null;}}
+  function releaseSeat(actor){
+    const spot=actor.userData.seat;
+    if(!spot)return;
+    spot.occupied=false;
+    const table=tableStates[spot.tableId-1];
+    if(table)table.occupied=Math.max(0,table.occupied-1);
+    actor.userData.seat=null;
+  }
   function seatCustomer(id){
     const actor=actors.get(id);if(!actor)return false;
     const currentSeat=actor.userData.seat;
@@ -272,8 +280,14 @@ export function createGame(canvas) {
           .filter(item=>!item.occupied)
           .sort((a,b)=>Math.hypot(a.x-actor.position.x,a.z-actor.position.z)-Math.hypot(b.x-actor.position.x,b.z-actor.position.z))[0];
     if(!spot)return false;
-    releaseSeat(actor);
-    spot.occupied=true;actor.userData.seat=spot;actor.userData.motion='walking-to-seat';actor.userData.targetRotation=spot.rotation;
+    if(currentSeat!==spot){
+      releaseSeat(actor);
+      spot.occupied=true;
+      const table=tableStates[spot.tableId-1];
+      if(table)table.occupied+=1;
+      actor.userData.seat=spot;
+    }
+    actor.userData.motion='walking-to-seat';actor.userData.targetRotation=spot.rotation;
     moveTo(id,spot.x,spot.z);
     return true;
   }
