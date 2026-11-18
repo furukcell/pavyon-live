@@ -30,7 +30,7 @@
 | Kons tavırları | Prototip animasyonlar | Göz kırpma, gülümseme/kahkaha, hafif salınım, cilveli duruş, yürüyüş ve üç farklı prosedürel dans stili |
 | Müşteri görünüş kataloğu | Hazır (parametrik) | 100 kadın + 100 erkek görünüş profili; bunlar 200 ayrı model dosyası değildir |
 | Garsonlar | İlk prototip hazır | 5 karakter örneği ve müşteriye servis hareketi |
-| Müşteri oturma/dans hareketi | İlk prototip hazır | Boş koltuğa yürüme, oturma pozu, kol/bacak hareketleri ve bireysel dans döngüsü; 18 koltuk dolduğunda yeni oturma isteği reddedilir |
+| Müşteri oturma/dans hareketi | İlk prototip hazır | Boş koltuğa yürüme, oturma pozu, kol/bacak hareketleri; müşterilerde ve garsonlarda yürüyüşe bağlı senkron adım fazı, dengeli kol salınımı ve daha yumuşak dans adımları ve bireysel dans döngüsü; 18 koltuk dolduğunda yeni oturma isteği reddedilir |
 | Garson servis animasyonu | İlk prototip hazır | Tepsi/bardak taşıma görseli, servis pozisyonu, müşteriye gidip dönme ve beş garson meşgulse FIFO servis kuyruğu (en fazla 30 talep) |
 | VIP yerleşimi | İlk prototip hazır | Aynı locaya üst üste karakter yığılmasını azaltan dört ayrı çift konumu |
 | Kons-müşteri etkileşimi | İlk prototip hazır | Masaya göre yaklaşma, müşteriye dönme; konsun müşterinin dört yanından daha uygun/boş yaklaşma noktasını seçmesi, eşli dans/VIP/davet öncesi müşterinin koltuğunu serbest bırakma ve oturma pozunu sıfırlama |
@@ -63,7 +63,7 @@
 - Küpe, kolye, bileklik, sahne makyajı/yanak rengi, kaş, kirpik, burun, dudak ve gülümseme detayları.
 - Konsların boy ve vücut oranları görünüş profiline göre hafif değişir.
 - Kons seçme listesindeki her karakterin müsait/meşgul durumu gösterilir; meşgul karakterler test panelinden seçilemez.
-- Boştayken hafif salınım ve ara sıra kahkaha; göz kırpma; davette cilveli duruş; dans sırasında kol/bacak pivot hareketleri. Konslar üç farklı ritim/kol-bacak kombinasyonundan biriyle dans eder.
+- Boştayken hafif salınım ve ara sıra kahkaha; göz kırpma; davette cilveli duruş; dans sırasında kol/bacak pivot hareketleri. Konslar üç farklı ritim/kol-bacak kombinasyonundan biriyle dans eder. Yürüyüşte hareket mesafesine bağlı ayrı adım fazı, daha düşük hız, karşılıklı kol-bacak salınımı ve hafif gövde/baş tepkisi kullanılır; dans döngülerinde zıplama azaltılarak ayak adımı, kol ritmi ve kalça/gövde salınımı daha kontrollü tutulur.
 - Yeni yürüyüş döngüsü: adım ritminde bacak ve kol salınımı, hafif gövde yükselmesi ve hedefe yumuşak dönüş.
 - Müşteriyle etkileşimde hedefe dönük duruş; VIP locada kons ve müşterinin birbirine bakacak şekilde konumlanması.
 
