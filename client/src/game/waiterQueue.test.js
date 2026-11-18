@@ -49,3 +49,30 @@ test('rejects invalid customer identifiers and can clear all requests', () => {
   assert.equal(queue.size, 0);
   assert.equal(queue.dequeue(), null);
 });
+
+import { createWaiterServiceLedger } from './waiterQueue.js';
+
+test('prevents one customer being served twice at once', () => {
+  const ledger = createWaiterServiceLedger();
+  assert.equal(ledger.start('waiter-1', 'guest-a'), true);
+  assert.equal(ledger.start('waiter-2', 'guest-a'), false);
+  assert.equal(ledger.hasCustomer('guest-a'), true);
+  assert.equal(ledger.waiterFor('guest-a'), 'waiter-1');
+});
+
+test('prevents one waiter serving two customers and releases both sides on finish', () => {
+  const ledger = createWaiterServiceLedger();
+  assert.equal(ledger.start('waiter-1', 'guest-a'), true);
+  assert.equal(ledger.start('waiter-1', 'guest-b'), false);
+  assert.equal(ledger.finish('waiter-1'), 'guest-a');
+  assert.equal(ledger.hasCustomer('guest-a'), false);
+  assert.equal(ledger.start('waiter-2', 'guest-a'), true);
+});
+
+test('clears active service assignments', () => {
+  const ledger = createWaiterServiceLedger();
+  ledger.start('waiter-1', 'guest-a');
+  ledger.clear();
+  assert.equal(ledger.finish('waiter-1'), null);
+  assert.equal(ledger.hasCustomer('guest-a'), false);
+});
