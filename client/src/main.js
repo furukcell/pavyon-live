@@ -42,6 +42,8 @@ function updateHud() {
     option.textContent=owner?`${option.value.replace('kons-','Kons ')} · @${owner}`:`${option.value.replace('kons-','Kons ')} · Müsait`;
   });
   document.querySelector('#like-count').textContent = state.likes.toLocaleString('tr-TR');
+  const tables=game.getTableStatus();
+  document.querySelector('#table-status').textContent=tables.map(table=>`${table.id}:${table.occupied}/${table.capacity}`).join(' · ');
 }
 function addViewer(rawName) {
   const name = cleanUsername(rawName);
