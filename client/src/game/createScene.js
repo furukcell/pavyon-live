@@ -696,11 +696,13 @@ export function createGame(canvas) {
   }
   // Front-stage vocalist anchors the live ensemble.
   const vocalist=makeActor('band-vocalist','musician',29);
-  vocalist.position.set(0,0,-6.75);
+  vocalist.position.set(0,0,-8.12);
   vocalist.rotation.y=0;
   vocalist.userData.instrument='vocal';
   vocalist.userData.motion='performing';
   vocalist.userData.vocalist=true;
+  vocalist.userData.entranceDuration=3.2;
+  vocalist.userData.stageFrontZ=-6.75;
   const micStand=new THREE.Group();
   const micMetal=new THREE.MeshStandardMaterial({color:'#29242a',metalness:.72,roughness:.28});
   const micGold=new THREE.MeshStandardMaterial({color:'#c59a5b',metalness:.78,roughness:.22});
@@ -726,6 +728,19 @@ export function createGame(canvas) {
   vocalist.userData.armPivots[0].rotation.z=-.58;
   vocalist.userData.armPivots[0].rotation.x=-.18;
   bandMembers.push(vocalist);
+
+  // Two adult stage performers flank the singer and add a restrained pavyon accompaniment.
+  const stagePerformers=[];
+  for(let i=0;i<2;i++){
+    const dancer=makeActor(`stage-kons-${i+1}`,'kons',(i+3)%10);
+    dancer.position.set(i===0?-3.05:3.05,0,-6.72);
+    dancer.rotation.y=i===0?.28:-.28;
+    dancer.userData.stagePerformer=true;
+    dancer.userData.ambientNpc=true;
+    dancer.userData.motion='stage-performance';
+    dancer.userData.stageSide=i===0?-1:1;
+    stagePerformers.push(dancer);
+  }
 
   for(let i=0;i<musicianRoles.length;i++){
     const actor=makeActor(`band-${musicianRoles[i]}`,'musician',i+20);
@@ -919,23 +934,25 @@ export function createGame(canvas) {
         const laughMouth=actor.getObjectByName('kons-laugh-mouth');
         const blink=Math.pow(Math.max(0,Math.sin(time*.9+actor.userData.flirtPhase*3)),36);
         [-1,1].forEach(side=>{const eye=actor.getObjectByName(`kons-eye-${side}`);if(eye)eye.scale.y=Math.max(.08,1-blink);});
+        const stagePerforming=actor.userData.stagePerformer===true;
         const dancing=actor.userData.motion==='dance'&&!walking;
         const danceStyle=Number.isInteger(actor.userData.danceStyle)?actor.userData.danceStyle:(Number(actor.userData.id.split('-')[1])-1)%3;
         const rhythm=(musicMood==='ankara'?1.16:1)*(actor.userData.danceTempo||1);
         const stride=walking?Math.sin(actor.userData.gaitPhase):0;
         const walkCounter=walking?Math.sin(actor.userData.gaitPhase+Math.PI):0;
-        actor.position.y=walking?Math.abs(stride)*.025:(dancing?Math.abs(Math.sin(time*6.2*rhythm+actor.userData.phase))*.035:Math.max(0,flirt)*.012);
+        actor.position.y=walking?Math.abs(stride)*.025:(dancing?Math.abs(Math.sin(time*6.2*rhythm+actor.userData.phase))*.035:(stagePerforming?Math.abs(Math.sin(time*2.7+actor.userData.phase))*.018:Math.max(0,flirt)*.012));
         if(actor.userData.body){
-          actor.userData.body.rotation.z=walking?stride*.035:(dancing?Math.sin(time*4*rhythm+actor.userData.phase)*.045:0);
-          actor.userData.body.rotation.y=dancing?Math.sin(time*3.1*rhythm+actor.userData.phase)*.09:0;
+          actor.userData.body.rotation.z=walking?stride*.035:(dancing?Math.sin(time*4*rhythm+actor.userData.phase)*.045:(stagePerforming?Math.sin(time*2.1+actor.userData.phase)*.035:0));
+          actor.userData.body.rotation.y=dancing?Math.sin(time*3.1*rhythm+actor.userData.phase)*.09:(stagePerforming?Math.sin(time*.8+actor.userData.phase)*.12:0);
         }
-        if(actor.userData.head)actor.userData.head.rotation.x=walking?-Math.abs(stride)*.025:(dancing?Math.sin(time*6.2+actor.userData.phase)*.025:0);
+        if(actor.userData.head)actor.userData.head.rotation.x=walking?-Math.abs(stride)*.025:(dancing?Math.sin(time*6.2+actor.userData.phase)*.025:(stagePerforming?Math.sin(time*1.3+actor.userData.phase)*.025:0));
         actor.userData.armPivots?.forEach((arm,index)=>{
           const side=index===0?-1:1;
           const beat=time*(danceStyle===1?5.5:8)*rhythm+index;
           const danceArm=danceStyle===0?side*(.78+Math.sin(beat)*.2):danceStyle===1?(index===0?-.25:.95)+Math.sin(beat)*.22:side*(.48+Math.sin(beat)*.42);
-          arm.rotation.z=dancing?danceArm:(walking?side*(.08+stride*.19):side*(.12+Math.sin(time*1.8+actor.userData.flirtPhase+index)*.09));
-          arm.rotation.x=dancing?Math.sin(time*(danceStyle===2?3.8:5)*rhythm+index)*.16:(walking?stride*.1:Math.sin(time*1.3+index)*.04);
+          const stageGesture=stagePerforming?Math.sin(time*1.15+actor.userData.phase+index*Math.PI):0;
+          arm.rotation.z=dancing?danceArm:(stagePerforming?(index===0?-.32: .34)+stageGesture*.24:(walking?side*(.08+stride*.19):side*(.12+Math.sin(time*1.8+actor.userData.flirtPhase+index)*.09)));
+          arm.rotation.x=dancing?Math.sin(time*(danceStyle===2?3.8:5)*rhythm+index)*.16:(stagePerforming?Math.sin(time*1.5+index)*.1:(walking?stride*.1:Math.sin(time*1.3+index)*.04));
         });
         actor.userData.legPivots?.forEach((leg,index)=>{
           const footBeat=time*(danceStyle===1?6:8)*rhythm+index*Math.PI+actor.userData.phase;
@@ -1015,15 +1032,24 @@ export function createGame(canvas) {
         const beat=time*(musicMood==='ankara'?7.4:5.8)+actor.userData.phase;
         const instrument=actor.userData.instrument;
         if(actor.userData.vocalist){
+          const entrance=THREE.MathUtils.smoothstep(time/actor.userData.entranceDuration,0,1);
+          actor.position.z=THREE.MathUtils.lerp(-8.12,actor.userData.stageFrontZ,entrance);
+          actor.rotation.y=THREE.MathUtils.lerp(.12,0,entrance);
           const singing=Math.sin(beat*1.35);
+          const phrase=Math.floor(time/8.5)%4;
+          const phraseTime=(time%8.5)/8.5;
+          const gesture=phrase===0?Math.max(0,Math.sin(phraseTime*Math.PI*2)):(phrase===1?Math.max(0,Math.sin(phraseTime*Math.PI)):0);
+          const crowdCall=phrase===2&&phraseTime>.2&&phraseTime<.82;
+          const bandTurn=phrase===3?Math.sin(phraseTime*Math.PI*2)*.22:0;
           actor.userData.body.rotation.z=singing*.035;
+          actor.userData.body.rotation.y=bandTurn;
           actor.userData.head.rotation.x=-.08+Math.max(0,singing)*.035;
-          actor.userData.head.rotation.y=Math.sin(beat*.42)*.12;
+          actor.userData.head.rotation.y=Math.sin(beat*.42)*.12+bandTurn*.65;
           actor.userData.micInHand.rotation.z=Math.sin(beat*.8)*.08;
           actor.userData.armPivots[0].rotation.z=-.58+Math.sin(beat*.7)*.12;
           actor.userData.armPivots[0].rotation.x=-.18+Math.sin(beat*1.3)*.06;
-          actor.userData.armPivots[1].rotation.z=-.12+Math.max(0,Math.sin(beat*.55))*.72;
-          actor.userData.armPivots[1].rotation.x=Math.sin(beat*.8)*.18;
+          actor.userData.armPivots[1].rotation.z=crowdCall?-.82:-.12+gesture*.72;
+          actor.userData.armPivots[1].rotation.x=crowdCall?-.38:Math.sin(beat*.8)*.18;
           actor.userData.head.scale.y=1.08+Math.max(0,Math.sin(beat*1.35))*.025;
           actor.position.y=Math.max(0,Math.sin(beat*2))*.018;
           return;
