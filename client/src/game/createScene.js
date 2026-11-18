@@ -308,15 +308,19 @@ export function createGame(canvas) {
         const blink=Math.pow(Math.max(0,Math.sin(time*.9+actor.userData.flirtPhase*3)),36);
         [-1,1].forEach(side=>{const eye=actor.getObjectByName(`kons-eye-${side}`);if(eye)eye.scale.y=Math.max(.08,1-blink);});
         const dancing=actor.userData.motion==='dance';
+        const danceStyle=(Number(actor.userData.id.split('-')[1])-1)%3;
         const stride=walking?Math.sin(time*10+actor.userData.phase):0;
         actor.position.y=walking?Math.abs(Math.sin(time*10+actor.userData.phase))*.045:(dancing?Math.abs(Math.sin(time*7+actor.userData.phase))*.08:Math.max(0,flirt)*.018);
         actor.userData.armPivots?.forEach((arm,index)=>{
           const side=index===0?-1:1;
-          arm.rotation.z=dancing?side*(.75+Math.sin(time*8+index)*.28):(walking?side*(.12+stride*.24):side*(.16+Math.sin(time*1.8+actor.userData.flirtPhase+index)*.12));
-          arm.rotation.x=dancing?Math.sin(time*5+index)*.18:(walking?stride*.16:Math.sin(time*1.3+index)*.06);
+          const beat=time*(danceStyle===1?5.5:8)+index;
+          const danceArm=danceStyle===0?side*(.78+Math.sin(beat)*.2):danceStyle===1?(index===0?-.25:.95)+Math.sin(beat)*.22:side*(.48+Math.sin(beat)*.42);
+          arm.rotation.z=dancing?danceArm:(walking?side*(.12+stride*.24):side*(.16+Math.sin(time*1.8+actor.userData.flirtPhase+index)*.12));
+          arm.rotation.x=dancing?Math.sin(time*(danceStyle===2?3.8:5)+index)*.2:(walking?stride*.16:Math.sin(time*1.3+index)*.06);
         });
         actor.userData.legPivots?.forEach((leg,index)=>{
-          leg.rotation.x=dancing?Math.sin(time*8+index*Math.PI)*.32:(walking?Math.sin(time*10+index*Math.PI+actor.userData.phase)*.42:Math.sin(time*1.4+index)*.025);
+          const footBeat=time*(danceStyle===1?6:8)+index*Math.PI+actor.userData.phase;
+          leg.rotation.x=dancing?Math.sin(footBeat)*(danceStyle===2?.22:.32):(walking?Math.sin(time*10+index*Math.PI+actor.userData.phase)*.42:Math.sin(time*1.4+index)*.025);
         });
         const laughing=actor.userData.motion==='laugh'||(Math.sin(time*.72+actor.userData.flirtPhase*2)>.985);
         if(actor.userData.head)actor.userData.head.rotation.z=actor.userData.motion==='flirt'?Math.sin(time*2+actor.userData.flirtPhase)*.045:0;
