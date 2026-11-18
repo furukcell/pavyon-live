@@ -666,7 +666,8 @@ export function createGame(canvas) {
     }
     waiterBusy.add(waiterId);
     waiter.userData.motion='serving';
-    const approach=findWaiterApproach(waiter,guest);\n    moveTo(waiterId,approach.x,approach.z);
+    const approach=findWaiterApproach(waiter,guest);
+    moveTo(waiterId,approach.x,approach.z);
     window.setTimeout(()=>finishWaiterService(waiterId),4500);
     return true;
   }
