@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { getCustomerAppearanceByIndex } from './characterCatalog.js';
+import { createWaiterQueue } from './waiterQueue.js';
 
 export function createGame(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -244,7 +245,8 @@ export function createGame(canvas) {
   const konsHomes=new Map();
   const waiterHomes=new Map();
   const waiterBusy=new Set();
-  const waiterQueue=[];
+  const waiterQueue=createWaiterQueue(30);
+  const waiterServiceTimers=new Map();
   const vipSlots=[{x:7,z:-5},{x:8.5,z:-5},{x:7,z:-2.8},{x:8.5,z:-2.8}];
   const vipAssignments=new Map();
   const danceSlots=[{x:-3,z:1},{x:0,z:1},{x:3,z:1},{x:-3,z:3},{x:0,z:3},{x:3,z:3}];
@@ -799,8 +801,10 @@ export function createGame(canvas) {
     const waiter=actors.get(waiterId);
     if(!waiter)return;
     let nextGuestId=null;
-    while(waiterQueue.length&&!nextGuestId){
-      const candidate=waiterQueue.shift();
+    const previousTimer=waiterServiceTimers.get(waiterId);
+    if(previousTimer){window.clearTimeout(previousTimer);waiterServiceTimers.delete(waiterId);}
+    while(waiterQueue.size&&!nextGuestId){
+      const candidate=waiterQueue.dequeue();
       if(actors.has(candidate))nextGuestId=candidate;
     }
     if(nextGuestId){
@@ -822,16 +826,16 @@ export function createGame(canvas) {
     waiter.userData.motion='serving';
     const approach=findWaiterApproach(waiter,guest);
     moveTo(waiterId,approach.x,approach.z);
-    window.setTimeout(()=>finishWaiterService(waiterId),4500);
+    const timer=window.setTimeout(()=>{waiterServiceTimers.delete(waiterId);finishWaiterService(waiterId);},4500);
+    waiterServiceTimers.set(waiterId,timer);
     return true;
   }
   function requestDrink(customerId){
     if(!actors.has(customerId))return false;
     const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));
     if(!waiterId){
-      if(waiterQueue.length>=30)return false;
-      waiterQueue.push(customerId);
-      return 'queued';
+      const queued=waiterQueue.enqueue(customerId);
+      return queued===true?'queued':false;
     }
     return startWaiterService(waiterId,customerId)?'serving':false;
   }
@@ -1216,6 +1220,6 @@ export function createGame(canvas) {
     show:id=>animateActor(id,'stage'),
     getTableStatus:()=>tableStates.map(table=>({id:table.id,occupied:table.occupied,capacity:table.seats.length})),
     setLikes:value=>{redGlow.intensity=35+Math.min(value,500)*.08;goldGlow.intensity=28+Math.min(value,500)*.04;},
-    dispose:()=>{cancelAnimationFrame(raf);observer.disconnect();renderer.dispose();}
+    dispose:()=>{cancelAnimationFrame(raf);observer.disconnect();waiterServiceTimers.forEach(timer=>window.clearTimeout(timer));waiterServiceTimers.clear();waiterQueue.clear();renderer.dispose();}
   };
 }
