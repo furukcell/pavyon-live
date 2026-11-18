@@ -100,3 +100,5 @@ footer{text-align:center;color:#b08e9d;font-size:9px;letter-spacing:.3px;margin-
 .stream-mode .live-pill{max-width:280px}
 .stream-mode .live-pill strong{font-size:9px;letter-spacing:.6px}
 @media(max-width:700px){.stream-mode .live-pill{max-width:185px}.stream-mode .live-pill strong{font-size:7px;letter-spacing:0}}
+
+.live-metrics span{display:block;margin-top:3px;color:#c5aab7;font-size:9px;white-space:nowrap}.live-metrics strong{font-variant-numeric:tabular-nums}.stream-mode .live-metrics{min-width:108px}.stream-mode .live-metrics span{font-size:8px}@media(max-width:700px){.status-row{gap:5px;flex-wrap:wrap}.live-metrics{min-width:82px;padding:7px 8px}.live-metrics span{font-size:8px}.stream-mode .status-row .table-stat{display:none}.stream-mode .live-metrics{min-width:90px}}
