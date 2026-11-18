@@ -279,6 +279,7 @@ export function createGame(canvas) {
           leg.rotation.x=dancing?Math.sin(time*8+index*Math.PI)*.32:(walking?Math.sin(time*10+index*Math.PI+actor.userData.phase)*.42:Math.sin(time*1.4+index)*.025);
         });
         const laughing=actor.userData.motion==='laugh'||(Math.sin(time*.72+actor.userData.flirtPhase*2)>.985);
+        if(actor.userData.head)actor.userData.head.rotation.z=actor.userData.motion==='flirt'?Math.sin(time*2+actor.userData.flirtPhase)*.045:0;
         if(smile)smile.scale.y=laughing?.45:1+Math.max(0,flirt)*.25;
         if(laughMouth){laughMouth.scale.y=laughing?1:.08;}
         if(laughing)actor.position.y+=Math.abs(Math.sin(time*10+actor.userData.phase))*.025;
@@ -311,6 +312,7 @@ export function createGame(canvas) {
           arm.rotation.x=serving?(index===1?-.22:0):(walking?gait*.16:Math.sin(time*1.4+index)*.025);
           arm.rotation.z=serving?(index===1?-.16:.08):(walking?(index===0?1:-1)*gait*.16:0);
         });
+        actor.userData.legPivots?.forEach((leg,index)=>{leg.rotation.x=walking?Math.sin(time*9+index*Math.PI+actor.userData.phase)*.3:0;});
         if(actor.userData.tray)actor.userData.tray.rotation.z=serving?-.04:0;
       }else if(actor.userData.motion==='dance'){
         actor.rotation.z=Math.sin(time*7+actor.userData.phase)*.16;
@@ -326,8 +328,8 @@ export function createGame(canvas) {
     seat:id=>animateActor(id,'seat'),
     stage:id=>animateActor(id,'stage'),
     drink:(customerId)=>{const customer=actors.get(customerId);if(!customer)return;const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));if(!waiterId)return;waiterBusy.add(waiterId);const waiter=actors.get(waiterId);if(waiter)waiter.userData.motion='serving';moveTo(waiterId,customer.position.x-1.1,customer.position.z);window.setTimeout(()=>{const home=waiterHomes.get(waiterId);if(home)moveTo(waiterId,home.x,home.z);if(waiter)waiter.userData.motion='idle';waiterBusy.delete(waiterId);},4500);},
-    konsToTable:(k,id)=>{const customer=actors.get(id);if(customer){const hostess=actors.get(k);if(hostess){hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;}moveTo(k,customer.position.x+1.2,customer.position.z);}},
-    konsDance:(k,id)=>{const hostess=actors.get(k);if(hostess)hostess.userData.motion='dance';animateActor(id,'dance');},
+    konsToTable:(k,id)=>{const customer=actors.get(id),hostess=actors.get(k);if(!customer||!hostess)return;const angle=customer.rotation.y;const offset=new THREE.Vector3(Math.sin(angle+Math.PI/2)*1.05,0,Math.cos(angle+Math.PI/2)*1.05);const tx=customer.position.x+offset.x,tz=customer.position.z+offset.z;hostess.userData.motion='flirt';hostess.userData.targetRotation=Math.atan2(customer.position.x-tx,customer.position.z-tz);moveTo(k,tx,tz);}},
+    konsDance:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return;releaseSeat(guest);if(guest.userData.body)guest.userData.body.position.y=.72;if(guest.userData.head)guest.userData.head.position.y=1.35;const gx=-.85+(Math.random()*.5),gz=1.2+(Math.random()*.5);const hx=gx+1.25,hz=gz;guest.userData.motion='dance';guest.userData.targetRotation=Math.PI/2;hostess.userData.motion='dance';hostess.userData.targetRotation=-Math.PI/2;moveTo(id,gx,gz);moveTo(k,hx,hz);},
     vip:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return;const occupied=new Set([...vipAssignments.values()].map(slot=>slot));const slot=vipSlots.find(item=>!occupied.has(item));if(!slot)return;vipAssignments.set(k,slot);hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;guest.userData.targetRotation=Math.PI/2;moveTo(k,slot.x+.55,slot.z);moveTo(id,slot.x-.55,slot.z);},
     releaseKons:k=>{const home=konsHomes.get(k);if(home){moveTo(k,home.x,home.z);const actor=actors.get(k);if(actor)actor.userData.motion='idle';}vipAssignments.delete(k);},
     releaseGuest:id=>{const actor=actors.get(id);if(actor){releaseSeat(actor);actor.userData.motion='idle';if(actor.userData.body)actor.userData.body.position.y=.72;if(actor.userData.head)actor.userData.head.position.y=1.35;actor.userData.legPivots?.forEach(leg=>leg.rotation.x=0);actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});const home=actor.userData.home;if(home)moveTo(id,home.x,home.z);}},
