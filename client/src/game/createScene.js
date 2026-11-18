@@ -633,6 +633,10 @@ export function createGame(canvas) {
     guest.userData.motion='dance';
     hostess.userData.ambientNpc=true;
     guest.userData.ambientNpc=true;
+    hostess.userData.danceStyle=i%3;
+    guest.userData.danceStyle=i%3;
+    hostess.userData.danceTempo=[0.92,1.08,1.2][i%3];
+    guest.userData.danceTempo=[1.02,0.94,1.14][i%3];
     danceAssignments.set(hostessId,slot);
   }
 
@@ -712,6 +716,7 @@ export function createGame(canvas) {
   }
   const observer=new ResizeObserver(resize);observer.observe(canvas);resize();
   let raf=0;
+  let musicMood='pavyon';
   function tick(){
     raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;
     stageSpotlights.forEach(({beam,phase})=>{
@@ -799,24 +804,25 @@ export function createGame(canvas) {
         const blink=Math.pow(Math.max(0,Math.sin(time*.9+actor.userData.flirtPhase*3)),36);
         [-1,1].forEach(side=>{const eye=actor.getObjectByName(`kons-eye-${side}`);if(eye)eye.scale.y=Math.max(.08,1-blink);});
         const dancing=actor.userData.motion==='dance'&&!walking;
-        const danceStyle=(Number(actor.userData.id.split('-')[1])-1)%3;
+        const danceStyle=Number.isInteger(actor.userData.danceStyle)?actor.userData.danceStyle:(Number(actor.userData.id.split('-')[1])-1)%3;
+        const rhythm=(musicMood==='ankara'?1.16:1)*(actor.userData.danceTempo||1);
         const stride=walking?Math.sin(actor.userData.gaitPhase):0;
         const walkCounter=walking?Math.sin(actor.userData.gaitPhase+Math.PI):0;
-        actor.position.y=walking?Math.abs(stride)*.025:(dancing?Math.abs(Math.sin(time*6.2+actor.userData.phase))*.035:Math.max(0,flirt)*.012);
+        actor.position.y=walking?Math.abs(stride)*.025:(dancing?Math.abs(Math.sin(time*6.2*rhythm+actor.userData.phase))*.035:Math.max(0,flirt)*.012);
         if(actor.userData.body){
-          actor.userData.body.rotation.z=walking?stride*.035:(dancing?Math.sin(time*4+actor.userData.phase)*.045:0);
-          actor.userData.body.rotation.y=dancing?Math.sin(time*3.1+actor.userData.phase)*.09:0;
+          actor.userData.body.rotation.z=walking?stride*.035:(dancing?Math.sin(time*4*rhythm+actor.userData.phase)*.045:0);
+          actor.userData.body.rotation.y=dancing?Math.sin(time*3.1*rhythm+actor.userData.phase)*.09:0;
         }
         if(actor.userData.head)actor.userData.head.rotation.x=walking?-Math.abs(stride)*.025:(dancing?Math.sin(time*6.2+actor.userData.phase)*.025:0);
         actor.userData.armPivots?.forEach((arm,index)=>{
           const side=index===0?-1:1;
-          const beat=time*(danceStyle===1?5.5:8)+index;
+          const beat=time*(danceStyle===1?5.5:8)*rhythm+index;
           const danceArm=danceStyle===0?side*(.78+Math.sin(beat)*.2):danceStyle===1?(index===0?-.25:.95)+Math.sin(beat)*.22:side*(.48+Math.sin(beat)*.42);
           arm.rotation.z=dancing?danceArm:(walking?side*(.08+stride*.19):side*(.12+Math.sin(time*1.8+actor.userData.flirtPhase+index)*.09));
-          arm.rotation.x=dancing?Math.sin(time*(danceStyle===2?3.8:5)+index)*.16:(walking?stride*.1:Math.sin(time*1.3+index)*.04);
+          arm.rotation.x=dancing?Math.sin(time*(danceStyle===2?3.8:5)*rhythm+index)*.16:(walking?stride*.1:Math.sin(time*1.3+index)*.04);
         });
         actor.userData.legPivots?.forEach((leg,index)=>{
-          const footBeat=time*(danceStyle===1?6:8)+index*Math.PI+actor.userData.phase;
+          const footBeat=time*(danceStyle===1?6:8)*rhythm+index*Math.PI+actor.userData.phase;
           leg.rotation.x=dancing?Math.sin(footBeat)*(danceStyle===2?.18:.24):(walking?Math.sin(actor.userData.gaitPhase+index*Math.PI)*.3:Math.sin(time*1.4+index)*.015);
         });
         const laughing=actor.userData.motion==='laugh'||(Math.sin(time*.72+actor.userData.flirtPhase*2)>.985);
@@ -827,6 +833,8 @@ export function createGame(canvas) {
       }else if(actor.userData.role==='customer'){
         const motion=actor.userData.motion;
         const dancing=motion==='dance'&&!walking;
+        const customerRhythm=(musicMood==='ankara'?1.16:1)*(actor.userData.danceTempo||1);
+        const customerBeat=6.2*customerRhythm;
         const gait=walking?Math.sin(actor.userData.gaitPhase):0;
         const sittingDown=motion==='sitting-down'&&!walking;
         const seatedNow=motion==='seated'||sittingDown;
@@ -839,7 +847,7 @@ export function createGame(canvas) {
         if(actor.userData.body){
           actor.userData.body.position.y=.72-.16*sitBlend+breathing;
           actor.userData.body.rotation.x=.12*sitBlend+(idleStanding?Math.sin(idlePhase*.7)*.012:0);
-          actor.userData.body.rotation.z=dancing?Math.sin(time*3.1+actor.userData.phase)*.035:(idleStanding?Math.sin(idlePhase*.55)*.012:0);
+          actor.userData.body.rotation.z=dancing?Math.sin(time*3.1*customerRhythm+actor.userData.phase)*.035:(idleStanding?Math.sin(idlePhase*.55)*.012:0);
         }
         let socialYaw=0;
         if(idleStanding||idleSeated){
@@ -871,17 +879,17 @@ export function createGame(canvas) {
           actor.userData.head.rotation.y=THREE.MathUtils.lerp(actor.userData.head.rotation.y,desiredHeadYaw,Math.min(1,dt*1.8));
           actor.userData.head.rotation.z=idleStanding?Math.sin(time*.72+actor.userData.phase)*.018:0;
         }
-        actor.position.y=walking?Math.abs(gait)*.025:(dancing?Math.abs(Math.sin(time*5.8+actor.userData.phase))*.035:0);
+        actor.position.y=walking?Math.abs(gait)*.025:(dancing?Math.abs(Math.sin(time*5.8*customerRhythm+actor.userData.phase))*.035:0);
         actor.rotation.z=walking?gait*.025:(dancing?Math.sin(time*5.8+actor.userData.phase)*.08:(seatedNow?-.035:0));
         if(actor.userData.body)actor.userData.body.rotation.z=dancing?Math.sin(time*3.1+actor.userData.phase)*.035:(idleStanding?Math.sin(idlePhase*.55)*.012:0);
         actor.userData.legPivots?.forEach((leg,index)=>{
           const seatedAngle=-.95+(index*.04);
-          const activeAngle=dancing?Math.sin(time*6.2+index*Math.PI+actor.userData.phase)*.3:(walking?Math.sin(actor.userData.gaitPhase+index*Math.PI)*.3:0);
+          const activeAngle=dancing?Math.sin(time*customerBeat+index*Math.PI+actor.userData.phase)*.3:(walking?Math.sin(actor.userData.gaitPhase+index*Math.PI)*.3:0);
           leg.rotation.x=activeAngle+(seatedAngle-activeAngle)*sitBlend;
         });
         actor.userData.armPivots?.forEach((arm,index)=>{
-          const activeX=dancing?Math.sin(time*6.2+index*Math.PI)*.16:(walking?gait*.08:(idleStanding?Math.sin(idlePhase+index*1.4)*.018:0));
-          const activeZ=dancing?(index===0?-1:1)*(.36+Math.sin(time*6.2+index)*.2):(walking?(index===0?1:-1)*gait*.16:(idleStanding?Math.sin(idlePhase*.8+index)*.012:0));
+          const activeX=dancing?Math.sin(time*customerBeat+index*Math.PI)*.16:(walking?gait*.08:(idleStanding?Math.sin(idlePhase+index*1.4)*.018:0));
+          const activeZ=dancing?(index===0?-1:1)*(.36+Math.sin(time*customerBeat+index)*.2):(walking?(index===0?1:-1)*gait*.16:(idleStanding?Math.sin(idlePhase*.8+index)*.012:0));
           arm.rotation.x=activeX+(-.25-activeX)*sitBlend;
           const seatedZ=(index===0?-.12:.12)+(idleSeated?Math.sin(idlePhase*.7+index)*.012:0);
           arm.rotation.z=activeZ+(seatedZ-activeZ)*sitBlend;
@@ -934,6 +942,7 @@ export function createGame(canvas) {
   tick();
   return {
     addCustomer,
+    setMusicMood:mood=>{musicMood=mood==='ankara'?'ankara':'pavyon';},
     dance:id=>animateActor(id,'dance'),
     seat:id=>animateActor(id,'seat'),
     stage:id=>animateActor(id,'stage'),
