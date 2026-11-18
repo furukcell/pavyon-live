@@ -8,7 +8,7 @@
 
 | Aşama | Durum | Açıklama |
 |---|---|---|
-| 3D mekân ve kamera | Prototip hazır | Sahne, dans pisti, bar/servis, VIP alanı, sahne, 6 masa, mobil kamera ve hareketli sahne spotları |
+| 3D mekân ve kamera | Prototip hazır | Sahne, dans pisti, bar/servis, VIP alanı, 6 masa, mobil kamera, hareketli sahne spotları, hoparlör/LED ve bar dekorları |
 | Kons karakterleri | Prototip geliştiriliyor | 10 ayrı görünüm varyantı; sahne kıyafeti, saç, aksesuar, makyaj, yüz detayları ve vücut oranı varyasyonu |
 | Kons tavırları | Prototip animasyonlar | Göz kırpma, gülümseme/kahkaha, hafif salınım, cilveli duruş, dans, yürüyüş ve müşteriyle yüz yüze konumlanma |
 | Müşteri görünüş kataloğu | Hazır (parametrik) | 100 kadın + 100 erkek görünüş profili; bunlar 200 ayrı model dosyası değildir |
@@ -30,6 +30,7 @@
 - Kırmızı/bordo tonlar, altın detaylar ve pavyon sahne atmosferi.
 - Altı masada dekoratif mum ışığı, iki bardak ve içecek detayları.
 - Sahne, dans pisti, servis alanı, VIP loca ve 6 müşteri masası.
+- Sahne yanında hoparlör kuleleri, sahne önü LED şeridi ve servis barında şişe dekorları.
 - Her masada 3 koltuk olmak üzere 18 koltuk noktası; boş koltuklar sırayla atanır.
 - Üstten perspektif kamera; dar ekranlarda daha geniş dikey kadraj.
 - Sahne üzerinde renkli, ritmik hareket eden dört spot ışığı.
@@ -161,7 +162,7 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 
 ## Test durumu ve bilinen eksikler
 
-- Son geliştirme turunda dans pisti/VIP konum rezervasyonları, dolu alan için güvenli ret, aynı izleyicinin eşzamanlı kons etkileşimine girmesini engelleme, dolu 18 koltuk için açık ret, beş garson için 30 taleplik FIFO servis kuyruğu, masa üstü mum/bardak dekoru ve etkileşim sürerken izleyicinin komutla görev bozmasının önlenmesi GitHub'a yazıldı. Ancak bu oturumda `npm install`, `npm run build` veya gerçek cihaz tarayıcı testi çalıştırılmadı.
+- Son geliştirme turunda dans pisti/VIP konum rezervasyonları, dolu alan için güvenli ret, aynı izleyicinin eşzamanlı kons etkileşimine girmesini engelleme, dolu 18 koltuk için açık ret, beş garson için 30 taleplik FIFO servis kuyruğu, masa üstü mum/bardak dekoru, sahne hoparlörleri/LED şeridi, bar şişe dekorları ve etkileşim sürerken izleyicinin komutla görev bozmasının önlenmesi GitHub'a yazıldı. Ancak bu oturumda `npm install`, `npm run build` veya gerçek cihaz tarayıcı testi çalıştırılmadı.
 - Kons animasyonları prosedürel Three.js hareketleridir; sesli kahkaha, gerçekçi yüz kasları, dudak senkronu ve profesyonel dans koreografisi yoktur.
 - Karakterlerin gerçekçi/kaliteli hale gelmesi için ileride lisanslı veya özgün hazırlanmış rig'li 3D varlıklar kullanılabilir. Bu dosyaların lisans ve optimizasyonu kontrol edilmelidir.
 - TikTok LIVE bağlantısı, canlı yayın performansı ve 115 aktör hedefi henüz doğrulanmadı.
