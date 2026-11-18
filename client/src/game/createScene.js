@@ -1221,6 +1221,23 @@ export function createGame(canvas) {
     vip:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...vipAssignments.values()].map(slot=>slot));const slot=vipSlots.find(item=>!occupied.has(item));if(!slot)return false;vipAssignments.set(k,slot);prepareGuestForInteraction(guest);hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;guest.userData.targetRotation=Math.PI/2;moveTo(k,slot.x+.55,slot.z);moveTo(id,slot.x-.55,slot.z);return true;},
     releaseKons:k=>{const home=konsHomes.get(k);if(home){moveTo(k,home.x,home.z);const actor=actors.get(k);if(actor)actor.userData.motion='idle';}vipAssignments.delete(k);danceAssignments.delete(k);},
     releaseGuest:id=>{const actor=actors.get(id);if(actor){releaseSeat(actor);actor.userData.motion='idle';if(actor.userData.body)actor.userData.body.position.y=.72;if(actor.userData.head)actor.userData.head.position.y=1.35;actor.userData.legPivots?.forEach(leg=>leg.rotation.x=0);actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});const home=actor.userData.home;if(home)moveTo(id,home.x,home.z);}},
+    removeCustomer:id=>{
+      const actor=actors.get(id);if(!actor)return false;
+      waiterQueue.remove(id);
+      const waiterId=activeCustomerServices.cancelCustomer(id);
+      if(waiterId){
+        const timer=waiterServiceTimers.get(waiterId);
+        if(timer){window.clearTimeout(timer);waiterServiceTimers.delete(waiterId);}
+        finishWaiterService(waiterId);
+      }
+      releaseSeat(actor);
+      actorGroup.remove(actor);actors.delete(id);
+      actor.traverse(part=>{
+        if(part.geometry)part.geometry.dispose();
+        if(part.material){if(Array.isArray(part.material))part.material.forEach(material=>material.dispose());else part.material.dispose();}
+      });
+      return true;
+    },
     show:id=>animateActor(id,'stage'),
     getTableStatus:()=>tableStates.map(table=>({id:table.id,occupied:table.occupied,capacity:table.seats.length})),
     setLikes:value=>{redGlow.intensity=35+Math.min(value,500)*.08;goldGlow.intensity=28+Math.min(value,500)*.04;},
