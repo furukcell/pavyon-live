@@ -48,7 +48,7 @@
 
 ### Sıradaki kilometre taşları
 
-1. **M1 — Oyun akışını dondur ve doğrula:** komutlar, kons meşguliyet süreleri, masa/VIP/dans rezervasyonları, garson kuyruğu ve müşteri dönüşleri için test senaryoları.
+1. **M1 — Oyun akışını dondur ve doğrula:** sunucu olay şeması/alan doğrulaması ve isteğe bağlı eventId tekilleştirmesi eklendi; komutlar, kons meşguliyet süreleri, masa/VIP/dans rezervasyonları, garson kuyruğu ve müşteri dönüşleri için istemci uçtan uca senaryoları sırada.
 2. **M2 — Gerçek LIVE olay adaptörü:** izinli/uygun kaynak, sunucu tarafı doğrulama, tekrar olay koruması ve hediye eşlemesi.
 3. **M3 — Yayın ekranı:** OBS/TikTok LIVE Studio Browser Source, yayın overlay'i ve bağlantı durumları.
 4. **M4 — Sağlamlık:** 10/25/50/100 müşteri yük testleri, mobil tarayıcı, hata ve güvenlik kontrolleri.
@@ -167,7 +167,7 @@ Yorum simülatörü ve test paneli oyun içinde kullanılabilir. Komutlarda kull
 - İstemci: Vite + JavaScript + Three.js.
 - Sunucu: Node.js + Express.
 - Gerçek zamanlı iletişim: Socket.IO.
-- Geliştirme testleri: yorum/hediye simülatörü ve geliştirme amaçlı `/dev/event` uç noktası.
+- Geliştirme testleri: yorum/hediye simülatörü ve geliştirme amaçlı `/dev/event` uç noktası; olay doğrulaması `server/eventValidation.js` üzerinden yapılır, otomatik testler `npm test` ile çalışır.
 - Üretimde Express, `dist/` klasöründeki istemciyi ve Socket.IO'yu aynı origin üzerinden sunacak şekilde yapılandırılmıştır.
 
 ### Repo yapısı
@@ -231,6 +231,8 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 7. **Yayın hazırlığı:** OBS/TikTok LIVE Studio Browser Source, hosting ve canlı prova.
 
 ## Test durumu ve bilinen eksikler
+
+- Sunucu olay normalizasyonu için Node.js testleri eklendi: geçerli yorum, Türkçe kullanıcı adı, boş/uzun alanlar, sayısal beğeni sınırları, hediye aksiyonu/kons kimliği ve eventId doğrulaması. CI artık `npm test` adımını istemci derlemesinden önce çalıştırır; sonuçlar GitHub Actions tamamlandıktan sonra raporlanacak.
 
 - Son geliştirme turunda dans pisti/VIP konum rezervasyonları, dolu alan için güvenli ret, konsun müşteriye yaklaşırken dört yöndeki noktaları mesafe/çevre açıklığına göre değerlendirmesi, aynı izleyicinin eşzamanlı kons etkileşimine girmesini engelleme, dolu 18 koltuk için açık ret, beş garson için 30 taleplik FIFO servis kuyruğu ve kuyrukta geçersiz müşteri kaydından sonra otomatik devam/garsonu boşa çıkarma akışı, hedef noktaları ve yürüyen karakterlerin gerçek konumlarını salon sınırları içinde tutan sınırlandırma, hedef ve hareket konumlarını zemin sınırlarında tutan oda sınırlandırması, masa üstü mum/bardak dekoru, sahne hoparlörleri/LED şeridi, bar şişe dekorları, üç farklı kons dans stili ve etkileşim sürerken izleyicinin komutla görev bozmasının önlenmesi GitHub'a yazıldı. Ancak bu oturumda `npm install`, `npm run build` veya gerçek cihaz tarayıcı testi çalıştırılmadı.
 - Kons animasyonları prosedürel Three.js hareketleridir; sesli kahkaha, gerçekçi yüz kasları, dudak senkronu ve profesyonel dans koreografisi yoktur.
