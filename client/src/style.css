@@ -92,3 +92,11 @@ footer{text-align:center;color:#b08e9d;font-size:9px;letter-spacing:.3px;margin-
 .stream-mode .stream-event span{flex-shrink:0;color:#e5bd75;font-size:9px;font-weight:800;letter-spacing:1.6px}
 .stream-mode .stream-event strong{overflow:hidden;color:#fff0e5;font-size:14px;font-weight:600;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:700px){.stream-mode .hud{padding:16px 14px 18px}.stream-mode h1{font-size:36px}.stream-mode .eyebrow{font-size:8px}.stream-mode .live-pill{font-size:8px}.stream-mode .status-row{gap:6px;margin-top:10px}.stream-mode .stat{min-width:0;flex:1;padding:8px 9px}.stream-mode .stat small{font-size:8px}.stream-mode .stat strong{font-size:15px}.stream-mode .stream-event{bottom:16px;width:calc(100vw - 28px);padding:10px 12px;gap:9px}.stream-mode .stream-event span{font-size:8px}.stream-mode .stream-event strong{font-size:11px}}
+
+.live-pill.server-connected{border-color:#45c68a;background:#123b2ddd}
+.live-pill.server-connected span{background:#4ee39a;box-shadow:0 0 10px #4ee39a}
+.live-pill.server-disconnected{border-color:#e65c70;background:#3c1425dd}
+.live-pill.server-disconnected span{background:#ff5268;box-shadow:0 0 10px #ff5268}
+.stream-mode .live-pill{max-width:280px}
+.stream-mode .live-pill strong{font-size:9px;letter-spacing:.6px}
+@media(max-width:700px){.stream-mode .live-pill{max-width:185px}.stream-mode .live-pill strong{font-size:7px;letter-spacing:0}}
