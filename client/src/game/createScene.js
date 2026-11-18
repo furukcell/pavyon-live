@@ -71,6 +71,8 @@ export function createGame(canvas) {
   const konsHomes=new Map();
   const waiterHomes=new Map();
   const waiterBusy=new Set();
+  const vipSlots=[{x:7,z:-5},{x:8.5,z:-5},{x:7,z:-2.8},{x:8.5,z:-2.8}];
+  const vipAssignments=new Map();
   const konsColors=['#a92f59','#692b62','#bd7544','#345e77','#8d3b45','#75539a','#b08a36','#3f786a','#934c70','#5c4a37'];
   const skinTones=['#e8bd9b','#d6a17e','#b97855','#f0c9a8','#986447','#c88d6d'];
   const hairTones=['#211b22','#38251e','#6c4930','#171820','#7b5a3c'];
@@ -326,8 +328,8 @@ export function createGame(canvas) {
     drink:(customerId)=>{const customer=actors.get(customerId);if(!customer)return;const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));if(!waiterId)return;waiterBusy.add(waiterId);const waiter=actors.get(waiterId);if(waiter)waiter.userData.motion='serving';moveTo(waiterId,customer.position.x-1.1,customer.position.z);window.setTimeout(()=>{const home=waiterHomes.get(waiterId);if(home)moveTo(waiterId,home.x,home.z);if(waiter)waiter.userData.motion='idle';waiterBusy.delete(waiterId);},4500);},
     konsToTable:(k,id)=>{const customer=actors.get(id);if(customer){const hostess=actors.get(k);if(hostess){hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;}moveTo(k,customer.position.x+1.2,customer.position.z);}},
     konsDance:(k,id)=>{const hostess=actors.get(k);if(hostess)hostess.userData.motion='dance';animateActor(id,'dance');},
-    vip:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(hostess){hostess.userData.motion='flirt';hostess.userData.targetRotation=Math.PI/2;}if(guest)guest.userData.targetRotation=-Math.PI/2;moveTo(k,8,-4);moveTo(id,7,-4);},
-    releaseKons:k=>{const home=konsHomes.get(k);if(home){moveTo(k,home.x,home.z);const actor=actors.get(k);if(actor)actor.userData.motion='idle';}},
+    vip:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return;const occupied=new Set([...vipAssignments.values()].map(slot=>slot));const slot=vipSlots.find(item=>!occupied.has(item));if(!slot)return;vipAssignments.set(k,slot);hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;guest.userData.targetRotation=Math.PI/2;moveTo(k,slot.x+.55,slot.z);moveTo(id,slot.x-.55,slot.z);},
+    releaseKons:k=>{const home=konsHomes.get(k);if(home){moveTo(k,home.x,home.z);const actor=actors.get(k);if(actor)actor.userData.motion='idle';}vipAssignments.delete(k);},
     releaseGuest:id=>{const actor=actors.get(id);if(actor){releaseSeat(actor);actor.userData.motion='idle';if(actor.userData.body)actor.userData.body.position.y=.72;if(actor.userData.head)actor.userData.head.position.y=1.35;actor.userData.legPivots?.forEach(leg=>leg.rotation.x=0);actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});const home=actor.userData.home;if(home)moveTo(id,home.x,home.z);}},
     show:id=>animateActor(id,'stage'),
     setLikes:value=>{redGlow.intensity=35+Math.min(value,500)*.08;goldGlow.intensity=28+Math.min(value,500)*.04;},
