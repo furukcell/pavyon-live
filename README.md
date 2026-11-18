@@ -32,7 +32,7 @@
 ## İlerleme takibi — sabit hesap yöntemi
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
-- **V1 yayın hedefi: %45 (bu oturumda +5 puan; imzalı olay köprüsü, hediye eşleme ve sunucu bağlantı göstergesi CI testlerinden geçti)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
+- **V1 yayın hedefi: %55 (bu oturumda +5 puan; sınırlı ve gizlilik odaklı canlı olay geçmişi, yayın HUD gösterimi ve otomatik testler CI'da başarılı)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
 - Yüzde yalnızca aşağıdaki V1 kabul kriterleri tamamlanıp doğrulandığında artar. Kodun yazılmış olması tek başına tamamlandı sayılmaz; ilgili akışın test edilmesi gerekir.
 - Bir iş paketi tamamlandıktan sonra yeni fikir eklenmesi o paketin yüzdesini düşürmez. V1 için zorunlu yeni bir hata bulunursa yalnızca ilgili kriter yeniden açılır ve nedeni not edilir.
 
@@ -54,6 +54,15 @@
 4. **M4 — Sağlamlık:** 10/25/50/100 müşteri yük testleri, mobil tarayıcı, hata ve güvenlik kontrolleri.
 5. **M5 — İlk canlı prova:** hosting üzerinde gerçek yayına bağlanıp tüm akışları baştan sona doğrulama.
 
+
+### Canlı olay geçmişi ve yayın HUD
+
+- Sunucu son 20 kabul edilmiş yorum/beğeni/hediye olayını bellekte tutar; eski kayıtlar otomatik düşürülür.
+- `/api/status` ve Socket.IO `live:status` yanıtı `recentEvents` listesini içerir.
+- Yayın HUD'unda son üç olay gösterilir; hediye adı ve eşlenmiş oyun aksiyonu birlikte görünür.
+- Serbest yorum metni geçmişe yazılmaz. Yalnızca desteklenen oyun komutları (`!gel`, `!dans`, `!masa`, `!sahne`, `!cik`) kısa etiket olarak gösterilir.
+- Kullanıcı adı ve hediye adı uzunluk sınırlarıyla özetlenir; geçmiş sunucu belleğindedir ve yeniden başlatmada sıfırlanır.
+- Otomatik testler geçmiş sınırını, özetleme davranışını ve snapshot izolasyonunu doğrular.
 
 ## Şu an neredeyiz?
 
