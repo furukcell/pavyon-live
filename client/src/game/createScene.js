@@ -21,11 +21,14 @@ export function createGame(canvas) {
   const redGlow = new THREE.PointLight('#e33368', 35, 22); redGlow.position.set(-6,4,-3); scene.add(redGlow);
   const goldGlow = new THREE.PointLight('#ffc66d', 28, 20); goldGlow.position.set(7,4,2); scene.add(goldGlow);
   const stageSpotlights=[];
+  const stageWash=[];
   for(let i=0;i<4;i++){
     const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.16,.24,.28,12),new THREE.MeshStandardMaterial({color:'#d7b16e',metalness:.8,roughness:.25,emissive:'#6b3b28',emissiveIntensity:.35}));
     lamp.position.set(-3+i*2,3.7,-7.6);scene.add(lamp);
     const beam=new THREE.SpotLight(i%2?'#f6c5d2':'#f4d28c',18,18,Math.PI/7,.55,1.2);
     beam.position.set(-3+i*2,3.5,-7.4);beam.target.position.set(-2+i*1.3,.1,-3);scene.add(beam,beam.target);
+    const wash=new THREE.Mesh(new THREE.ConeGeometry(1.45,7.8,20,1,true),new THREE.MeshBasicMaterial({color:i%2?'#e6b8d0':'#f1d49c',transparent:true,opacity:.055,depthWrite:false,side:THREE.DoubleSide}));
+    wash.position.copy(beam.position);scene.add(wash);stageWash.push(wash);
     stageSpotlights.push({beam,phase:i*Math.PI/2});
   }
 
@@ -63,6 +66,26 @@ export function createGame(canvas) {
   }
   box('stage',0,.2,-8,8,.4,2.2,'#61213c',.25);
   box('stage-trim',0,.43,-8,8,.12,.12,'#d6a65d',.7);label('SAHNE',0,-8.2);
+  // Art-deco proscenium, layered curtains and illuminated stage header.
+  box('stage-backdrop',0,1.75,-9.08,7.6,2.55,.16,'#321728',.12);
+  box('stage-header',0,3.12,-8.94,7.85,.24,.28,'#bd9256',.78);
+  box('stage-header-inset',0,3.12,-8.76,6.9,.1,.06,'#f0cf91',.68);
+  for(const side of [-1,1]){
+    const curtain=new THREE.Mesh(new THREE.BoxGeometry(.62,2.55,.24),new THREE.MeshStandardMaterial({color:'#7b1e40',roughness:.88}));
+    curtain.position.set(side*3.55,1.72,-8.83);curtain.rotation.z=side*-.08;scene.add(curtain);
+    const tie=new THREE.Mesh(new THREE.TorusGeometry(.24,.045,6,16),new THREE.MeshStandardMaterial({color:'#d6a65d',metalness:.72,roughness:.28}));
+    tie.position.set(side*3.5,1.2,-8.65);scene.add(tie);
+    for(let j=0;j<3;j++){const pleat=box('stage-curtain-pleat',side*(3.1+j*.18),1.72,-8.68,.035,2.25,.025,'#a53a5c',.08);pleat.castShadow=false;}
+  }
+  for(let i=0;i<17;i++){
+    const bulb=new THREE.Mesh(new THREE.SphereGeometry(.055,8,6),new THREE.MeshBasicMaterial({color:i%2?'#f4c5d4':'#ffe0a0'}));
+    bulb.position.set(-3.65+i*.456,3.12,-8.57);scene.add(bulb);
+  }
+  for(let i=0;i<5;i++){
+    const panel=box('stage-led-panel',0,1.35,-8.7,.72,1.15,.055,i%2?'#53243d':'#38233e',.2);
+    panel.position.x=-2+i;panel.castShadow=false;
+    const inset=box('stage-led-inset',-2+i,1.35,-8.66,.58,.94,.018,i%2?'#a63b68':'#6e426d',.18);inset.castShadow=false;
+  }
   box('bar',-10,.65,-5,2.2,1.3,5,'#5a2b3c');label('SERVİS',-10,-5);
   box('bar-countertop',-10,1.34,-5,2.48,.16,5.2,'#3a2430',.48);
   box('bar-front-gold',-10,.82,-2.47,2.25,.08,.045,'#c49a5d',.78);
@@ -618,6 +641,7 @@ export function createGame(canvas) {
       beam.target.position.z=-2.5+Math.cos(time*.31+phase)*1.6;
       beam.intensity=13+Math.max(0,Math.sin(time*1.7+phase))*8;
     });
+    stageWash.forEach((wash,index)=>{const phase=index*Math.PI/2;wash.position.y=3.5;wash.position.x=-3+index*2;wash.rotation.x=Math.PI/2;wash.rotation.z=Math.sin(time*.42+phase)*.13;wash.material.opacity=.035+Math.max(0,Math.sin(time*1.7+phase))*.035;});
     // Build a lightweight spatial hash once per frame so moving actors only inspect nearby neighbors.
     const separationCellSize=.82;
     const separationGrid=new Map();
