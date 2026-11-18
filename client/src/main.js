@@ -72,8 +72,11 @@ function occupyKons(konsId, name, duration, action) {
   const timer = window.setTimeout(() => {
     if (state.kons[konsId] !== name) return;
     state.kons[konsId] = null;state.timers.delete(konsId);
-    game.releaseKons(konsId);updateHud();
-    log(`<b>${escapeHtml(konsId)}</b> tekrar müsait.`);
+    game.releaseKons(konsId);
+    const guest=state.viewers.get(name);
+    if(guest)game.releaseGuest(guest.id);
+    updateHud();
+    log(`<b>${escapeHtml(konsId)}</b> tekrar müsait. @${escapeHtml(name)} eski yerine döndü.`);
   }, duration);
   state.timers.set(konsId, timer);
   return true;
