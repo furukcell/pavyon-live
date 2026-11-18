@@ -460,8 +460,7 @@ export function createGame(canvas) {
     konsToTable:(k,id)=>{
       const customer=actors.get(id),hostess=actors.get(k);
       if(!customer||!hostess)return false;
-      prepareGuestForInteraction(customer);
-      // Try the four sides of the guest and prefer a nearby position with room around it.
+      // Evaluate all four approach sides before changing the guest's seat or pose.
       const candidates=[0,Math.PI/2,Math.PI,-Math.PI/2].map(offset=>{
         const point=clampRoomPosition(customer.position.x+Math.sin(offset)*1.25,customer.position.z+Math.cos(offset)*1.25);
         let clearance=Infinity;
@@ -470,10 +469,11 @@ export function createGame(canvas) {
           clearance=Math.min(clearance,Math.hypot(point.x-other.position.x,point.z-other.position.z));
         });
         const travel=Math.hypot(point.x-hostess.position.x,point.z-hostess.position.z);
-        return {point,offset,score:travel+Math.max(0,1.05-clearance)*3};
+        return {point,score:travel+Math.max(0,1.05-clearance)*3};
       }).sort((a,b)=>a.score-b.score);
-      const chosen=candidates[0];
+      const chosen=candidates.find(item=>item.point.x!==customer.position.x||item.point.z!==customer.position.z);
       if(!chosen)return false;
+      prepareGuestForInteraction(customer);
       hostess.userData.motion='flirt';
       hostess.userData.targetRotation=Math.atan2(customer.position.x-chosen.point.x,customer.position.z-chosen.point.z);
       moveTo(k,chosen.point.x,chosen.point.z);
