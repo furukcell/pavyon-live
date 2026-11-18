@@ -8,8 +8,8 @@
 
 | Aşama | Durum | Açıklama |
 |---|---|---|
-| 3D mekân ve kamera | Prototip hazır | Sahne, dans pisti, bar/servis, VIP alanı, sahne, 6 masa ve mobil kamera kadrajı |
-| Kons karakterleri | Prototip geliştiriliyor | 10 ayrı görünüm varyantı; sahne kıyafeti, saç, aksesuar, makyaj ve temel yüz detayları |
+| 3D mekân ve kamera | Prototip hazır | Sahne, dans pisti, bar/servis, VIP alanı, sahne, 6 masa, mobil kamera ve hareketli sahne spotları |
+| Kons karakterleri | Prototip geliştiriliyor | 10 ayrı görünüm varyantı; sahne kıyafeti, saç, aksesuar, makyaj, yüz detayları ve vücut oranı varyasyonu |
 | Kons tavırları | İlk animasyonlar eklendi | Göz kırpma, gülümseme/kahkaha, hafif salınım, cilveli duruş ve dans hareketleri |
 | Müşteri görünüş kataloğu | Hazır (parametrik) | 100 kadın + 100 erkek görünüş profili; bunlar 200 ayrı model dosyası değildir |
 | Garsonlar | İlk prototip hazır | 5 karakter örneği ve müşteriye servis hareketi |
@@ -26,6 +26,7 @@
 - Sahne, dans pisti, servis alanı, VIP loca ve 6 müşteri masası.
 - Her masada 3 koltuk olmak üzere 18 koltuk noktası; boş koltuklar sırayla atanır.
 - Üstten perspektif kamera; dar ekranlarda daha geniş dikey kadraj.
+- Sahne üzerinde renkli, ritmik hareket eden dört spot ışığı.
 - Oyun havası / bireysel dans yaklaşımı; halay mekaniği yok.
 
 ## Karakter sistemi
@@ -35,7 +36,8 @@
 - 10 ayrı kons karakter örneği oluşturulur.
 - Yetişkin, stilize sahne kostümleri: parlak renkler, kısa sahne elbisesi silüeti, altın kemer/etek ucu detayları ve topuklu ayakkabı.
 - Saç rengi ve stil varyasyonları; uzun saç, at kuyruğu ve bob kesim detayları.
-- Küpe, kolye, bileklik, sahne makyajı/yanak rengi ve yüz gülümseme detayları.
+- Küpe, kolye, bileklik, sahne makyajı/yanak rengi, kaş, kirpik, burun, dudak ve gülümseme detayları.
+- Konsların boy ve vücut oranları görünüş profiline göre hafif değişir.
 - Kons seçme listesindeki her karakterin müsait/meşgul durumu gösterilir; meşgul karakterler test panelinden seçilemez.
 - Boştayken hafif salınım ve ara sıra kahkaha; göz kırpma; davette cilveli duruş; dans sırasında kol/bacak pivot hareketleri.
 
@@ -133,10 +135,10 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 
 ## Yol haritası
 
-1. **Karakter görsel kalitesi:** Kons yüzü, saç, kıyafet ve aksesuar detaylarını geliştirmek; garson ve müşteri modellerini tutarlılaştırmak. Son eklenenler: at kuyruğu/bob saç varyantı, iki taraflı küpe, kolye, bileklik, etek ucu detayı ve sahne makyajı.
+1. **Karakter görsel kalitesi:** Kons yüzü, saç, kıyafet ve aksesuar detaylarını geliştirmek; garson ve müşteri modellerini tutarlılaştırmak. Son eklenenler: at kuyruğu/bob saç varyantı, iki taraflı küpe, kolye, bileklik, etek ucu detayı, sahne makyajı, kaş/kirpik/burun/dudak ve vücut oranı varyasyonu.
 2. **Animasyon kalitesi:** Daha doğal yürüme, oturma, dans, gülme ve etkileşim geçişleri; mevcut pivot animasyonlarını iyileştirmek.
 3. **Etkileşim yaşam döngüsü:** Masa/VIP konumları, çakışma önleme, kuyruk ve her aksiyon sonrası doğru başlangıç konumuna dönüş.
-4. **Sahne ve arayüz cilası:** Işık, dekor, masa durumları, kons müsaitlik göstergesi ve yayın overlay'i.
+4. **Sahne ve arayüz cilası:** Işık, dekor, masa durumları, kons müsaitlik göstergesi ve yayın overlay'i. Son eklenen: dört hareketli sahne spotu.
 5. **Test ve optimizasyon:** 10/25/50/100 müşteri yük testi, mobil GPU ve bellek ölçümü, gerçek tarayıcı testleri.
 6. **TikTok LIVE entegrasyonu:** Uygun ve izinli olay kaynağına bağlanma; hediye-adım eşlemesi ve güvenli sunucu doğrulaması.
 7. **Yayın hazırlığı:** OBS/TikTok LIVE Studio Browser Source, hosting ve canlı prova.
