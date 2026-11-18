@@ -13,8 +13,8 @@
 | Kons tavırları | Prototip animasyonlar | Göz kırpma, gülümseme/kahkaha, hafif salınım, cilveli duruş, dans, yürüyüş ve müşteriyle yüz yüze konumlanma |
 | Müşteri görünüş kataloğu | Hazır (parametrik) | 100 kadın + 100 erkek görünüş profili; bunlar 200 ayrı model dosyası değildir |
 | Garsonlar | İlk prototip hazır | 5 karakter örneği ve müşteriye servis hareketi |
-| Müşteri oturma/dans hareketi | İlk prototip hazır | Boş koltuğa yürüme, oturma pozu, kol/bacak hareketleri ve bireysel dans döngüsü |
-| Garson servis animasyonu | İlk prototip hazır | Tepsi/bardak taşıma görseli, servis pozisyonu ve müşteriye gidip dönme |
+| Müşteri oturma/dans hareketi | İlk prototip hazır | Boş koltuğa yürüme, oturma pozu, kol/bacak hareketleri ve bireysel dans döngüsü; 18 koltuk dolduğunda yeni oturma isteği reddedilir |
+| Garson servis animasyonu | İlk prototip hazır | Tepsi/bardak taşıma görseli, servis pozisyonu ve müşteriye gidip dönme; beş garson da meşgulse yeni servis isteği reddedilir |
 | VIP yerleşimi | İlk prototip hazır | Aynı locaya üst üste karakter yığılmasını azaltan dört ayrı çift konumu |
 | Kons-müşteri etkileşimi | İlk prototip hazır | Masaya göre yaklaşma, müşteriye dönme ve yan yana eşli dans başlangıç pozisyonu |
 | Etkileşim rezervasyonları | İlk prototip hazır | Dans pisti için altı çift noktası, VIP için dört çift noktası ve aynı izleyicinin eşzamanlı iki kons etkileşimine girmesini engelleme |
@@ -54,8 +54,9 @@
 - Profiller saç, ten, kıyafet rengi, boy, yapı ve aksesuar parametreleri sağlar. 200 ayrı elle modellenmiş karakter dosyası değildir.
 - Oyuncu girişlerinde aynı anda en fazla 100 müşteri kabul edilir.
 - 5 garson örneği sahneye eklenir; aynı temel placeholder modelinden türetilir.
-- Müşteriler boş koltuğa yürür; varışta gövde alçalması, hafif öne eğilme ve bacak/kol pozisyonuyla oturma pozu alır. Dans sırasında kollar ve bacaklar ritmik hareket eder.
-- Garsonların eline tepsi ve bardak görseli eklendi; servis sırasında kol pozisyonu değişir ve garson müşteriye gidip başlangıç noktasına döner.
+- Müşteriler boş koltuğa yürür; varışta gövde alçalması, hafif öne eğilme ve bacak/kol pozisyonuyla oturma pozu alır. Dans sırasında kollar ve bacaklar ritmik hareket eder. 18 koltuk doluysa müşteri rastgele dolaştırılmaz; açık kapasite mesajı verilir. Oturan müşteri tekrar otur komutu verirse kendi koltuğunu korur.
+- Kons etkileşimi devam eden izleyici `!dans`, `!masa`, `!sahne` komutlarıyla görevini yarıda kesemez; etkileşim süresi tamamlanınca normal komutları kullanabilir.
+- Garsonların eline tepsi ve bardak görseli eklendi; servis sırasında kol pozisyonu değişir ve garson müşteriye gidip başlangıç noktasına döner. Beş garsonun tamamı meşgulse yeni servis talebi reddedilir ve test panelinde kullanıcıya bilgi verilir.
 - VIP locada dört ayrı çift konumu ayrıldı; dolu konumlar yeni VIP çiftine atanmaz. Bu ilk seviye konum ayırmadır, genel fiziksel çarpışma motoru değildir.
 - Kons davetinde yaklaşma noktası müşterinin baktığı yöne göre hesaplanır; kons müşteriye doğru döner. Eşli dans aksiyonunda müşteri ve kons pistte yan yana ayrı noktalara gider ve birbirlerine dönük dans eder.
 - Garsonların yürüyüş sırasında bacak salınımı da eklendi; kons davetinde hafif baş hareketi kullanılır.
@@ -159,7 +160,7 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 
 ## Test durumu ve bilinen eksikler
 
-- Son geliştirme turunda dans pisti/VIP konum rezervasyonları, dolu alan için güvenli ret, aynı izleyicinin eşzamanlı kons etkileşimine girmesini engelleme ve ana arayüz akışındaki rezervasyon kontrolü GitHub'a yazıldı. Ancak bu oturumda `npm install`, `npm run build` veya gerçek cihaz tarayıcı testi çalıştırılmadı.
+- Son geliştirme turunda dans pisti/VIP konum rezervasyonları, dolu alan için güvenli ret, aynı izleyicinin eşzamanlı kons etkileşimine girmesini engelleme, dolu 18 koltuk için açık ret, beş garsonun servis kapasitesi kontrolü ve etkileşim sürerken izleyicinin komutla görev bozmasının önlenmesi GitHub'a yazıldı. Ancak bu oturumda `npm install`, `npm run build` veya gerçek cihaz tarayıcı testi çalıştırılmadı.
 - Kons animasyonları prosedürel Three.js hareketleridir; sesli kahkaha, gerçekçi yüz kasları, dudak senkronu ve profesyonel dans koreografisi yoktur.
 - Karakterlerin gerçekçi/kaliteli hale gelmesi için ileride lisanslı veya özgün hazırlanmış rig'li 3D varlıklar kullanılabilir. Bu dosyaların lisans ve optimizasyonu kontrol edilmelidir.
 - TikTok LIVE bağlantısı, canlı yayın performansı ve 115 aktör hedefi henüz doğrulanmadı.
