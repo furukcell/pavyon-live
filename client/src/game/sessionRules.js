@@ -5,7 +5,8 @@ export function createSessionRules(konsIds) {
 
   return {
     canReserve(konsId, viewerId) {
-      return validKons.has(konsId)
+      return typeof viewerId === 'string' && viewerId.length > 0
+        && validKons.has(konsId)
         && !konsOwners.has(konsId)
         && !viewerSessions.has(viewerId);
     },
