@@ -460,6 +460,10 @@ export function createGame(canvas) {
           actor.rotation.y+=angle*Math.min(1,dt*7);
         }else {
           actor.userData.target=null;
+          if(actor.userData.motion==='dance'||actor.userData.motion==='stage'){
+            actor.userData.poseFrom=capturePose(actor);
+            actor.userData.poseStarted=time;
+          }
           if(actor.userData.targetRotation!==undefined){actor.rotation.y=actor.userData.targetRotation;delete actor.userData.targetRotation;}
           if(actor.userData.motion==='walking-to-seat')actor.userData.motion='sitting-down';
         }
