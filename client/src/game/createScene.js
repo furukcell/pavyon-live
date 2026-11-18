@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { getCustomerAppearanceByIndex } from './characterCatalog.js';
-import { createWaiterQueue } from './waiterQueue.js';
+import { createWaiterQueue, createWaiterServiceLedger } from './waiterQueue.js';
 
 export function createGame(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -247,7 +247,7 @@ export function createGame(canvas) {
   const waiterBusy=new Set();
   const waiterQueue=createWaiterQueue(30);
   const waiterServiceTimers=new Map();
-  const activeCustomerServices=new Map();
+  const activeCustomerServices=createWaiterServiceLedger();
   const vipSlots=[{x:7,z:-5},{x:8.5,z:-5},{x:7,z:-2.8},{x:8.5,z:-2.8}];
   const vipAssignments=new Map();
   const danceSlots=[{x:-3,z:1},{x:0,z:1},{x:3,z:1},{x:-3,z:3},{x:0,z:3},{x:3,z:3}];
@@ -801,8 +801,7 @@ export function createGame(canvas) {
   function finishWaiterService(waiterId){
     const waiter=actors.get(waiterId);
     if(!waiter)return;
-    const currentGuestId=[...activeCustomerServices.entries()].find(([,activeWaiterId])=>activeWaiterId===waiterId)?.[0];
-    if(currentGuestId)activeCustomerServices.delete(currentGuestId);
+    activeCustomerServices.finish(waiterId);
     let nextGuestId=null;
     const previousTimer=waiterServiceTimers.get(waiterId);
     if(previousTimer){window.clearTimeout(previousTimer);waiterServiceTimers.delete(waiterId);}
@@ -826,7 +825,7 @@ export function createGame(canvas) {
       return false;
     }
     waiterBusy.add(waiterId);
-    activeCustomerServices.set(guestId,waiterId);
+    if(!activeCustomerServices.start(waiterId,guestId))return false;
     waiter.userData.motion='serving';
     const approach=findWaiterApproach(waiter,guest);
     moveTo(waiterId,approach.x,approach.z);
@@ -836,7 +835,7 @@ export function createGame(canvas) {
   }
   function requestDrink(customerId){
     if(!actors.has(customerId))return false;
-    if(activeCustomerServices.has(customerId)||waiterQueue.has(customerId))return 'duplicate';
+    if(activeCustomerServices.hasCustomer(customerId)||waiterQueue.has(customerId))return 'duplicate';
     const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));
     if(!waiterId){
       const queued=waiterQueue.enqueue(customerId);
