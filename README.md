@@ -84,6 +84,15 @@
 - Son etkileşim bandı oyun olay günlüğüne gelen en güncel mesajı güvenli metin olarak gösterir.
 - Normal URL test/kontrol panelini korur. Bu görünüm OBS Browser Source için arayüz hazırlığıdır; gerçek TikTok bağlantısı veya OBS üzerinde görsel doğrulama yapıldığı anlamına gelmez.
 
+## Güvenli canlı olay adaptörü (provider bridge)
+
+- Üretim ortamında `POST /integrations/events` endpoint'i imzalı JSON olaylarını kabul eder. `LIVE_PROVIDER_WEBHOOK_SECRET` ortam değişkeni tanımlı değilse endpoint kapalıdır.
+- İstek başlıkları: `x-pavyon-timestamp` (Unix saniye veya milisaniye) ve `x-pavyon-signature` (`sha256=...`). İmza, UTF-8 ham gövde için `HMAC-SHA256(secret, timestamp + '.' + rawBody)` biçimindedir.
+- Zaman damgası en fazla 5 dakika eski/ileri olabilir; imza sabit zamanlı karşılaştırmayla doğrulanır. Geçersiz imza reddedilir.
+- Gövde, mevcut normalize olay şemasına uymalı ve tekrarları engellemek için benzersiz `eventId` içermelidir. Event kimliği 60 saniye saklanır; aynı olay ikinci kez yayınlanmaz.
+- Desteklenen normalize olaylar `comment`, `like`, `gift`; hediye aksiyonları `invite`, `dance`, `drink`, `vip`, `stage`.
+- Bu endpoint TikTok'a doğrudan bağlanmış değildir. İzinli/uyumlu bir LIVE olay sağlayıcısı veya yerel connector, sağlayıcı payload'ını bu şemaya dönüştürüp imzalı isteği göndermelidir. Gerçek TikTok hesabıyla uçtan uca test henüz yapılmadı.
+
 ## Oyun dünyası
 
 - Kırmızı/bordo tonlar, altın detaylar ve pavyon sahne atmosferi.
