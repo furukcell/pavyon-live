@@ -83,7 +83,7 @@ function occupyKons(konsId, name, duration, action) {
     state.kons[konsId] = null;state.timers.delete(konsId);
     game.releaseKons(konsId);
     const activeGuest=state.viewers.get(name);
-    if(activeGuest){activeGuest.activeKons=null;game.releaseGuest(activeGuest.id);}
+    if(activeGuest){activeGuest.activeKons=null;activeGuest.action='standing';game.releaseGuest(activeGuest.id);}
     updateHud();
     log(`<b>${escapeHtml(konsId)}</b> tekrar müsait. @${escapeHtml(name)} eski yerine döndü.`);
   }, duration);
