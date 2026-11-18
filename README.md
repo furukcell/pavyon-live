@@ -84,12 +84,13 @@
 - Dans pisti için altı ayrı çift noktası rezerve edilir; üçü sürekli dans eden arka plan NPC çiftlerine ayrılır, kalan üçü canlı hediye etkileşimlerine açık tutulur. VIP ve dans alanı doluysa aksiyon reddedilir, kons gereksiz yere meşgul gösterilmez.
 - Aynı izleyici başka bir kons etkileşimi sürerken ikinci bir konsla eşzamanlı davet/dans/VIP başlatamaz. Süre bitince izleyici ve kons serbest bırakılır.
 - Dans pistinin boş görünmemesi için 3 sabit arka plan dans çifti oluşturulur: 3 NPC kons + 3 NPC müşteri sürekli dans eder. Bu NPC konslar izleyici hediyesiyle seçilen 10 gerçek kons listesinden ayrıdır; üç dans çifti için pistteki altı çift konumunun üçü rezerve edilir, böylece canlı hediye etkileşimleri kalan üç konumu kullanabilir. Bu NPC'ler izleyici/müşteri kapasitesine dahil değildir.
-- Hedef aktif aktör sayısı: 100 izleyici müşterisi + 10 etkileşim konsu + 5 garson + 6 arka plan dans NPC'si = 121. Bu kapasite henüz performans testinden geçmedi.
+- Hedef aktif aktör sayısı: 100 izleyici müşterisi + 10 etkileşim konsu + 5 garson + 6 pist arka plan NPC'si + 4 müzisyen + 1 solist + 2 sahne dansçısı = 128. Bu kapasite henüz performans testinden geçmedi.
 
 ## Sahne ve canlı müzik ekibi
 
 - Sahne düzeni DJ kabini yerine pavyon orkestrası mantığına göre kuruldu: bağlama, klavye, darbuka ve klarnet çalan dört müzisyen.
-- Solist sahnenin önünde mikrofon standı ve elde mikrofonla durur; şarkı söylerken baş, gövde, mikrofon tutan kol ve diğer kol için ayrı performans hareketleri yapar.
+- Solist sahne arkasından öne doğru yaklaşık 3,2 saniyelik yumuşak bir giriş yapar; sahne önüne ulaştıktan sonra mikrofonla şarkı performansını sürdürür. Performans döngüsünde serbest koluyla seyirciye seslenme, ritmik el hareketi ve orkestraya dönük kısa jestler yapar.
+- Solistin iki yanında iki yetişkin NPC sahne dansçısı bulunur; düşük genlikli gövde/kol hareketleriyle müziğe eşlik ederler. Bunlar hediye ile seçilebilen 10 kons listesinden ayrı dekoratif sahne karakterleridir.
 - Müzisyenler sahnede sabit konumlarda durur; enstrümanları ve çalma hareketleri kodla üretilir. Bağlama, klavye ve darbuka müzisyenlerine tabure/oturma pozu; klarnetçiye ayakta performans pozu verildi. Sahne ekibine koyu ceket, yaka, papyon ve altın düğme detayları eklendi. Bağlamada el/tezene hareketi, klavyede tuş vuruşları, darbukada ritmik el-vuruşu ve klarnette perde/tuşe hareketi canlandırılır.
 - Ankara Havaları seçildiğinde sahne spotları daha hızlı tarar, ışık renkleri sıcak pembe/amber tonlarına geçer ve ışık nabzı hızlanır; Pavyon modunda daha yumuşak altın/bordo sahne ışığı kullanılır.
 - Şu an müzisyen animasyonları ritim hissi verir; seçilen gerçek ses kaydıyla nota/performans senkronizasyonu veya canlı müzisyen sesi entegrasyonu henüz bulunmaz.
@@ -200,7 +201,7 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 - Son geliştirme turunda dans pisti/VIP konum rezervasyonları, dolu alan için güvenli ret, konsun müşteriye yaklaşırken dört yöndeki noktaları mesafe/çevre açıklığına göre değerlendirmesi, aynı izleyicinin eşzamanlı kons etkileşimine girmesini engelleme, dolu 18 koltuk için açık ret, beş garson için 30 taleplik FIFO servis kuyruğu ve kuyrukta geçersiz müşteri kaydından sonra otomatik devam/garsonu boşa çıkarma akışı, hedef noktaları ve yürüyen karakterlerin gerçek konumlarını salon sınırları içinde tutan sınırlandırma, hedef ve hareket konumlarını zemin sınırlarında tutan oda sınırlandırması, masa üstü mum/bardak dekoru, sahne hoparlörleri/LED şeridi, bar şişe dekorları, üç farklı kons dans stili ve etkileşim sürerken izleyicinin komutla görev bozmasının önlenmesi GitHub'a yazıldı. Ancak bu oturumda `npm install`, `npm run build` veya gerçek cihaz tarayıcı testi çalıştırılmadı.
 - Kons animasyonları prosedürel Three.js hareketleridir; sesli kahkaha, gerçekçi yüz kasları, dudak senkronu ve profesyonel dans koreografisi yoktur.
 - Karakterlerin gerçekçi/kaliteli hale gelmesi için ileride lisanslı veya özgün hazırlanmış rig'li 3D varlıklar kullanılabilir. Bu dosyaların lisans ve optimizasyonu kontrol edilmelidir.
-- TikTok LIVE bağlantısı, canlı yayın performansı ve 115 aktör hedefi henüz doğrulanmadı.
+- TikTok LIVE bağlantısı, canlı yayın performansı ve 128 aktör hedefi henüz doğrulanmadı.
 
 ## Güvenlik notları
 
