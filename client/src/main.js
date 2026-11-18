@@ -94,6 +94,17 @@ function gift(rawName, type, konsId) {
 }
 document.querySelectorAll('[data-command]').forEach(button=>button.addEventListener('click',()=>command(username(),button.dataset.command)));
 document.querySelectorAll('[data-gift]').forEach(button=>button.addEventListener('click',()=>gift(username(),button.dataset.gift,konsSelect.value)));
+document.querySelectorAll('[data-spawn]').forEach(button => {
+  button.addEventListener('click', () => {
+    const amount = Number(button.dataset.spawn) || 0;
+    let added = 0;
+    for (let i = 0; i < amount && state.viewers.size < 100; i++) {
+      const name = `demo_${String(Date.now()).slice(-5)}_${String(i+1).padStart(2,'0')}`;
+      if (!state.viewers.has(name) && addViewer(name)) added++;
+    }
+    log(`Toplu test: ${added} müşteri eklendi. Kapasite ${state.viewers.size}/100.`);
+  });
+});
 document.querySelector('#like-button').addEventListener('click',()=>{
   state.likes+=1;game.setLikes(state.likes);updateHud();log('Ortak beğeni göstergesi yükseldi.');
 });
