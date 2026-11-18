@@ -824,8 +824,8 @@ export function createGame(canvas) {
       finishWaiterService(waiterId);
       return false;
     }
-    waiterBusy.add(waiterId);
     if(!activeCustomerServices.start(waiterId,guestId))return false;
+    waiterBusy.add(waiterId);
     waiter.userData.motion='serving';
     const approach=findWaiterApproach(waiter,guest);
     moveTo(waiterId,approach.x,approach.z);
