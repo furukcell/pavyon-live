@@ -13,7 +13,7 @@
       <section class="hud">
         <header class="topbar">
           <div><span class="eyebrow">CANLI ETKİLEŞİM SİMÜLATÖRÜ</span><h1>PAVYON <em>LIVE</em></h1></div>
-          <div class="top-actions"><button id="music-toggle" class="music-toggle" aria-expanded="false">♫ MÜZİK</button><div class="live-pill"><span></span> TEST YAYINI</div></div>
+          <div class="top-actions"><button id="music-toggle" class="music-toggle" aria-expanded="false">♫ MÜZİK</button><div class="live-pill"><span></span><strong id="broadcast-label">TEST YAYINI</strong></div></div>
         </header>
         <div class="status-row">
           <div class="stat"><small>MEKÂNDA</small><strong id="guest-count">0 / 100</strong></div>
@@ -41,6 +41,7 @@
           </div>
           <p class="music-note">Müzikler cihazından seçilir. Yayında kullanacağın dosyaların yayın/lisans iznini kontrol et.</p>
         </section>
+        <div class="stream-event" id="stream-event" aria-live="polite"><span>SON ETKİLEŞİM</span><strong id="stream-event-text">Yayın başlamak üzere</strong></div>
         <div class="bottom-grid">
           <section class="panel command-panel">
             <div class="panel-heading"><span>ETKİLEŞİM AKIŞI</span><span class="muted">TEST</span></div>
