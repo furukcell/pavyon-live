@@ -71,15 +71,18 @@ function command(rawName, rawCommand) {
 function occupyKons(konsId, name, duration, action) {
   if (!Object.prototype.hasOwnProperty.call(state.kons,konsId)) { log('Geçersiz kons seçimi.'); return false; }
   if (state.kons[konsId]) { log(`<b>${escapeHtml(konsId)}</b> şu anda @${escapeHtml(state.kons[konsId])} ile meşgul.`); return false; }
+  const guest=state.viewers.get(name);
+  if(guest?.activeKons){log(`@<b>${escapeHtml(name)}</b> başka bir kons etkileşiminde. Önce mevcut etkileşimin bitmesini beklemeli.`);return false;}
+  if(action()===false){log('Bu alan şu anda dolu. Biraz sonra tekrar dene.');return false;}
   state.kons[konsId] = name;
-  action();
+  if(guest)guest.activeKons=konsId;
   updateHud();
   const timer = window.setTimeout(() => {
     if (state.kons[konsId] !== name) return;
     state.kons[konsId] = null;state.timers.delete(konsId);
     game.releaseKons(konsId);
-    const guest=state.viewers.get(name);
-    if(guest)game.releaseGuest(guest.id);
+    const activeGuest=state.viewers.get(name);
+    if(activeGuest){activeGuest.activeKons=null;game.releaseGuest(activeGuest.id);}
     updateHud();
     log(`<b>${escapeHtml(konsId)}</b> tekrar müsait. @${escapeHtml(name)} eski yerine döndü.`);
   }, duration);
@@ -94,9 +97,9 @@ function gift(rawName, type, konsId) {
   if (type === 'stage') { game.show(guest.id);log(`<b>@${escapeHtml(name)}</b> için sahne gösterisi başladı.`);return; }
   const duration = type === 'dance' || type === 'invite' ? 5*60_000 : 3*60_000;
   const actions = {
-    invite:()=>{game.konsToTable(konsId,guest.id);log(`<b>${escapeHtml(konsId)}</b>, @${escapeHtml(name)} kullanıcısının masasına gidiyor.`);},
-    dance:()=>{game.konsDance(konsId,guest.id);log(`<b>${escapeHtml(konsId)}</b> ve @${escapeHtml(name)} birlikte dans ediyor (5 dk).`);},
-    vip:()=>{game.vip(konsId,guest.id);log(`<b>${escapeHtml(konsId)}</b>, @${escapeHtml(name)} ile VIP locaya geçti.`);}
+    invite:()=>{const ok=game.konsToTable(konsId,guest.id);if(ok)log(`<b>${escapeHtml(konsId)}</b>, @${escapeHtml(name)} kullanıcısının masasına gidiyor.`);return ok;},
+    dance:()=>{const ok=game.konsDance(konsId,guest.id);if(ok)log(`<b>${escapeHtml(konsId)}</b> ve @${escapeHtml(name)} birlikte dans ediyor (5 dk).`);return ok;},
+    vip:()=>{const ok=game.vip(konsId,guest.id);if(ok)log(`<b>${escapeHtml(konsId)}</b>, @${escapeHtml(name)} ile VIP locaya geçti.`);return ok;}
   };
   if (actions[type]) occupyKons(konsId,name,duration,actions[type]);
 }
