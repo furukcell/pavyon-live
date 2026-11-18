@@ -694,6 +694,39 @@ export function createGame(canvas) {
       const bell=new THREE.Mesh(new THREE.ConeGeometry(.095,.2,14),brass);bell.position.set(.01,.38,.35);bell.rotation.x=Math.PI;actor.add(bell);
     }
   }
+  // Front-stage vocalist anchors the live ensemble.
+  const vocalist=makeActor('band-vocalist','musician',29);
+  vocalist.position.set(0,0,-6.75);
+  vocalist.rotation.y=0;
+  vocalist.userData.instrument='vocal';
+  vocalist.userData.motion='performing';
+  vocalist.userData.vocalist=true;
+  const micStand=new THREE.Group();
+  const micMetal=new THREE.MeshStandardMaterial({color:'#29242a',metalness:.72,roughness:.28});
+  const micGold=new THREE.MeshStandardMaterial({color:'#c59a5b',metalness:.78,roughness:.22});
+  const standPole=new THREE.Mesh(new THREE.CylinderGeometry(.018,.024,1.12,10),micMetal);
+  standPole.position.set(.42,.62,.34);micStand.add(standPole);
+  const standBase=new THREE.Mesh(new THREE.CylinderGeometry(.19,.19,.045,16),micMetal);
+  standBase.position.set(.42,.055,.34);micStand.add(standBase);
+  const boom=new THREE.Mesh(new THREE.CylinderGeometry(.014,.014,.48,8),micMetal);
+  boom.position.set(.22,1.12,.34);boom.rotation.z=-.22;micStand.add(boom);
+  const microphone=new THREE.Mesh(new THREE.CylinderGeometry(.045,.035,.18,12),micGold);
+  microphone.position.set(.02,1.17,.34);microphone.rotation.z=Math.PI/2-.22;micStand.add(microphone);
+  const micHead=new THREE.Mesh(new THREE.SphereGeometry(.052,12,10),micMetal);
+  micHead.position.set(-.07,1.19,.34);micStand.add(micHead);
+  vocalist.add(micStand);
+  vocalist.userData.micStand=micStand;
+  const micInHand=new THREE.Group();
+  const handheldBody=new THREE.Mesh(new THREE.CylinderGeometry(.026,.032,.2,10),micMetal);
+  handheldBody.rotation.z=-.35;micInHand.add(handheldBody);
+  const handheldHead=new THREE.Mesh(new THREE.SphereGeometry(.045,12,10),micGold);
+  handheldHead.position.set(-.035,.09,0);micInHand.add(handheldHead);
+  micInHand.position.set(-.27,.98,.27);vocalist.add(micInHand);
+  vocalist.userData.micInHand=micInHand;
+  vocalist.userData.armPivots[0].rotation.z=-.58;
+  vocalist.userData.armPivots[0].rotation.x=-.18;
+  bandMembers.push(vocalist);
+
   for(let i=0;i<musicianRoles.length;i++){
     const actor=makeActor(`band-${musicianRoles[i]}`,'musician',i+20);
     actor.position.set(-3.05+i*2.03,0,-8.05);
@@ -981,6 +1014,20 @@ export function createGame(canvas) {
       }else if(actor.userData.role==='musician'){
         const beat=time*(musicMood==='ankara'?7.4:5.8)+actor.userData.phase;
         const instrument=actor.userData.instrument;
+        if(actor.userData.vocalist){
+          const singing=Math.sin(beat*1.35);
+          actor.userData.body.rotation.z=singing*.035;
+          actor.userData.head.rotation.x=-.08+Math.max(0,singing)*.035;
+          actor.userData.head.rotation.y=Math.sin(beat*.42)*.12;
+          actor.userData.micInHand.rotation.z=Math.sin(beat*.8)*.08;
+          actor.userData.armPivots[0].rotation.z=-.58+Math.sin(beat*.7)*.12;
+          actor.userData.armPivots[0].rotation.x=-.18+Math.sin(beat*1.3)*.06;
+          actor.userData.armPivots[1].rotation.z=-.12+Math.max(0,Math.sin(beat*.55))*.72;
+          actor.userData.armPivots[1].rotation.x=Math.sin(beat*.8)*.18;
+          actor.userData.head.scale.y=.99+Math.max(0,Math.sin(beat*1.35))*.025;
+          actor.position.y=Math.max(0,Math.sin(beat*2))*.018;
+          return;
+        }
         if(actor.userData.body)actor.userData.body.rotation.z=Math.sin(beat)*.018;
         actor.position.y=Math.abs(Math.sin(beat*2))*.012;
         actor.userData.armPivots?.forEach((arm,index)=>{
