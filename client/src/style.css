@@ -78,3 +78,17 @@ footer{text-align:center;color:#b08e9d;font-size:9px;letter-spacing:.3px;margin-
 .music-volume input{min-width:0;margin:0;padding:0;accent-color:#e5bd75}
 .music-note{margin:0;color:#9f8995;font-size:9px;line-height:1.4}
 @media(max-width:700px){.top-actions{gap:5px}.music-toggle{font-size:9px;padding:7px}.music-panel{top:92px;right:12px;max-height:55vh;padding:10px}.music-track-list{max-height:130px}}
+
+/* Clean audience-facing OBS / TikTok LIVE browser-source mode: add ?view=stream */
+.stream-event{display:none}
+.stream-mode #music-toggle,.stream-mode .bottom-grid,.stream-mode footer,.stream-mode .table-stat{display:none!important}
+.stream-mode .hud{padding:22px 28px 28px;}
+.stream-mode .eyebrow{font-size:11px;letter-spacing:2.2px}
+.stream-mode h1{font-size:48px;margin-top:9px}
+.stream-mode .status-row{gap:10px;margin-top:18px}
+.stream-mode .stat{min-width:112px;padding:11px 15px;background:#160d1bcc;border-color:#e5bd7540}
+.stream-mode .stat strong{font-size:19px}
+.stream-mode .stream-event{display:flex;position:absolute;left:50%;bottom:28px;transform:translateX(-50%);width:min(680px,calc(100vw - 40px));align-items:center;gap:14px;padding:13px 18px;border:1px solid #e5bd7566;border-radius:12px;background:linear-gradient(100deg,#1b101deF,#3b192beF);box-shadow:0 8px 34px #0008;backdrop-filter:blur(12px)}
+.stream-mode .stream-event span{flex-shrink:0;color:#e5bd75;font-size:9px;font-weight:800;letter-spacing:1.6px}
+.stream-mode .stream-event strong{overflow:hidden;color:#fff0e5;font-size:14px;font-weight:600;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:700px){.stream-mode .hud{padding:16px 14px 18px}.stream-mode h1{font-size:36px}.stream-mode .eyebrow{font-size:8px}.stream-mode .live-pill{font-size:8px}.stream-mode .status-row{gap:6px;margin-top:10px}.stream-mode .stat{min-width:0;flex:1;padding:8px 9px}.stream-mode .stat small{font-size:8px}.stream-mode .stat strong{font-size:15px}.stream-mode .stream-event{bottom:16px;width:calc(100vw - 28px);padding:10px 12px;gap:9px}.stream-mode .stream-event span{font-size:8px}.stream-mode .stream-event strong{font-size:11px}}
