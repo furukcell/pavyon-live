@@ -142,3 +142,11 @@ Desteklenen olay türleri `comment`, `like`, `gift`. Hediye olayında `action` a
 - Kons aynı anda iki izleyiciye atanamaz.
 - Hediye testleri davet, dans, servis, VIP ve sahne aksiyonlarını tetikler.
 - Sunucu ve istemci aynı origin üzerinden production modunda çalışabilir.
+
+
+### Kons karakterleri ve sahne tavrı
+
+- Kons karakterleri yetişkin, stilize pavyon sahne kostümleriyle (parlak renkler, altın detaylar, kısa sahne elbisesi silüeti ve topuklu ayakkabı) çizilir.
+- Uzun/dalgalı saç, küpe ve gülümseme detayları görünüşe çeşitlilik katar.
+- Boştayken hafif salınım ve ara sıra kahkaha/ağız animasyonu; masaya veya VIP alana giderken cilveli tavır; dans hediyesinde eşli dans hareketi kullanılır.
+- Bunlar Three.js ile oluşturulmuş prototip geometrileridir; henüz profesyonel karakter modeli, yüz rig'i veya motion-capture animasyonu değildir.
