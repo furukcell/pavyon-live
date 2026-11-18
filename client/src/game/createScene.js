@@ -300,9 +300,15 @@ export function createGame(canvas) {
     return true;
   }
   function prepareGuestForInteraction(actor){
+    const wasSeated=Boolean(actor.userData.seat)||actor.userData.motion==='seated'||actor.userData.motion==='sitting-down';
+    if(wasSeated){
+      actor.userData.poseFrom=capturePose(actor);
+      actor.userData.poseStarted=clock?.elapsedTime||0;
+    }
     releaseSeat(actor);
     actor.userData.motion='standing';
-    if(actor.userData.body)actor.userData.body.position.y=.72;
+    delete actor.userData.sitStarted;
+    if(actor.userData.body){actor.userData.body.position.y=.72;actor.userData.body.rotation.x=0;}
     if(actor.userData.head)actor.userData.head.position.y=1.35;
     actor.userData.legPivots?.forEach(leg=>leg.rotation.x=0);
     actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});
@@ -465,7 +471,10 @@ export function createGame(canvas) {
             actor.userData.poseStarted=time;
           }
           if(actor.userData.targetRotation!==undefined){actor.rotation.y=actor.userData.targetRotation;delete actor.userData.targetRotation;}
-          if(actor.userData.motion==='walking-to-seat')actor.userData.motion='sitting-down';
+          if(actor.userData.motion==='walking-to-seat'){
+            actor.userData.motion='sitting-down';
+            actor.userData.sitStarted=time;
+          }
         }
       }
       if(actor.userData.role==='kons'){
@@ -504,22 +513,30 @@ export function createGame(canvas) {
       }else if(actor.userData.role==='customer'){
         const motion=actor.userData.motion;
         const dancing=motion==='dance'&&!walking;
-        const sitting=motion==='sitting-down'||motion==='seated';
         const gait=walking?Math.sin(actor.userData.gaitPhase):0;
-        if(motion==='sitting-down'&&!walking)actor.userData.motion='seated';
-        const seatedNow=motion==='seated'||(motion==='sitting-down'&&!walking);
-        const sitBlend=seatedNow?1:0;
-        if(actor.userData.body)actor.userData.body.position.y=.72-.16*sitBlend;
+        const sittingDown=motion==='sitting-down'&&!walking;
+        const seatedNow=motion==='seated'||sittingDown;
+        const sitBlend=seatedNow?THREE.MathUtils.smoothstep((time-(actor.userData.sitStarted??time))/.62,0,1):0;
+        if(sittingDown&&sitBlend>=1)actor.userData.motion='seated';
+        if(actor.userData.body){
+          actor.userData.body.position.y=.72-.16*sitBlend;
+          actor.userData.body.rotation.x=.12*sitBlend;
+        }
         if(actor.userData.head)actor.userData.head.position.y=1.35-.16*sitBlend;
         actor.position.y=walking?Math.abs(gait)*.025:(dancing?Math.abs(Math.sin(time*5.8+actor.userData.phase))*.035:0);
         actor.rotation.z=walking?gait*.025:(dancing?Math.sin(time*5.8+actor.userData.phase)*.08:(seatedNow?-.035:0));
         if(actor.userData.body)actor.userData.body.rotation.z=dancing?Math.sin(time*3.1+actor.userData.phase)*.035:0;
         actor.userData.legPivots?.forEach((leg,index)=>{
-          leg.rotation.x=seatedNow?-.95+(index*.04):(dancing?Math.sin(time*6.2+index*Math.PI+actor.userData.phase)*.3:(walking?Math.sin(actor.userData.gaitPhase+index*Math.PI)*.3:0));
+          const seatedAngle=-.95+(index*.04);
+          const activeAngle=dancing?Math.sin(time*6.2+index*Math.PI+actor.userData.phase)*.3:(walking?Math.sin(actor.userData.gaitPhase+index*Math.PI)*.3:0);
+          leg.rotation.x=activeAngle+(seatedAngle-activeAngle)*sitBlend;
         });
         actor.userData.armPivots?.forEach((arm,index)=>{
-          arm.rotation.x=seatedNow?-.25:(dancing?Math.sin(time*6.2+index*Math.PI)*.16:(walking?gait*.08:0));
-          arm.rotation.z=seatedNow?(index===0?-.12:.12):(dancing?(index===0?-1:1)*(.36+Math.sin(time*6.2+index)*.2):(walking?(index===0?1:-1)*gait*.16:0));
+          const activeX=dancing?Math.sin(time*6.2+index*Math.PI)*.16:(walking?gait*.08:0);
+          const activeZ=dancing?(index===0?-1:1)*(.36+Math.sin(time*6.2+index)*.2):(walking?(index===0?1:-1)*gait*.16:0);
+          arm.rotation.x=activeX+(-.25-activeX)*sitBlend;
+          const seatedZ=index===0?-.12:.12;
+          arm.rotation.z=activeZ+(seatedZ-activeZ)*sitBlend;
         });
         if(dancing)actor.rotation.z=Math.sin(time*5.8+actor.userData.phase)*.08;
       }else if(actor.userData.role==='waiter'){
