@@ -85,6 +85,16 @@ export function createGame(canvas) {
       const backHair=new THREE.Mesh(new THREE.SphereGeometry(.2,10,8),new THREE.MeshStandardMaterial({color:hairColor}));
       backHair.scale.set(.9,1.75,.78);backHair.position.set(0,1.02,-.12);group.add(backHair);
     }
+    if(role==='kons'&&appearance.haircut==='ponytail'){
+      const ponytail=new THREE.Mesh(new THREE.CapsuleGeometry(.075,.38,4,7),new THREE.MeshStandardMaterial({color:hairColor}));
+      ponytail.position.set(0,1.12,-.27);ponytail.rotation.x=-.25;group.add(ponytail);
+    }
+    if(role==='kons'&&appearance.haircut==='bob'){
+      for(const side of [-1,1]){
+        const bobSide=new THREE.Mesh(new THREE.SphereGeometry(.105,8,7),new THREE.MeshStandardMaterial({color:hairColor}));
+        bobSide.scale.set(.75,1.5,.8);bobSide.position.set(side*.18,1.25,.005);group.add(bobSide);
+      }
+    }
     if(role==='kons'){
       const limbMaterial=new THREE.MeshStandardMaterial({color:skin,roughness:.82});
       const armPivots=[];
@@ -122,8 +132,18 @@ export function createGame(canvas) {
       smile.name='kons-smile';group.add(smile);
       const laughMouth=new THREE.Mesh(new THREE.SphereGeometry(.035,8,6),new THREE.MeshBasicMaterial({color:'#4a1428'}));
       laughMouth.name='kons-laugh-mouth';laughMouth.scale.set(1,.08,.35);laughMouth.position.set(0,1.235,.205);group.add(laughMouth);
-      const earring=new THREE.Mesh(new THREE.TorusGeometry(.035,.009,5,10),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.8}));
-      earring.position.set(.22,1.2,.01);group.add(earring);
+      for(const side of [-1,1]){
+        const earring=new THREE.Mesh(new THREE.TorusGeometry(.035,.009,5,10),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.8}));
+        earring.position.set(side*.22,1.2,.01);group.add(earring);
+        const cheek=new THREE.Mesh(new THREE.SphereGeometry(.045,8,6),new THREE.MeshBasicMaterial({color:'#c66c79',transparent:true,opacity:.42}));
+        cheek.position.set(side*.13,1.285,.17);cheek.scale.set(1,.48,.2);group.add(cheek);
+        const bracelet=new THREE.Mesh(new THREE.TorusGeometry(.07,.012,5,12),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.8}));
+        bracelet.rotation.x=Math.PI/2;bracelet.position.set(side*.29,.73,0);group.add(bracelet);
+      }
+      const necklace=new THREE.Mesh(new THREE.TorusGeometry(.13,.012,5,16,Math.PI),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.8}));
+      necklace.rotation.x=Math.PI/2;necklace.position.set(0,1.12,.04);group.add(necklace);
+      const hem=new THREE.Mesh(new THREE.TorusGeometry(.29,.018,5,18),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.8}));
+      hem.rotation.x=Math.PI/2;hem.position.y=.22;group.add(hem);
     }
     const ring=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.045,12),new THREE.MeshStandardMaterial({color:role==='kons'?'#e3bd76':'#8f6b7b',metalness:.55}));
     ring.position.y=.04;group.add(ring);
