@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { normalizeDevEvent } from './eventValidation.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -18,15 +19,30 @@ app.get('/api/status', (_req, res) => res.json({
 }));
 
 // Development-only event bridge. It is not a public TikTok webhook.
+const seenEventIds = new Map();
+const EVENT_ID_TTL_MS = 60_000;
+const MAX_SEEN_EVENT_IDS = 5_000;
+
 app.post('/dev/event', (req, res) => {
   if (process.env.NODE_ENV === 'production') return res.status(403).json({ error: 'Disabled in production.' });
-  const event = req.body;
-  if (!event || !['comment', 'like', 'gift'].includes(event.type)) return res.status(400).json({ error: 'Unsupported event type.' });
-  if (event.type === 'comment' && (typeof event.username !== 'string' || typeof event.comment !== 'string')) return res.status(400).json({ error: 'Comment requires username and comment.' });
-  if (event.type === 'like' && !Number.isFinite(Number(event.count))) return res.status(400).json({ error: 'Like requires numeric count.' });
-  if (event.type === 'gift' && typeof event.username !== 'string') return res.status(400).json({ error: 'Gift requires username.' });
+  const result = normalizeDevEvent(req.body);
+  if (!result.ok) return res.status(400).json({ error: result.error });
+
+  const event = result.event;
+  if (event.eventId) {
+    const now = Date.now();
+    for (const [id, expiresAt] of seenEventIds) {
+      if (expiresAt <= now) seenEventIds.delete(id);
+    }
+    if (seenEventIds.has(event.eventId)) return res.status(200).json({ accepted: true, duplicate: true });
+    if (seenEventIds.size >= MAX_SEEN_EVENT_IDS) {
+      const oldestId = seenEventIds.keys().next().value;
+      if (oldestId) seenEventIds.delete(oldestId);
+    }
+    seenEventIds.set(event.eventId, now + EVENT_ID_TTL_MS);
+  }
   io.emit('live:event', event);
-  return res.status(202).json({ accepted: true });
+  return res.status(202).json({ accepted: true, duplicate: false });
 });
 
 app.use(express.static(distDir));
