@@ -1024,7 +1024,7 @@ export function createGame(canvas) {
           actor.userData.armPivots[0].rotation.x=-.18+Math.sin(beat*1.3)*.06;
           actor.userData.armPivots[1].rotation.z=-.12+Math.max(0,Math.sin(beat*.55))*.72;
           actor.userData.armPivots[1].rotation.x=Math.sin(beat*.8)*.18;
-          actor.userData.head.scale.y=.99+Math.max(0,Math.sin(beat*1.35))*.025;
+          actor.userData.head.scale.y=1.08+Math.max(0,Math.sin(beat*1.35))*.025;
           actor.position.y=Math.max(0,Math.sin(beat*2))*.018;
           return;
         }
