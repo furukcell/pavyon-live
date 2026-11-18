@@ -71,6 +71,7 @@ app.post('/dev/event', (req, res) => {
     seenEventIds.set(event.eventId, now + EVENT_ID_TTL_MS);
   }
   io.emit('live:event', event);
+  recordLiveEvent(event);
   return res.status(202).json({ accepted: true, duplicate: false });
 });
 
