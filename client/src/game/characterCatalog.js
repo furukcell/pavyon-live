@@ -7,7 +7,6 @@ function makeVariant(gender,index){
   const hue=(index*0.61803398875+(gender==='female'?0.17:0.03))%1;
   const saturation=.28+((index*7)%5)*.045;
   const lightness=.34+((index*3)%4)*.035;
-  const outfit=new (globalThis.__unusedColorClass || class {})();
   const h=Math.round(hue*360),s=Math.round(saturation*100),l=Math.round(lightness*100);
   return Object.freeze({
     id:`${gender}-${String(index+1).padStart(3,'0')}`,
