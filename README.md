@@ -48,7 +48,7 @@
 - Altı masada dekoratif mum ışığı, iki bardak ve içecek detayları.
 - Sahne, dans pisti, servis alanı, VIP loca ve 6 müşteri masası.
 - Sahne yanında hoparlör kuleleri, sahne önü LED şeridi ve servis barında şişe dekorları.
-- Her masada 3 koltuk olmak üzere 18 koltuk noktası; müşteriye en yakın boş koltuk atanır; oturan müşteri tekrar otur komutu verirse mevcut koltuğunu korur.
+- Her masada 3 koltuk olmak üzere 18 koltuk noktası; müşteriye en yakın boş koltuk atanır; oturan müşteri tekrar otur komutu verirse mevcut koltuğunu korur. Her koltuk kendi masa numarasını taşır; masa bazında dolu koltuk sayısı rezervasyon sırasında artar, müşteri koltuğu bırakınca azalır.
 - Üstten perspektif kamera; dar ekranlarda daha geniş dikey kadraj.
 - Sahne üzerinde renkli, ritmik hareket eden dört spot ışığı.
 - Oyun havası / bireysel dans yaklaşımı; halay mekaniği yok.
@@ -172,7 +172,7 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 
 1. **Karakter görsel kalitesi:** Kons yüzü, saç, kıyafet ve aksesuar detaylarını geliştirmek; garson ve müşteri modellerini tutarlılaştırmak. Son eklenenler: at kuyruğu/bob saç varyantı, iki taraflı küpe, kolye, bileklik, etek ucu detayı, sahne makyajı, kaş/kirpik/burun/dudak ve vücut oranı varyasyonu.
 2. **Animasyon kalitesi:** Daha doğal yürüme, oturma, dans, gülme ve etkileşim geçişleri; mevcut pivot animasyonlarını iyileştirmek. Son eklenenler: kons ve müşteri yürüyüş/oturma/dans hareketleri; garson tepsi-servis pozu; VIP çiftlerinin yüz yüze yönlenmesi.
-3. **Etkileşim yaşam döngüsü:** Masa/VIP konumları, daha güçlü çakışma önleme/navigasyon, kuyruk, dolu masa yönetimi ve her aksiyon sonrası doğru başlangıç konumuna dönüş. VIP için dört, dans pisti için altı çift konumu rezervasyonu; aynı izleyici için eşzamanlı kons etkileşimi engeli, müşteriye en yakın boş koltuk seçimi, mobilya/servis/VIP bölgelerinden kaçınan ve mevcut aktörlerden uzaklık puanlayan müşteri giriş konumları, yürüyen karakterler için uzamsal ızgara destekli hafif yerel ayrışma yönlendirmesi ve hedef ve hareket konumlarını oynanabilir salon sınırları içinde tutan hareket sınırlandırması eklendi. Genel fiziksel çarpışma ve kuyruk sistemi hâlâ yapılacak.
+3. **Etkileşim yaşam döngüsü:** Masa/VIP konumları, daha güçlü çakışma önleme/navigasyon, kuyruk, dolu masa yönetimi ve her aksiyon sonrası doğru başlangıç konumuna dönüş. VIP için dört, dans pisti için altı çift konumu rezervasyonu; aynı izleyici için eşzamanlı kons etkileşimi engeli, müşteriye en yakın boş koltuk seçimi ve masa bazlı koltuk doluluk sayacı, mobilya/servis/VIP bölgelerinden kaçınan ve mevcut aktörlerden uzaklık puanlayan müşteri giriş konumları, yürüyen karakterler için uzamsal ızgara destekli hafif yerel ayrışma yönlendirmesi ve hedef ve hareket konumlarını oynanabilir salon sınırları içinde tutan hareket sınırlandırması eklendi. Genel fiziksel çarpışma ve kuyruk sistemi hâlâ yapılacak.
 4. **Sahne ve arayüz cilası:** Işık, dekor, masa durumları, kons müsaitlik göstergesi ve yayın overlay'i. Son eklenen: dört hareketli sahne spotu.
 5. **Test ve optimizasyon:** 10/25/50/100 müşteri yük testi, mobil GPU ve bellek ölçümü, gerçek tarayıcı testleri.
 6. **TikTok LIVE entegrasyonu:** Uygun ve izinli olay kaynağına bağlanma; hediye-adım eşlemesi ve güvenli sunucu doğrulaması.
