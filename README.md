@@ -32,7 +32,7 @@
 ## İlerleme takibi — sabit hesap yöntemi
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
-- **V1 yayın hedefi: %40 (hediye eşleme testleri düzeltiliyor; artış henüz sayılmadı)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
+- **V1 yayın hedefi: %45 (bu oturumda +5 puan; imzalı olay köprüsü, hediye eşleme ve sunucu bağlantı göstergesi CI testlerinden geçti)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
 - Yüzde yalnızca aşağıdaki V1 kabul kriterleri tamamlanıp doğrulandığında artar. Kodun yazılmış olması tek başına tamamlandı sayılmaz; ilgili akışın test edilmesi gerekir.
 - Bir iş paketi tamamlandıktan sonra yeni fikir eklenmesi o paketin yüzdesini düşürmez. V1 için zorunlu yeni bir hata bulunursa yalnızca ilgili kriter yeniden açılır ve nedeni not edilir.
 
@@ -41,7 +41,7 @@
 | 3D mekân ve sahne | %68 | Mobil/masaüstü sahne kontrolü ve temel görsel kabul |
 | Karakterler ve animasyon | %40 | Kons/müşteri/garson akışlarının cihazda kontrolü |
 | Oyun kuralları ve hediye akışları | %58 | Tüm komut ve hediye senaryolarının uçtan uca testi |
-| Sunucu ve olay altyapısı | %45 | Doğrulanmış olay, hata ve tekrar olay testleri |
+| Sunucu ve olay altyapısı | %55 | Doğrulanmış olay, hata ve tekrar olay testleri |
 | Gerçek TikTok LIVE bağlantısı | %0 | Gerçek yayından olay alındığının kanıtı |
 | Performans, güvenlik ve canlı prova | %5 | Yük testi, mobil test ve başarılı yayın provası |
 | Hosting/yayın hazırlığı | %10 | Dağıtım, sağlık kontrolü ve Browser Source doğrulaması |
