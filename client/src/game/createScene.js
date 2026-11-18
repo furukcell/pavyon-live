@@ -83,9 +83,11 @@ export function createGame(canvas) {
     const color=role==='kons'?konsColors[variant%konsColors.length]:role==='waiter'?'#e7dfd3':generatedColor;
     const body=new THREE.Mesh(new THREE.CapsuleGeometry(role==='kons'?.235:.26+(variant%4)*.012,role==='kons'?.58:.64+(variant%3)*.045,3,7),new THREE.MeshStandardMaterial({color,roughness:.48,metalness:role==='kons'?.12:0}));
     body.position.y=.72;body.castShadow=true;group.add(body);
+    group.userData.body=body;
     const skin=role==='waiter'?'#d6ad8c':appearance.skin;
     const head=new THREE.Mesh(new THREE.SphereGeometry(.22+(variant%3)*.012,16,12),new THREE.MeshStandardMaterial({color:skin,roughness:.85}));
     head.position.y=1.35;head.castShadow=true;group.add(head);
+    group.userData.head=head;
     const neck=new THREE.Mesh(new THREE.CylinderGeometry(.075,.09,.18,10),new THREE.MeshStandardMaterial({color:skin,roughness:.85}));
     neck.position.y=1.12;group.add(neck);
     const hairColor=role==='waiter'?'#28212a':appearance.hair;
@@ -105,13 +107,13 @@ export function createGame(canvas) {
         bobSide.scale.set(.75,1.5,.8);bobSide.position.set(side*.18,1.25,.005);group.add(bobSide);
       }
     }
-    if(role==='kons'){
+    if(role==='kons'||role==='customer'){
       const limbMaterial=new THREE.MeshStandardMaterial({color:skin,roughness:.82});
       const armPivots=[];
       const legPivots=[];
       for(const side of [-1,1]){
         const armPivot=new THREE.Group();
-        armPivot.position.set(side*.29,1.02,0);
+        armPivot.position.set(side*(role==='kons'?.29:.27),1.02,0);
         const upperArm=new THREE.Mesh(new THREE.CapsuleGeometry(.065,.28,3,7),limbMaterial);
         upperArm.position.y=-.2;upperArm.castShadow=true;armPivot.add(upperArm);
         const hand=new THREE.Mesh(new THREE.SphereGeometry(.07,8,7),limbMaterial);
@@ -125,6 +127,8 @@ export function createGame(canvas) {
       }
       group.userData.armPivots=armPivots;
       group.userData.legPivots=legPivots;
+    }
+    if(role==='kons'){
       const dress=new THREE.Mesh(new THREE.CylinderGeometry(.19,.39,.42,12,1,true),new THREE.MeshStandardMaterial({color:appearance.outfit,metalness:.28,roughness:.32,side:THREE.DoubleSide}));
       dress.position.y=.43;dress.castShadow=true;group.add(dress);
       const belt=new THREE.Mesh(new THREE.CylinderGeometry(.245,.245,.045,16),new THREE.MeshStandardMaterial({color:'#e7bd79',metalness:.8,roughness:.22}));
@@ -182,13 +186,19 @@ export function createGame(canvas) {
     releaseSeat(actor);
     const spot=seatSpots.find(item=>!item.occupied);
     if(!spot){moveTo(id,(Math.random()-.5)*12,(Math.random()-.5)*8);return;}
-    spot.occupied=true;actor.userData.seat=spot;actor.userData.motion='idle';actor.userData.targetRotation=spot.rotation;
+    spot.occupied=true;actor.userData.seat=spot;actor.userData.motion='walking-to-seat';actor.userData.targetRotation=spot.rotation;
     moveTo(id,spot.x,spot.z);
   }
   function animateActor(id,kind){
     const actor=actors.get(id);if(!actor)return;
     if(kind==='seat'){seatCustomer(id);return;}
     releaseSeat(actor);
+    if(actor.userData.role==='customer'){
+      if(actor.userData.body)actor.userData.body.position.y=.72;
+      if(actor.userData.head)actor.userData.head.position.y=1.35;
+      actor.userData.legPivots?.forEach(leg=>leg.rotation.x=0);
+      actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});
+    }
     const targets={dance:[(Math.random()-.5)*4,1],stage:[0,-8.5]};
     const target=targets[kind]||targets.dance;moveTo(id,target[0],target[1]);actor.userData.motion=kind;
   }
@@ -237,6 +247,7 @@ export function createGame(canvas) {
         }else {
           actor.userData.target=null;
           if(actor.userData.targetRotation!==undefined){actor.rotation.y=actor.userData.targetRotation;delete actor.userData.targetRotation;}
+          if(actor.userData.motion==='walking-to-seat')actor.userData.motion='sitting-down';
         }
       }
       if(actor.userData.role==='kons'){
@@ -261,7 +272,25 @@ export function createGame(canvas) {
         if(smile)smile.scale.y=laughing?.45:1+Math.max(0,flirt)*.25;
         if(laughMouth){laughMouth.scale.y=laughing?1:.08;}
         if(laughing)actor.position.y+=Math.abs(Math.sin(time*10+actor.userData.phase))*.025;
-      }else if(actor.userData.role==='customer'||actor.userData.role==='waiter'){
+      }else if(actor.userData.role==='customer'){
+        const motion=actor.userData.motion;
+        const sitting=motion==='sitting-down'||motion==='seated';
+        const gait=walking?Math.sin(time*9+actor.userData.phase):0;
+        if(motion==='sitting-down'&&!walking)actor.userData.motion='seated';
+        const seatedNow=motion==='seated'||(motion==='sitting-down'&&!walking);
+        const sitBlend=seatedNow?1:0;
+        if(actor.userData.body)actor.userData.body.position.y=.72-.16*sitBlend;
+        if(actor.userData.head)actor.userData.head.position.y=1.35-.16*sitBlend;
+        actor.position.y=walking?Math.abs(gait)*.035:0;
+        actor.rotation.z=walking?gait*.025:(seatedNow?-.035:0);
+        actor.userData.legPivots?.forEach((leg,index)=>{
+          leg.rotation.x=seatedNow?-.95+(index*.04):(walking?Math.sin(time*9+index*Math.PI+actor.userData.phase)*.3:0);
+        });
+        actor.userData.armPivots?.forEach((arm,index)=>{
+          arm.rotation.x=seatedNow?-.25:0;
+          arm.rotation.z=seatedNow?(index===0?-.12:.12):(walking?gait*.18:0);
+        });
+      }else if(actor.userData.role==='waiter'){
         const gait=walking?Math.sin(time*9+actor.userData.phase):0;
         actor.position.y=walking?Math.abs(gait)*.035:0;
         actor.rotation.z=walking?gait*.025:0;
