@@ -2,6 +2,7 @@ import './style.css';
 import { io } from 'socket.io-client';
 import { createGame } from './game/createScene.js';
 import { createSessionRules } from './game/sessionRules.js';
+import { normalizeViewerName } from './game/viewerRules.js';
 
 // In development Vite proxies /socket.io to the local game server.
 // In production the Express server serves both the built game and Socket.IO.
@@ -145,7 +146,7 @@ function log(message) {
   while (logEl.children.length > 30) logEl.lastElementChild.remove();
 }
 function cleanUsername(value) {
-  return String(value || '').trim().replace(/[^\p{L}\p{N}_-]/gu, '').slice(0, 20) || 'misafir';
+  return normalizeViewerName(typeof value === 'string' ? value : '');
 }
 function username() { return cleanUsername(usernameEl.value); }
 function updateHud() {
@@ -162,6 +163,7 @@ function updateHud() {
 }
 function addViewer(rawName) {
   const name = cleanUsername(rawName);
+  if (!name) { log('Geçersiz kullanıcı adı. Yorum veya izleyici adı boş olamaz.'); return null; }
   if (state.viewers.has(name)) return state.viewers.get(name);
   if (state.viewers.size >= 100) { log('<b>Kapasite dolu:</b> Mekânda 100 izleyici var.'); return null; }
   const guest = { name, id: `viewer-${crypto.randomUUID()}`, action: 'standing' };
@@ -173,6 +175,7 @@ function addViewer(rawName) {
 }
 function removeViewer(rawName) {
   const name=cleanUsername(rawName);
+  if(!name)return false;
   const guest=state.viewers.get(name);
   if(!guest)return false;
   if(guest.activeKons){
@@ -193,6 +196,7 @@ function removeViewer(rawName) {
 }
 function command(rawName, rawCommand) {
   const name = cleanUsername(rawName);
+  if (!name) return false;
   const cmd = String(rawCommand || '').trim().toLowerCase();
   if (!allowedCommands.has(cmd)) return;
   const now = Date.now();
@@ -246,6 +250,7 @@ function occupyKons(konsId, name, duration, action) {
 }
 function gift(rawName, type, konsId) {
   const name = cleanUsername(rawName);
+  if (!name) { log('Geçersiz kullanıcı adı nedeniyle hediye aksiyonu uygulanmadı.'); return; }
   const guest = state.viewers.get(name) || addViewer(name);
   if (!guest) return;
   if(guest.activeKons){
