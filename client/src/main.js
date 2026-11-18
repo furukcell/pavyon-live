@@ -192,8 +192,21 @@ function occupyKons(konsId, name, duration, action) {
   if (!sessionRules.canReserve(konsId, name)) { log(`@<b>${escapeHtml(name)}</b> başka bir kons etkileşiminde veya rezervasyon şu anda uygun değil.`); return false; }
   const guest=state.viewers.get(name);
   if(guest?.activeKons){log(`@<b>${escapeHtml(name)}</b> başka bir kons etkileşiminde. Önce mevcut etkileşimin bitmesini beklemeli.`);return false;}
-  if(action()===false){log('Bu alan şu anda dolu. Biraz sonra tekrar dene.');return false;}
+  // Reserve both sides before mutating the 3D scene; roll back if the scene rejects the action.
   if(!sessionRules.reserve(konsId,name)){log('Kons rezervasyonu alınamadı. Tekrar dene.');return false;}
+  let actionStarted=false;
+  try {
+    actionStarted=action()!==false;
+  } catch(error) {
+    sessionRules.releaseKons(konsId);
+    log('Etkileşim başlatılırken hata oluştu. Rezervasyon serbest bırakıldı.');
+    return false;
+  }
+  if(!actionStarted){
+    sessionRules.releaseKons(konsId);
+    log('Bu alan şu anda dolu. Biraz sonra tekrar dene.');
+    return false;
+  }
   state.kons[konsId] = name;
   if(guest)guest.activeKons=konsId;
   updateHud();
