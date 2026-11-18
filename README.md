@@ -4,22 +4,56 @@
 
 > **Proje durumu (18 Kasım 2026):** Görsel ve etkileşim prototipi geliştiriliyor. Oyun henüz gerçek TikTok LIVE hesabına bağlı değil. Bu depoda profesyonel harici 3D model dosyaları bulunmuyor; karakterler Three.js geometrileriyle kod üzerinden üretiliyor.
 
-## İlerleme tahmini
+## İlk yayın sürümü (V1) — kapsam sabitlendi
 
-> Bu yüzdeler tamamlanmış bir ürünün ölçümü değil, ilk yayınlanabilir sürüme giden iş planının yaklaşık durumudur.
+> **18 Kasım 2026 itibarıyla V1 kapsamı donduruldu.** Bundan sonra yeni fikirler V1'e otomatik eklenmeyecek; ayrı bir V2 listesine alınacak. Böylece tamamlanan işler geriye dönük olarak kapsam genişlemesi yüzünden yüzde kaybetmeyecek.
 
-- **Etkileşimli oyun prototipi: %60** — mekân, karakterler, komutlar, hediye simülasyonu ve temel oyun döngüleri var; görsel kalite ve davranış testleri sürüyor.
-- **İlk yayınlanabilir ürün hedefi: yaklaşık %32** — gerçek TikTok LIVE entegrasyonu, profesyonel karakter varlıkları, güvenlik, performans ve uçtan uca testler henüz tamamlanmadı.
+### V1'de teslim edeceğimiz ürün
 
-| İş paketi | Tahmini tamamlanma |
-|---|---:|
-| 3D mekân ve dekor | %68 |
-| Karakter model/animasyon kalitesi | %40 |
-| Oyun kuralları ve etkileşimler | %58 |
-| Sunucu ve test simülatörü | %45 |
-| Gerçek TikTok LIVE entegrasyonu | %0 |
-| Performans, güvenlik ve yayın testleri | %5 |
-| Yayın/hosting hazırlığı | %10 |
+- Tarayıcıda açılan, mobil ve masaüstü ekranlara uyumlu 3D pavyon sahnesi.
+- 10 seçilebilir kons, 5 garson, sahne orkestrası/solist ve kalabalık müşteri sistemi.
+- İzleyici girişi ve `!gel`, `!dans`, `!masa`, `!sahne` komutları.
+- Davet, konsla dans, VIP, içecek ve sahne hediye aksiyonlarının uçtan uca oyun akışı.
+- Gerçek TikTok LIVE olaylarını alacak sunucu tarafı adaptör; olay doğrulama, tekrar olaylarını tekilleştirme ve hediye eşlemesi.
+- OBS/TikTok LIVE Studio Browser Source üzerinden yayınlanabilir ekran.
+- Hata, yük, mobil tarayıcı ve canlı prova kontrolleri.
+- Yayın için gerekli hosting ve temel operasyon/güvenlik ayarları.
+
+### V1 dışında — V2'ye alındı
+
+- Profesyonel harici/gerçekçi rig'li karakter modelleri ve motion-capture.
+- Ses dalga formuna göre gerçek zamanlı nota, dudak ve dans senkronizasyonu.
+- Kalıcı, bulut tabanlı müzik kütüphanesi ve gelişmiş playlist yönetimi.
+- Yeni enstrümanlar, yeni sahne dekorları ve ilave dans koreografileri.
+- V1'in çalışması için zorunlu olmayan yeni oyun modları ve hediye türleri.
+
+**Kabul edilen V1 görsel standardı:** Mevcut prosedürel Three.js karakterleri kullanılabilir; profesyonel 3D model şartı yoktur. Ancak karakterlerin temel animasyonları, etkileşimleri ve sahne okunabilirliği testlerden geçmelidir.
+
+## İlerleme takibi — sabit hesap yöntemi
+
+- **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
+- **V1 yayın hedefi: %32 (başlangıç baz çizgisi)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
+- Yüzde yalnızca aşağıdaki V1 kabul kriterleri tamamlanıp doğrulandığında artar. Kodun yazılmış olması tek başına tamamlandı sayılmaz; ilgili akışın test edilmesi gerekir.
+- Bir iş paketi tamamlandıktan sonra yeni fikir eklenmesi o paketin yüzdesini düşürmez. V1 için zorunlu yeni bir hata bulunursa yalnızca ilgili kriter yeniden açılır ve nedeni not edilir.
+
+| V1 iş paketi | Başlangıç durumu | Tamamlanma kanıtı |
+|---|---:|---|
+| 3D mekân ve sahne | %68 | Mobil/masaüstü sahne kontrolü ve temel görsel kabul |
+| Karakterler ve animasyon | %40 | Kons/müşteri/garson akışlarının cihazda kontrolü |
+| Oyun kuralları ve hediye akışları | %58 | Tüm komut ve hediye senaryolarının uçtan uca testi |
+| Sunucu ve olay altyapısı | %45 | Doğrulanmış olay, hata ve tekrar olay testleri |
+| Gerçek TikTok LIVE bağlantısı | %0 | Gerçek yayından olay alındığının kanıtı |
+| Performans, güvenlik ve canlı prova | %5 | Yük testi, mobil test ve başarılı yayın provası |
+| Hosting/yayın hazırlığı | %10 | Dağıtım, sağlık kontrolü ve Browser Source doğrulaması |
+
+### Sıradaki kilometre taşları
+
+1. **M1 — Oyun akışını dondur ve doğrula:** komutlar, kons meşguliyet süreleri, masa/VIP/dans rezervasyonları, garson kuyruğu ve müşteri dönüşleri için test senaryoları.
+2. **M2 — Gerçek LIVE olay adaptörü:** izinli/uygun kaynak, sunucu tarafı doğrulama, tekrar olay koruması ve hediye eşlemesi.
+3. **M3 — Yayın ekranı:** OBS/TikTok LIVE Studio Browser Source, yayın overlay'i ve bağlantı durumları.
+4. **M4 — Sağlamlık:** 10/25/50/100 müşteri yük testleri, mobil tarayıcı, hata ve güvenlik kontrolleri.
+5. **M5 — İlk canlı prova:** hosting üzerinde gerçek yayına bağlanıp tüm akışları baştan sona doğrulama.
+
 
 ## Şu an neredeyiz?
 
