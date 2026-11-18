@@ -43,3 +43,5 @@ footer{text-align:center;color:#b08e9d;font-size:9px;letter-spacing:.3px;margin-
   .like-button{padding:8px;margin-top:6px}footer{font-size:8px}
 }
 @media(max-height:720px) and (min-width:701px){.event-log{height:100px}.panel{padding:10px}.hud{padding:12px}}
+
+.crowd-tools{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}.crowd-tools button{font-size:9px;padding:7px 5px;background:#292035;border-color:#8d704d}
