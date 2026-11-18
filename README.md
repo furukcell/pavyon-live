@@ -10,9 +10,10 @@
 |---|---|---|
 | 3D mekân ve kamera | Prototip hazır | Sahne, dans pisti, bar/servis, VIP alanı, sahne, 6 masa, mobil kamera ve hareketli sahne spotları |
 | Kons karakterleri | Prototip geliştiriliyor | 10 ayrı görünüm varyantı; sahne kıyafeti, saç, aksesuar, makyaj, yüz detayları ve vücut oranı varyasyonu |
-| Kons tavırları | Prototip animasyonlar | Göz kırpma, gülümseme/kahkaha, hafif salınım, cilveli duruş, dans ve yeni yürüyüş hareketleri |
+| Kons tavırları | Prototip animasyonlar | Göz kırpma, gülümseme/kahkaha, hafif salınım, cilveli duruş, dans, yürüyüş ve müşteriyle yüz yüze konumlanma |
 | Müşteri görünüş kataloğu | Hazır (parametrik) | 100 kadın + 100 erkek görünüş profili; bunlar 200 ayrı model dosyası değildir |
 | Garsonlar | İlk prototip hazır | 5 karakter örneği ve müşteriye servis hareketi |
+| Müşteri oturma hareketi | İlk prototip hazır | Boş koltuğa yürüme, oturma pozu, otururken kol/bacak konumu ve etkileşim bitince ayağa kalkıp dönüş |
 | Yorum ve hediye testleri | Prototip hazır | Komutlar ve normalize edilmiş test hediye olayları |
 | Kons kullanım süresi | İlk akış hazır | Kons meşguliyet kontrolü; davet/dans 5 dk, VIP 3 dk; süre bitince dönüş ve test panelinde müsait/meşgul durumu |
 | Gerçek TikTok bağlantısı | Başlanmadı | Olay kaynağı, izinler ve platforma uygun entegrasyon ayrıca yapılacak |
@@ -41,6 +42,7 @@
 - Kons seçme listesindeki her karakterin müsait/meşgul durumu gösterilir; meşgul karakterler test panelinden seçilemez.
 - Boştayken hafif salınım ve ara sıra kahkaha; göz kırpma; davette cilveli duruş; dans sırasında kol/bacak pivot hareketleri.
 - Yeni yürüyüş döngüsü: adım ritminde bacak ve kol salınımı, hafif gövde yükselmesi ve hedefe yumuşak dönüş.
+- Müşteriyle etkileşimde hedefe dönük duruş; VIP locada kons ve müşterinin birbirine bakacak şekilde konumlanması.
 
 ### Müşteriler ve garsonlar
 
@@ -48,6 +50,7 @@
 - Profiller saç, ten, kıyafet rengi, boy, yapı ve aksesuar parametreleri sağlar. 200 ayrı elle modellenmiş karakter dosyası değildir.
 - Oyuncu girişlerinde aynı anda en fazla 100 müşteri kabul edilir.
 - 5 garson örneği sahneye eklenir; aynı temel placeholder modelinden türetilir.
+- Müşteriler boş koltuğa yürür; varışta gövde alçalması, hafif öne eğilme ve bacak/kol pozisyonuyla oturma pozu alır. Etkileşimden çıkarken poz sıfırlanır.
 - Hedef aktif aktör sayısı: 100 müşteri + 10 kons + 5 garson = 115. Bu kapasite henüz performans testinden geçmedi.
 
 ## İzleyici komutları
@@ -137,7 +140,7 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 ## Yol haritası
 
 1. **Karakter görsel kalitesi:** Kons yüzü, saç, kıyafet ve aksesuar detaylarını geliştirmek; garson ve müşteri modellerini tutarlılaştırmak. Son eklenenler: at kuyruğu/bob saç varyantı, iki taraflı küpe, kolye, bileklik, etek ucu detayı, sahne makyajı, kaş/kirpik/burun/dudak ve vücut oranı varyasyonu.
-2. **Animasyon kalitesi:** Daha doğal yürüme, oturma, dans, gülme ve etkileşim geçişleri; mevcut pivot animasyonlarını iyileştirmek. Son eklenen: konslar için adım döngüsü, kol/bacak salınımı ve yumuşak yön değiştirme; müşteri ve garsonlara da temel yürüyüş salınımı.
+2. **Animasyon kalitesi:** Daha doğal yürüme, oturma, dans, gülme ve etkileşim geçişleri; mevcut pivot animasyonlarını iyileştirmek. Son eklenenler: konslar için adım döngüsü ve yumuşak yön değiştirme; müşteriler için kol/bacak yürüyüş salınımı ve oturma pozu; kons-müşteri etkileşiminde yüz yüze yönlenme.
 3. **Etkileşim yaşam döngüsü:** Masa/VIP konumları, çakışma önleme, kuyruk ve her aksiyon sonrası doğru başlangıç konumuna dönüş.
 4. **Sahne ve arayüz cilası:** Işık, dekor, masa durumları, kons müsaitlik göstergesi ve yayın overlay'i. Son eklenen: dört hareketli sahne spotu.
 5. **Test ve optimizasyon:** 10/25/50/100 müşteri yük testi, mobil GPU ve bellek ölçümü, gerçek tarayıcı testleri.
@@ -146,7 +149,7 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 
 ## Test durumu ve bilinen eksikler
 
-- Son geliştirme turunda yürüyüş hareketleri GitHub'a yazıldı; ancak bu oturumda `npm install`, `npm run build` veya gerçek cihaz tarayıcı testi çalıştırılmadı.
+- Son geliştirme turunda müşteri oturma pozu, otururken kol/bacak yerleşimi, etkileşim sonrası poz sıfırlama ve VIP/kons yüz yüze yönlenmesi GitHub'a yazıldı. Ancak bu oturumda `npm install`, `npm run build` veya gerçek cihaz tarayıcı testi çalıştırılmadı.
 - Kons animasyonları prosedürel Three.js hareketleridir; sesli kahkaha, gerçekçi yüz kasları, dudak senkronu ve profesyonel dans koreografisi yoktur.
 - Karakterlerin gerçekçi/kaliteli hale gelmesi için ileride lisanslı veya özgün hazırlanmış rig'li 3D varlıklar kullanılabilir. Bu dosyaların lisans ve optimizasyonu kontrol edilmelidir.
 - TikTok LIVE bağlantısı, canlı yayın performansı ve 115 aktör hedefi henüz doğrulanmadı.
