@@ -261,3 +261,9 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 - Sahneye başarılı ekleme açık bir `true` sonucu döndürür; istemci yalnızca bu onaydan sonra izleyici kaydını oluşturur.
 - Sahneye ekleme hata verirse giriş iptal edilir; HUD sayısı ile gerçek 3D aktör sayısının ayrışması önlenir.
 - Tanımsız hediye aksiyonları, izleyici otomatik oluşturulmadan önce reddedilir.
+
+
+### Hediye aksiyon kuralları
+- Desteklenen beş aksiyon (`invite`, `dance`, `drink`, `vip`, `stage`) tek bir istemci kural modülünde tanımlıdır.
+- Davet ve dans 5 dakika, VIP 3 dakika sürer; içecek ve sahne aksiyonları süreli kons rezervasyonu gerektirmez.
+- Ana oyun akışı aynı kural modülünü kullanır; testler aksiyon listesini, süreleri, kons gereksinimini ve bilinmeyen aksiyonların reddini doğrular.
