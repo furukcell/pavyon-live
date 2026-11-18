@@ -68,7 +68,7 @@ function command(rawName, rawCommand) {
   if (!guest) { log(`<b>@${escapeHtml(name)}</b> önce !gel yazarak mekâna katılmalı.`); return; }
   if(guest.activeKons){log(`@<b>${escapeHtml(name)}</b> kons etkileşimi sürerken bu komutu kullanamaz.`);return;}
   if (cmd === '!dans') { if(game.dance(guest.id)){guest.action='dancing';log(`<b>@${escapeHtml(name)}</b> dans pistine çıktı.`);} }
-  else if (cmd === '!masa') { if(game.seat(guest.id)){guest.action='seated';log(`<b>@${escapeHtml(name)}</b> masaya oturdu.`);}else log('Bütün masalar dolu. Bir koltuk boşalınca tekrar dene.'); }
+  else if (cmd === '!masa') { if(game.seat(guest.id)){guest.action='seated';updateHud();log(`<b>@${escapeHtml(name)}</b> masaya oturdu.`);}else log('Bütün masalar dolu. Bir koltuk boşalınca tekrar dene.'); }
   else if (cmd === '!sahne') { if(game.stage(guest.id)){guest.action='stage';log(`<b>@${escapeHtml(name)}</b> sahneye çıktı.`);} }
 }
 function occupyKons(konsId, name, duration, action) {
