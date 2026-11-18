@@ -254,3 +254,10 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 - İstemci tarafından gelen bir hediye aksiyonu tek başına ödeme/hediye kanıtı sayılmaz.
 - Gerçek hediye entegrasyonu sunucu tarafında kaynak doğrulaması ve olay tekilleştirmesi yapmalıdır.
 - Kullanıcı adları HTML'e yazılmadan önce kaçışlanmalıdır.
+
+
+### Müşteri girişinin atomik hâle getirilmesi
+- Geçersiz kimlik/ad alanı olan veya aynı sahne kimliğini kullanan müşteri eklenmesi reddedilir.
+- Sahneye başarılı ekleme açık bir `true` sonucu döndürür; istemci yalnızca bu onaydan sonra izleyici kaydını oluşturur.
+- Sahneye ekleme hata verirse giriş iptal edilir; HUD sayısı ile gerçek 3D aktör sayısının ayrışması önlenir.
+- Tanımsız hediye aksiyonları, izleyici otomatik oluşturulmadan önce reddedilir.
