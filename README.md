@@ -93,6 +93,14 @@
 - Desteklenen normalize olaylar `comment`, `like`, `gift`; hediye aksiyonları `invite`, `dance`, `drink`, `vip`, `stage`.
 - Bu endpoint TikTok'a doğrudan bağlanmış değildir. İzinli/uyumlu bir LIVE olay sağlayıcısı veya yerel connector, sağlayıcı payload'ını bu şemaya dönüştürüp imzalı isteği göndermelidir. Gerçek TikTok hesabıyla uçtan uca test henüz yapılmadı.
 
+## Canlı olay telemetrisi
+
+- Sunucu, kabul edilen olayları türlerine göre sayar: yorum, beğeni ve hediye.
+- `/api/status` toplam kabul edilen olay, tür bazında sayaçlar, son olay zamanı/türü, bağlı oyun istemcisi sayısı ve yapılandırılmış hediye eşlemesi sayısını döndürür.
+- Socket.IO istemcisine bağlantı anında `live:status` özeti gönderilir; her yeni kabul edilmiş olaydan sonra sayaçlar yayınlanır.
+- Yayın HUD'ındaki olay sayacı ve son olay satırı bu telemetriden beslenir. Tekrarlanan `eventId` olayları sayaçları artırmaz.
+- Sayaçlar bellekte tutulur; sunucu yeniden başladığında sıfırlanır. Kalıcı analitik/veritabanı değildir.
+
 ## Hediye eşlemesi ve bağlantı göstergesi
 
 - Sağlayıcıdan gelen hediye adı, sunucu tarafında `LIVE_GIFT_MAP` ortam değişkenindeki JSON eşlemesine göre oyun aksiyonuna dönüştürülür. Örnek: `LIVE_GIFT_MAP={"Rose":"invite","Dance Gift":"dance","VIP Star":"vip"}`.
