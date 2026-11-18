@@ -127,8 +127,17 @@ export function createGame(canvas) {
     group.userData.body=body;
     const skin=role==='waiter'?'#d6ad8c':appearance.skin;
     const head=new THREE.Mesh(new THREE.SphereGeometry(.22+(variant%3)*.012,28,20),new THREE.MeshStandardMaterial({color:skin,roughness:.72}));
-    head.position.y=1.35;head.castShadow=true;group.add(head);
+    head.position.y=1.35;head.scale.set(.91,1.08,.9);head.castShadow=true;group.add(head);
     group.userData.head=head;
+    if(role==='kons'){
+      const earMaterial=new THREE.MeshStandardMaterial({color:skin,roughness:.78});
+      for(const side of [-1,1]){
+        const ear=new THREE.Mesh(new THREE.SphereGeometry(.052,14,10),earMaterial);
+        ear.scale.set(.58,1.12,.58);ear.position.set(side*.205,1.335,.005);group.add(ear);
+        const cheekbone=new THREE.Mesh(new THREE.SphereGeometry(.072,14,10),new THREE.MeshStandardMaterial({color:skin,roughness:.82}));
+        cheekbone.scale.set(1.1,.62,.48);cheekbone.position.set(side*.115,1.285,.164);group.add(cheekbone);
+      }
+    }
     const neck=new THREE.Mesh(new THREE.CylinderGeometry(.075,.09,.18,10),new THREE.MeshStandardMaterial({color:skin,roughness:.85}));
     neck.position.y=1.12;group.add(neck);
     const hairColor=role==='waiter'?'#28212a':appearance.hair;
@@ -138,6 +147,21 @@ export function createGame(canvas) {
       for(const side of [-1,1]){
         const lock=new THREE.Mesh(new THREE.CapsuleGeometry(.045,.22,5,10),new THREE.MeshStandardMaterial({color:hairColor,roughness:.36}));
         lock.position.set(side*.19,1.27,.025);lock.rotation.z=side*.12;group.add(lock);
+      }
+    }
+    if(role==='kons'){
+      const strandMaterial=new THREE.MeshStandardMaterial({color:hairColor,roughness:.32,metalness:.035});
+      for(let strand=0;strand<5;strand++){
+        const side=strand%2===0?-1:1;
+        const x=side*(.13+(strand%3)*.035);
+        const wave=new THREE.CatmullRomCurve3([
+          new THREE.Vector3(x,1.48,.045),
+          new THREE.Vector3(x+side*.025,1.34,.085),
+          new THREE.Vector3(x-side*.012,1.19,.06),
+          new THREE.Vector3(x+side*.018,1.05,.015)
+        ]);
+        const strandMesh=new THREE.Mesh(new THREE.TubeGeometry(wave,12,.018+(strand%2)*.006,6,false),strandMaterial);
+        strandMesh.castShadow=true;group.add(strandMesh);
       }
     }
     if(role==='kons'&&['long','wavy','curly','ponytail'].includes(appearance.haircut)){
@@ -214,10 +238,18 @@ export function createGame(canvas) {
         const lash=new THREE.Mesh(new THREE.BoxGeometry(.09,.012,.018),new THREE.MeshStandardMaterial({color:'#24131c'}));
         lash.position.set(side*.075,1.385,.198);group.add(lash);
       }
-      const nose=new THREE.Mesh(new THREE.SphereGeometry(.035,8,8),new THREE.MeshStandardMaterial({color:skin,roughness:.9}));
-      nose.scale.set(.8,1,.7);nose.position.set(0,1.315,.215);group.add(nose);
-      const lip=new THREE.Mesh(new THREE.SphereGeometry(.045,8,6),new THREE.MeshStandardMaterial({color:'#a83e59',roughness:.55}));
-      lip.scale.set(1,.28,.35);lip.position.set(0,1.255,.205);group.add(lip);
+      const noseBridge=new THREE.Mesh(new THREE.CapsuleGeometry(.018,.075,4,8),new THREE.MeshStandardMaterial({color:skin,roughness:.82}));
+      noseBridge.position.set(0,1.315,.205);group.add(noseBridge);
+      const nose=new THREE.Mesh(new THREE.SphereGeometry(.035,14,10),new THREE.MeshStandardMaterial({color:skin,roughness:.82}));
+      nose.scale.set(.9,.72,.82);nose.position.set(0,1.285,.225);group.add(nose);
+      for(const side of [-1,1]){
+        const nostril=new THREE.Mesh(new THREE.SphereGeometry(.009,8,6),new THREE.MeshStandardMaterial({color:'#70463f',roughness:.9}));
+        nostril.scale.set(1,.55,.45);nostril.position.set(side*.018,1.273,.242);group.add(nostril);
+      }
+      const upperLip=new THREE.Mesh(new THREE.SphereGeometry(.052,14,8),new THREE.MeshStandardMaterial({color:'#9e4054',roughness:.48}));
+      upperLip.scale.set(1,.22,.38);upperLip.position.set(0,1.245,.218);group.add(upperLip);
+      const lowerLip=new THREE.Mesh(new THREE.SphereGeometry(.047,14,8),new THREE.MeshStandardMaterial({color:'#c66a78',roughness:.42}));
+      lowerLip.scale.set(.92,.2,.38);lowerLip.position.set(0,1.232,.22);group.add(lowerLip);
       const smileCurve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(-.055,1.25,.205),new THREE.Vector3(0,1.22,.23),new THREE.Vector3(.055,1.25,.205));
       const smile=new THREE.Mesh(new THREE.TubeGeometry(smileCurve,8,.012,5,false),new THREE.MeshBasicMaterial({color:'#7e263c'}));
       smile.name='kons-smile';group.add(smile);
