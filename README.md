@@ -48,7 +48,7 @@
 - Altı masada dekoratif mum ışığı, iki bardak ve içecek detayları.
 - Sahne, dans pisti, servis alanı, VIP loca ve 6 müşteri masası.
 - Sahne yanında hoparlör kuleleri, sahne önü LED şeridi ve servis barında şişe dekorları.
-- Her masada 3 koltuk olmak üzere 18 koltuk noktası; müşteriye en yakın boş koltuk atanır; oturan müşteri tekrar otur komutu verirse mevcut koltuğunu korur. Her koltuk kendi masa numarasını taşır; masa bazında dolu koltuk sayısı rezervasyon sırasında artar, müşteri koltuğu bırakınca azalır.
+- Her masada 3 koltuk olmak üzere 18 koltuk noktası; müşteriye en yakın boş koltuk atanır; oturan müşteri tekrar otur komutu verirse mevcut koltuğunu korur. Her koltuk kendi masa numarasını taşır; masa bazında dolu koltuk sayısı rezervasyon sırasında artar, müşteri koltuğu bırakınca azalır. Test arayüzünün üst çubuğunda altı masanın anlık doluluğu `dolu/3` biçiminde gösterilir.
 - Üstten perspektif kamera; dar ekranlarda daha geniş dikey kadraj.
 - Sahne üzerinde renkli, ritmik hareket eden dört spot ışığı.
 - Oyun havası / bireysel dans yaklaşımı; halay mekaniği yok.
