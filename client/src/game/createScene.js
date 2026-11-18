@@ -565,14 +565,17 @@ export function createGame(canvas) {
     return best||clampRoomPosition(0,9.55);
   }
   function addCustomer(viewer){
+    if(!viewer||typeof viewer.id!=='string'||!viewer.id.trim()||typeof viewer.name!=='string'||!viewer.name.trim()||actors.has(viewer.id))return false;
     const variant=customerSequence++;
     const spawn=findCustomerSpawn();
     const entrance=findCustomerEntrance();
-    const actor=makeActor(viewer.id,'customer',variant);actor.userData.name=viewer.name;
+    const actor=makeActor(viewer.id,'customer',variant);
+    actor.userData.name=viewer.name;
     actor.position.set(entrance.x,0,entrance.z);
     actor.userData.home=new THREE.Vector3(spawn.x,0,spawn.z);
     actor.userData.motion='arriving';
     moveTo(viewer.id,spawn.x,spawn.z);
+    return true;
   }
   function releaseSeat(actor){
     const spot=actor.userData.seat;
