@@ -221,7 +221,17 @@ export function createGame(canvas) {
     group.position.set((Math.random()-.5)*14,0,(Math.random()-.5)*10);
     actorGroup.add(group);actors.set(id,group);return group;
   }
-  function moveTo(id,x,z){const actor=actors.get(id);if(actor)actor.userData.target=new THREE.Vector3(x,0,z);}
+  // Navigation stays within the playable floor footprint.
+  const ROOM_BOUNDS={minX:-12.3,maxX:12.3,minZ:-10.3,maxZ:10.3};
+  function clampRoomPosition(x,z){
+    return {x:THREE.MathUtils.clamp(x,ROOM_BOUNDS.minX,ROOM_BOUNDS.maxX),z:THREE.MathUtils.clamp(z,ROOM_BOUNDS.minZ,ROOM_BOUNDS.maxZ)};
+  }
+  function moveTo(id,x,z){
+    const actor=actors.get(id);
+    if(!actor)return;
+    const point=clampRoomPosition(x,z);
+    actor.userData.target=new THREE.Vector3(point.x,0,point.z);
+  }
   function addCustomer(viewer){
     const variant=customerSequence++;
     const actor=makeActor(viewer.id,'customer',variant);actor.userData.name=viewer.name;
@@ -355,6 +365,8 @@ export function createGame(canvas) {
           const speed=actor.userData.role==='kons'?2.05:2.4;
           actor.position.x+=dx/steeredDistance*Math.min(distance,dt*speed);
           actor.position.z+=dz/steeredDistance*Math.min(distance,dt*speed);
+          const safePosition=clampRoomPosition(actor.position.x,actor.position.z);
+          actor.position.x=safePosition.x;actor.position.z=safePosition.z;
           const desiredRotation=Math.atan2(dx,dz);
           let angle=desiredRotation-actor.rotation.y;
           angle=Math.atan2(Math.sin(angle),Math.cos(angle));
