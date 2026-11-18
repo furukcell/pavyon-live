@@ -61,6 +61,18 @@ export function createGame(canvas) {
     const top=new THREE.Mesh(new THREE.CylinderGeometry(.83,.83,.06,24),new THREE.MeshStandardMaterial({color:'#d0a260',metalness:.72,roughness:.28}));
     top.position.set(x,1.02,z);scene.add(top);
     for(let j=0;j<3;j++){const a=j*Math.PI*2/3;const sx=x+Math.cos(a)*1.45,sz=z+Math.sin(a)*1.45;const seat=new THREE.Mesh(new THREE.BoxGeometry(.9,.65,.75),new THREE.MeshStandardMaterial({color:'#8c2545',roughness:.8}));seat.position.set(sx,.35,sz);seat.rotation.y=-a;seat.castShadow=true;scene.add(seat);seatSpots.push({x:sx,z:sz,rotation:-a,occupied:false});}
+    // Warm candlelight and glassware add detail to each guest table.
+    const candle=new THREE.Mesh(new THREE.CylinderGeometry(.055,.065,.22,10),new THREE.MeshStandardMaterial({color:'#f0d8ad',roughness:.45}));
+    candle.position.set(x,.14,z);scene.add(candle);
+    const flame=new THREE.Mesh(new THREE.SphereGeometry(.055,8,8),new THREE.MeshBasicMaterial({color:'#ffbd65'}));
+    flame.position.set(x,.29,z);scene.add(flame);
+    const candleLight=new THREE.PointLight('#ffb96a',1.1,2.8);candleLight.position.set(x,.48,z);scene.add(candleLight);
+    for(const side of [-1,1]){
+      const glass=new THREE.Mesh(new THREE.CylinderGeometry(.075,.06,.2,12,1,true),new THREE.MeshPhysicalMaterial({color:'#b8dce8',transparent:true,opacity:.42,roughness:.12,metalness:.05,side:THREE.DoubleSide}));
+      glass.position.set(x+side*.32,.14,z+.16);scene.add(glass);
+      const drink=new THREE.Mesh(new THREE.CylinderGeometry(.052,.052,.07,10),new THREE.MeshStandardMaterial({color:side===-1?'#8f263f':'#b87838',roughness:.25}));
+      drink.position.set(x+side*.32,.055,z+.16);scene.add(drink);
+    }
     label('MASA '+(i+1),x,z+1.8,'#e8c78e');
   });
   for(let i=0;i<7;i++){const post=box('gold-post',-11+i*3.65,2,-10.5,.09,4,.09,'#b9864c',.8);post.castShadow=false;}
@@ -71,6 +83,7 @@ export function createGame(canvas) {
   const konsHomes=new Map();
   const waiterHomes=new Map();
   const waiterBusy=new Set();
+  const waiterQueue=[];
   const vipSlots=[{x:7,z:-5},{x:8.5,z:-5},{x:7,z:-2.8},{x:8.5,z:-2.8}];
   const vipAssignments=new Map();
   const danceSlots=[{x:-3,z:1},{x:0,z:1},{x:3,z:1},{x:-3,z:3},{x:0,z:3},{x:3,z:3}];
@@ -331,7 +344,7 @@ export function createGame(canvas) {
     dance:id=>animateActor(id,'dance'),
     seat:id=>animateActor(id,'seat'),
     stage:id=>animateActor(id,'stage'),
-    drink:(customerId)=>{const customer=actors.get(customerId);if(!customer)return false;const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));if(!waiterId)return false;waiterBusy.add(waiterId);const waiter=actors.get(waiterId);if(waiter)waiter.userData.motion='serving';moveTo(waiterId,customer.position.x-1.1,customer.position.z);window.setTimeout(()=>{const home=waiterHomes.get(waiterId);if(home)moveTo(waiterId,home.x,home.z);if(waiter)waiter.userData.motion='idle';waiterBusy.delete(waiterId);},4500);return true;},
+    drink:(customerId)=>{if(!actors.has(customerId))return false;const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));if(!waiterId){if(waiterQueue.length>=30)return false;waiterQueue.push(customerId);return 'queued';}const dispatch=(id,guestId)=>{const guest=actors.get(guestId),waiter=actors.get(id);if(!guest||!waiter){waiterBusy.delete(id);return false;}waiterBusy.add(id);waiter.userData.motion='serving';moveTo(id,guest.position.x-1.1,guest.position.z);window.setTimeout(()=>{let next=null;while(waiterQueue.length&&!next){const candidate=waiterQueue.shift();if(actors.has(candidate))next=candidate;}if(next){dispatch(id,next);return;}const home=waiterHomes.get(id);if(home)moveTo(id,home.x,home.z);waiter.userData.motion='idle';waiterBusy.delete(id);},4500);return true;};dispatch(waiterId,customerId);return 'serving';},
     konsToTable:(k,id)=>{const customer=actors.get(id),hostess=actors.get(k);if(!customer||!hostess)return false;const angle=customer.rotation.y;const offset=new THREE.Vector3(Math.sin(angle+Math.PI/2)*1.05,0,Math.cos(angle+Math.PI/2)*1.05);const tx=customer.position.x+offset.x,tz=customer.position.z+offset.z;hostess.userData.motion='flirt';hostess.userData.targetRotation=Math.atan2(customer.position.x-tx,customer.position.z-tz);moveTo(k,tx,tz);return true;},
     konsDance:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...danceAssignments.values()].map(slot=>slot));const slot=danceSlots.find(item=>!occupied.has(item));if(!slot)return false;danceAssignments.set(k,slot);releaseSeat(guest);if(guest.userData.body)guest.userData.body.position.y=.72;if(guest.userData.head)guest.userData.head.position.y=1.35;guest.userData.motion='dance';guest.userData.targetRotation=Math.PI/2;hostess.userData.motion='dance';hostess.userData.targetRotation=-Math.PI/2;moveTo(id,slot.x-.65,slot.z);moveTo(k,slot.x+.65,slot.z);return true;},
     vip:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...vipAssignments.values()].map(slot=>slot));const slot=vipSlots.find(item=>!occupied.has(item));if(!slot)return false;vipAssignments.set(k,slot);hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;guest.userData.targetRotation=Math.PI/2;moveTo(k,slot.x+.55,slot.z);moveTo(id,slot.x-.55,slot.z);return true;},
