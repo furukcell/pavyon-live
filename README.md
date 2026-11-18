@@ -1,403 +1,124 @@
 # PAVYON LIVE
 
-**TikTok LIVE izleyicilerinin yorum, beğeni ve hediyelerle gerçek zamanlı olarak oyuna katıldığı 3D pavyon simülasyonu.**
+**TikTok LIVE izleyicilerinin yorum, beğeni ve hediyelerle gerçek zamanlı olarak katıldığı 3D pavyon simülasyonu.**
 
-- Proje adı: PAVYON LIVE
-- Proje türü: 3D sosyal etkileşim / canlı yayın oyunu
-- İlk hedef platform: Web tarayıcısı
-- Yayın platformu: TikTok LIVE
-- Kamera: Üstten izometrik görünüm
-- Geliştirme yaklaşımı: Önce oynanabilir prototip, ardından tam özellikli oyun
+> Durum: İlk prototip geliştirme aşamasında. TikTok LIVE bağlantısı henüz etkin değildir; oyun önce yerel test simülatörüyle çalışır.
 
----
+## Ürün hedefi
 
-## 1. Projenin amacı
+PAVYON LIVE, dikey canlı yayın ekranında çalışan, üstten izometrik kameraya sahip bir 3D pavyon oyunudur. İzleyici yorumla mekâna katılır, kendi kullanıcı adına bağlı karakteriyle dans eder veya masaya geçer. Test edilen/bağlanan LIVE olayları, oyun motorundan ayrı bir adaptör üzerinden oyun aksiyonlarına dönüştürülür.
 
-PAVYON LIVE, TikTok LIVE yayını sırasında izleyicilerin oyunun içinde bir karakter olarak yer alabildiği, diğer izleyicilerle etkileşim kurabildiği ve TikTok hediyeleriyle özel oyun aksiyonları başlatabildiği interaktif bir 3D oyun olacaktır.
+## Oyun dünyası
 
-Yayıncı oyunu açtığında pavyon ortamı sürekli çalışır. İzleyiciler yorum yazarak mekâna katılır, karakterleriyle hareket eder, dans eder ve masalara oturur. Hediye gönderen izleyiciler ise belirlenmiş özel etkileşimleri başlatabilir.
+Tek mekânlı ilk sürümde dans pisti, müşteri masaları, VIP loca, sahne ve servis alanı bulunur. Görsel dil kırmızı kadife, altın detaylar ve sıcak gece kulübü ışıkları üzerine kuruludur. Müzik ve dans yaklaşımı Ankara havası ve bireysel oyun havasıdır; halay mekaniği yoktur.
 
-Oyunun temel amacı:
-- İzleyiciyi yayının pasif seyircisi olmaktan çıkarmak.
-- Her izleyiciye oyunda kendisini temsil eden bir karakter sunmak.
-- Pavyon ortamını sürekli canlı tutmak.
-- Hediyeleri görsel ve oyun içi karşılığı olan aksiyonlara dönüştürmek.
-- Yayında uzun süre izlenebilir, eğlenceli bir oyun döngüsü oluşturmak.
+## Karakter hedefleri
 
-## 2. Oyun dünyası ve mekân
+| Rol | İlk prototip | Nihai hedef |
+|---|---:|---:|
+| Müşteri | 10 test karakteri | Aynı anda en fazla 100 |
+| Kons | 3 | 10 farklı karakter |
+| Garson | 2 | 5 (aynı temel modelin kopyaları) |
 
-Oyun tek bir 3D pavyon mekânında başlayacaktır.
+Müşteri görünüm kütüphanesi 100 erkek ve 100 kadın varyantından oluşur. Bu 200 varyant aynı anda sahneye konmaz; aktif 100 müşteri görünümü bu havuzdan seçilir. Nihai sahne hedefi 100 müşteri + 10 kons + 5 garson = 115 aktif aktördür.
 
-### Mekân bölümleri
+Görsel konsept çizimi tek başına animasyonlu, oyuna hazır 3D model değildir. Modellerin uygun formatta (tercihen glTF/GLB), rig ve animasyonlarıyla üretilmesi/optimize edilmesi gerekir. Kullanılan her modelin lisansı doğrulanmalıdır.
 
-- **Dans pisti:** İzleyicilerin bireysel dans edebileceği ana alan.
-- **Müşteri masaları:** İzleyici karakterlerinin oturabileceği masalar.
-- **VIP localar:** Özel hediye etkileşimleri için ayrılmış alanlar.
-- **Sahne:** Özel dans ve gösteri animasyonlarının yapılacağı bölüm.
-- **Servis alanı:** Garsonların içecek taşıdığı bölüm.
+## İzleyici etkileşimleri
 
-### Görsel tasarım
+İlk komutlar:
 
-- Kırmızı kadife koltuklar.
-- Altın detaylar.
-- Pavyon tarzı masa ve loca düzeni.
-- Sıcak ve renkli gece kulübü ışıklandırması.
-- Türk pavyon atmosferi.
-- Ankara havası ve oyun havası konseptine uygun müzik ve danslar.
-
-**Halay mekaniği bulunmayacaktır.** Danslar bireysel veya iki karakterin birlikte yaptığı gösteriler şeklinde olacaktır.
-
-## 3. Karakter sistemi
-
-Karakterler üç ana gruba ayrılacaktır.
-
-### 3.1. Müşteri karakterleri
-
-Oyunda aynı anda en fazla 100 müşteri karakteri bulunması hedeflenmektedir.
-
-Karakter çeşitliliği için bir görünüm kütüphanesi hazırlanacaktır:
-
-- 100 farklı erkek müşteri görünümü.
-- 100 farklı kadın müşteri görünümü.
-
-Bu 200 görünüm aynı anda sahnede bulunmayacaktır. Sistem, aktif 100 müşteri için bu kütüphaneden karakter görünümü seçecektir.
-
-Karakterler arasında yüz, saç, kıyafet ve aksesuar farklılıkları bulunacaktır.
-
-Her izleyici karakteri TikTok kullanıcı adıyla ilişkilendirilecektir.
-
-### 3.2. Kons karakterleri
-
-Toplam 10 farklı kons karakteri bulunacaktır.
-
-Her kons:
-- Kendine özgü yüz ve görünüşe sahip olacaktır.
-- Farklı saç ve kıyafet tasarımına sahip olacaktır.
-- Masaya yürüyebilecektir.
-- Müşteriyle oturabilecektir.
-- Dans pistine gidebilecektir.
-- Müşteriyle dans edebilecektir.
-- VIP locaya geçebilecektir.
-- Etkileşim süresi bitince uygun durumuna dönebilecektir.
-
-Kons karakterlerinin durumları:
-
-- AVAILABLE: Müsait.
-- WALKING: Bir noktaya gidiyor.
-- AT_TABLE: Müşteri masasında.
-- DANCING: Dans ediyor.
-- VIP: VIP locada.
-- RETURNING: Başlangıç veya bekleme alanına dönüyor.
-
-Bir kons aynı anda yalnızca bir müşteriye atanabilecektir.
-
-### 3.3. Garson karakterleri
-
-Toplam 5 garson bulunacaktır.
-
-- Tek bir temel garson karakter tasarımı kullanılacaktır.
-- Aynı modelden 5 karakter üretilecektir.
-- Garsonlar masalara servis götürecektir.
-- Hediye ile başlatılan içecek servislerinde animasyon yapacaktır.
-
-## 4. Ücretsiz izleyici etkileşimleri
-
-İzleyiciler yorum yazarak oyuna katılabilecektir.
-
-İlk komut sistemi:
-
-| Yorum | Oyun aksiyonu |
+| Komut | Davranış |
 |---|---|
-| `!gel` | İzleyiciyi oyuna dahil eder. |
-| `!dans` | Karakterini dans pistine gönderir. |
-| `!masa` | Karakterini uygun bir masaya oturtur. |
-| `!sahne` | Sahneye çıkma isteği oluşturur. |
+| `!gel` | İzleyiciyi oyuna alır (kapasite ve tekrar kontrolüyle). |
+| `!dans` | İzleyici karakterini dans alanına gönderir. |
+| `!masa` | Uygun masaya oturtur. |
+| `!sahne` | Sahne isteği oluşturur. |
 
-Komutlar spam ve kötüye kullanımı engellemek için bekleme süresi ve kontrol mekanizmasına sahip olacaktır.
+Beğeniler ortak atmosfer/ışık göstergesine katkı verir. Spam engeli ve komut bekleme süreleri sunucu tarafında uygulanır.
 
-### Beğeni sistemi
+## Hediye aksiyonları
 
-TikTok LIVE beğenileri oyunun ortak atmosfer göstergesine katkıda bulunacaktır.
+Hediye eşleştirmeleri konfigürasyonla belirlenir. Hediye olayı doğrulandıktan sonra:
 
-Örnek mekanikler:
-- Beğeni sayısı arttıkça ortam ışıkları hareketlenir.
-- Belirli eşiklerde sahne ışıkları değişir.
-- Pavyonun genel hareketliliği artar.
-- Eşiklere ulaşıldığında ortak görsel efektler çalışır.
+- **Konsu masaya davet:** Müsait kons masaya yürür, oturur ve ayarlanmış süre sonunda boşta kalır.
+- **Konsla dans:** Kons ve izleyici dans alanına gider; varsayılan etkileşim süresi 5 dakikadır. Ardından kons müşterinin masasına/boş bekleme noktasına döner.
+- **İçecek:** Garson seçili masaya servis animasyonu yapar.
+- **VIP daveti:** İzleyici ve müsait kons VIP locaya gider; süre sonunda kons serbest kalır.
+- **Sahne gösterisi:** Sahne animasyonu tetiklenir.
 
-Beğeni eşikleri ve etkileri oyun ayarlarından değiştirilebilir olacaktır.
+Her kons aynı anda tek bir etkileşimde olabilir. İlk sürümde daha yüksek hediye ile devam eden etkileşimi kesen açık artırma/kapma mekaniği yoktur. Hediye karşılıkları ve süreleri yayın ekranında açıkça belirtilmelidir. Bunlar yalnızca sanal oyun içi eğlence aksiyonlarıdır; gerçek dünyada hizmet veya ürün vaadi değildir.
 
-## 5. TikTok hediye sistemi
+## Teknik mimari
 
-Hediyeler, oyunda otomatik olarak özel aksiyonlar başlatacaktır.
+- **İstemci:** Vite + JavaScript + Three.js (WebGL 3D sahne).
+- **Sunucu:** Node.js + Express.
+- **Gerçek zamanlı iletişim:** Socket.IO.
+- **Olay kaynağı:** İlk aşamada yerel Event Simulator; ileride ayrı TikTok LIVE adaptörü.
+- **Dağıtım/yayın:** Tarayıcıda çalışan oyun, OBS veya uyumlu yayın yazılımına kaynak olarak verilir. Dikey 9:16 görünüm hedeflenir.
 
-### 5.1. Konsu masaya davet etme
+TikTok LIVE yorum/beğeni/hediye erişimi kullanılan entegrasyonun, hesap erişiminin ve platformun güncel koşullarının izin verdiği ölçüde uygulanabilir. Resmî API erişimi varmış gibi varsayılmaz. Oyun, TikTok bağlantısı olmadan test simülatörüyle oynanabilir kalacaktır.
 
-İzleyici uygun hediyeyi gönderdiğinde:
-1. Seçilen konsun müsaitliği kontrol edilir.
-2. Kons karakteri müşterinin masasına yürür.
-3. Masaya oturma animasyonu oynatılır.
-4. Etkileşim süresi başlatılır.
-5. Süre bittiğinde kons müsait durumuna döner.
-
-### 5.2. Konsla dans etme
-
-İzleyici ayrı bir dans hediyesi gönderdiğinde:
-1. Konsun müsaitliği kontrol edilir.
-2. Kons müşterinin yanına gider.
-3. İki karakter dans pistine geçer.
-4. Birlikte dans animasyonu oynatılır.
-5. Beş dakikalık etkileşim tamamlandığında kons müşterinin masasına geri döner.
-
-### 5.3. İçecek gönderme
-
-İzleyici içecek hediyesi gönderdiğinde:
-1. Hedef masa veya izleyici belirlenir.
-2. Garson uygun servis animasyonunu başlatır.
-3. Garson tepsiyle masaya yürür.
-4. Servis animasyonu oynatılır.
-5. Garson servis alanına geri döner.
-
-### 5.4. VIP loca daveti
-
-VIP hediye aksiyonu:
-1. Kons ve müşteri belirlenir.
-2. İki karakter VIP locaya gider.
-3. VIP oturma ve etkileşim animasyonları oynatılır.
-4. Süre tamamlandığında kons uygun durumuna döner.
-
-### 5.5. Sahne gösterisi
-
-Özel hediye gönderildiğinde sahnede özel bir dans veya gösteri animasyonu başlatılır.
-
-Bu aksiyonlar gerçek dünyada bir hizmet veya ürün satın alımı anlamına gelmez. Tamamı oyun içi eğlence ve görsel etkileşimdir.
-
-### Hediye kuralları
-
-- Her hediye türünün karşılığı önceden açıkça tanımlanacaktır.
-- Kullanıcıya hangi hediyenin hangi aksiyonu başlatacağı gösterilecektir.
-- Müsait olmayan karakterler için sistemin davranışı önceden belirlenmiş olacaktır.
-- Tek bir kons aynı anda iki farklı etkileşimde bulunamayacaktır.
-- Süreler ve hediye eşleştirmeleri ayarlanabilir olacaktır.
-
-Kons kapma veya daha yüksek hediyeyle mevcut etkileşimi kesme fikri ilk sürümde varsayılan mekanik olmayacaktır. Öncelikle şeffaf süre ve sabit hediye kuralları uygulanacaktır. Sonradan platform kuralları ve teknik imkânlar incelenerek değerlendirilebilir.
-
-## 6. Teknik mimari
-
-### Ön yüz ve oyun motoru
-
-**Three.js**
-
-3D pavyon ortamı, karakterler, kameralar, animasyonlar ve oyun içi görsel efektler için kullanılacaktır.
-
-### Sunucu
-
-**Node.js**
-
-Oyun olaylarının işlenmesi, karakterlerin durumlarının yönetilmesi ve izleyici etkileşimlerinin kontrol edilmesi için kullanılacaktır.
-
-### Gerçek zamanlı iletişim
-
-**Socket.IO**
-
-Sunucu ile oyun ekranı arasındaki gerçek zamanlı iletişimde kullanılacaktır.
-
-### Veri saklama
-
-İlk prototipte mümkün olduğunca basit bir oyun durumu kullanılacaktır. İlerleyen sürümlerde gerekli görülürse Firebase veya başka bir veritabanı ile kullanıcı ve oyun verileri saklanacaktır.
-
-### TikTok bağlantısı
-
-TikTok LIVE yorum, beğeni ve hediye olayları ayrı bir entegrasyon katmanından oyuna aktarılacaktır.
-
-Oyun motoru TikTok bağlantısından bağımsız tasarlanacaktır. Böylece TikTok entegrasyonu olmadan da test paneliyle oyun çalıştırılabilecektir.
-
-TikTok LIVE olaylarına erişim, kullanılacak entegrasyon yöntemine ve platformun güncel erişim/izin koşullarına bağlıdır. Resmî erişim garanti kabul edilmeyecektir.
-
-## 7. Proje klasör yapısı
-
-İlk hedeflenen klasör düzeni:
+## Repo yapısı
 
 ```text
 pavyon-live/
-│
 ├── README.md
 ├── package.json
 ├── .gitignore
 ├── .env.example
-│
 ├── client/
 │   ├── index.html
-│   ├── src/
-│   │   ├── main.js
-│   │   ├── game/
-│   │   │   ├── Game.js
-│   │   │   ├── Scene.js
-│   │   │   ├── Camera.js
-│   │   │   └── Lighting.js
-│   │   ├── characters/
-│   │   │   ├── Customer.js
-│   │   │   ├── Kons.js
-│   │   │   └── Waiter.js
-│   │   ├── systems/
-│   │   │   ├── MovementSystem.js
-│   │   │   ├── AnimationSystem.js
-│   │   │   ├── GiftSystem.js
-│   │   │   └── InteractionSystem.js
-│   │   └── ui/
-│   │       ├── Hud.js
-│   │       └── ViewerList.js
-│   └── public/
-│       ├── models/
-│       ├── textures/
-│       ├── audio/
-│       └── animations/
-│
-├── server/
-│   ├── index.js
-│   ├── socket.js
-│   ├── gameState.js
-│   ├── events/
-│   │   ├── comments.js
-│   │   ├── likes.js
-│   │   └── gifts.js
-│   └── integrations/
-│       └── tiktok/
-│           └── TikTokAdapter.js
-│
-└── tests/
-    └── eventSimulator.js
+│   └── src/
+│       ├── main.js
+│       ├── style.css
+│       └── game/
+│           ├── createScene.js
+│           └── demoWorld.js
+└── server/
+    └── index.js
 ```
 
-Bu yapı başlangıç mimarisidir; geliştirme sırasında ihtiyaçlara göre düzenlenebilir.
+## Yerel geliştirme
 
-## 8. Test sistemi
+Gereksinim: Node.js 20 veya üzeri.
 
-TikTok bağlantısı tamamlanmadan önce oyunun bütün özellikleri test edilebilmelidir.
+```bash
+npm install
+npm run dev
+```
 
-Bu nedenle bir test paneli oluşturulacaktır.
+Tarayıcıda `http://localhost:5173` açılır. Vite istemciyi sunar; Express/Socket.IO sunucusu varsayılan olarak `http://localhost:3001` adresinde çalışır.
 
-Test panelinden:
-- İzleyici ekleme.
-- İzleyiciye karakter atama.
-- Yorum gönderme.
-- Beğeni gönderme.
-- Hediye gönderme.
-- Kons seçme.
-- Konsun müsaitlik durumunu değiştirme.
-- İçecek servisi başlatma.
-- VIP daveti başlatma.
-- Etkileşim sürelerini hızlandırma.
+İlk prototipte ekrandaki test paneli yorum, beğeni ve hediye olaylarını simüle eder. Gerçek TikTok bağlantısı yapılandırılana kadar canlı yayın olayları gelmez.
 
-işlemleri yapılabilecektir.
+## Güvenlik ve gizlilik
 
-Test paneli sayesinde TikTok'a bağlanmadan oyun mekanikleri geliştirilebilecektir.
+- Gizli anahtarlar, erişim token'ları ve gerçek yayın kimlik bilgileri repoya konmaz.
+- Yerel sırlar `.env` dosyasında tutulur; `.env.example` yalnızca değişken adlarını içerir.
+- LIVE kullanıcı adları yalnızca oyun içi eşleştirme için gereken ölçüde işlenir.
+- İstemciden gelen komutlar sunucuda doğrulanır; istemci tek başına hediye/ödül kararı veremez.
+- Olaylar tekilleştirilir ve tekrar gelen hediye bildirimleri ikinci kez çalıştırılmaz.
 
-## 9. Yayın sistemi
+## Geliştirme yol haritası
 
-Oyun ilk aşamada yerel bilgisayarda tarayıcı üzerinden çalıştırılacaktır.
+1. **Sahne prototipi:** İzometrik kamera, pavyon yerleşimi, ışık ve temel UI.
+2. **Aktörler:** İlk müşteri/kons/garson placeholder modelleri ve hareket.
+3. **Oyun durumları:** Oturma, dans, servis, VIP ve süre/rezervasyon yönetimi.
+4. **Simülatör:** Yorum, beğeni ve hediye olaylarını panelden çalıştırma.
+5. **TikTok adaptörü:** Erişim ve platform koşulları doğrulandıktan sonra.
+6. **Optimizasyon:** 100 müşteri + 10 kons + 5 garson hedefi, dikey yayın testi.
 
-Yayın akışı:
+## İlk oynanabilir prototip kabul kriterleri
 
-1. Node.js oyun sunucusu başlatılır.
-2. Three.js oyun ekranı açılır.
-3. OBS veya uygun yayın aracı açılır.
-4. Oyun ekranı yayın kaynağı olarak eklenir.
-5. TikTok LIVE yayını başlatılır.
-6. TikTok olayları entegrasyon katmanından oyuna aktarılır.
-
-Yayın için 9:16 dikey ekran düzeni hedeflenecektir.
-
-Oyun ekranı, izleyicilerin karakterlerini ve önemli etkileşimleri rahat görebileceği şekilde tasarlanacaktır.
-
-## 10. Performans hedefleri
-
-- Aynı anda 100 müşteri karakteri.
-- 10 kons karakteri.
-- 5 garson karakteri.
-- Toplam 115 aktif karakter kapasitesi.
-- Gereksiz animasyonların sınırlandırılması.
-- Karakter modellerinin optimize edilmesi.
-- Uygun yerlerde animasyon ve model paylaşımı.
-- Gerçek zamanlı olayların kontrollü işlenmesi.
-
-100 erkek ve 100 kadın müşteri görünümü, aktif karakter sayısına eklenmiş değildir; bunlar görünüm kütüphanesidir.
-
-Performans testleri yapılarak cihazın gücüne göre karakter detayları ve animasyon yükü ayarlanacaktır.
-
-## 11. Geliştirme aşamaları
-
-### Aşama 1 — Temel prototip
-- Proje kurulumu.
-- Three.js sahnesi.
-- Üstten kamera.
-- Pavyon mekânının ilk taslağı.
-- Karakter hareket sistemi.
-
-### Aşama 2 — Karakterler
-- Müşteri karakterleri.
-- Kons karakterleri.
-- Garson karakterleri.
-- Yürüme, oturma ve dans animasyonları.
-
-### Aşama 3 — Oyun mekaniği
-- Masalara oturma.
-- Dans pistine gitme.
-- Kons atama.
-- Garson servisleri.
-- VIP loca etkileşimleri.
-- Süre yönetimi.
-
-### Aşama 4 — Test paneli
-- Yorum simülasyonu.
-- Beğeni simülasyonu.
-- Hediye simülasyonu.
-- Hata ve durum kontrolleri.
-
-### Aşama 5 — TikTok entegrasyonu
-- LIVE olaylarının alınması.
-- Kullanıcı eşleştirme.
-- Yorum komutları.
-- Hediye eşleştirmeleri.
-- Beğeni olayları.
-
-### Aşama 6 — Yayına hazırlık
-- Dikey ekran düzeni.
-- Performans optimizasyonu.
-- OBS/LIVE yayın testi.
-- Hata düzeltmeleri.
-
-## 12. İlk oynanabilir sürümün kapsamı
-
-İlk prototipte tüm karakter çeşitliliğini ve 115 karakter kapasitesini tamamlamaya çalışmayacağız.
-
-İlk sürümde:
-- 1 pavyon mekânı.
-- 3 kons.
-- 2 garson.
-- 10 test müşterisi.
-- 3 masa.
-- 1 dans pisti.
-- 1 VIP loca.
-- Temel yürüme ve oturma animasyonları.
-- Yorum ve hediye test paneli.
-
-bulunacaktır.
-
-Bu prototip çalıştıktan sonra karakter sayısı, mekân detayları ve etkileşimler büyütülecektir.
-
-## 13. Temel proje prensipleri
-
-1. Önce çalışan oyun, sonra görsel detaylar.
-2. TikTok bağlantısı olmadan da oyun test edilebilmeli.
-3. Bütün hediye aksiyonları otomatik çalışmalı.
-4. Her karakterin aynı anda yalnızca bir geçerli görevi olmalı.
-5. Oyun mimarisi yeni karakter ve hediye türleri eklemeye uygun olmalı.
-6. Kaynak kodu GitHub üzerinde sürüm kontrolüyle tutulmalı.
-7. API anahtarları ve özel erişim bilgileri GitHub'a yüklenmemeli.
-8. Kullanılan 3D modellerin ve animasyonların lisansları kontrol edilmeli.
-9. TikTok entegrasyonu platformun güncel kurallarına uygun olmalı.
+- Oyun tarayıcıda hatasız açılır.
+- İzometrik kamera ile pavyon sahnesi görünür.
+- Test panelinden izleyici eklenebilir.
+- `!gel`, `!dans`, `!masa` ve `!sahne` komutları temel aksiyonları tetikler.
+- Kons meşgul/müsait durumu çakışma yaratmadan yönetilir.
+- Test hediyeleri masaya davet, dans, içecek ve VIP aksiyonlarını simüle eder.
+- Sunucu ve istemci yeniden başlatılınca hata vermeden tekrar çalışır.
 
 ---
 
-**Projenin nihai hedefi:** TikTok LIVE'da açıldığında kendi kendine çalışan, izleyicilerin karakterleriyle katıldığı, yorumlarla hareketlenen ve hediyelerle özel animasyonlar başlatan gerçek zamanlı bir 3D pavyon oyunu oluşturmak.
+**Nihai hedef:** TikTok LIVE'da izleyicilerin karakterleriyle katıldığı, yorumlarla hareketlenen ve hediye olaylarıyla önceden tanımlı oyun içi animasyonlar başlatan, yayın sırasında sürekli çalışabilen 3D sosyal oyun.
