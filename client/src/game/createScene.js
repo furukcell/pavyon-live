@@ -122,18 +122,24 @@ export function createGame(canvas) {
     group.userData={id,role,target:null,phase:Math.random()*6,gaitPhase:Math.random()*Math.PI*2,motion:'idle',flirtPhase:Math.random()*Math.PI*2};
     const generatedColor=role==='customer'?appearance.outfit:new THREE.Color().setHSL((variant*0.137)%1,.34,.43);
     const color=role==='kons'?konsColors[variant%konsColors.length]:role==='waiter'?'#e7dfd3':generatedColor;
-    const body=new THREE.Mesh(new THREE.CapsuleGeometry(role==='kons'?.235:.26+(variant%4)*.012,role==='kons'?.58:.64+(variant%3)*.045,3,7),new THREE.MeshStandardMaterial({color,roughness:.48,metalness:role==='kons'?.12:0}));
+    const body=new THREE.Mesh(new THREE.CapsuleGeometry(role==='kons'?.235:.26+(variant%4)*.012,role==='kons'?.58:.64+(variant%3)*.045,6,16),new THREE.MeshStandardMaterial({color,roughness:role==='kons'?.34:.58,metalness:role==='kons'?.16:0}));
     body.position.y=.72;body.castShadow=true;group.add(body);
     group.userData.body=body;
     const skin=role==='waiter'?'#d6ad8c':appearance.skin;
-    const head=new THREE.Mesh(new THREE.SphereGeometry(.22+(variant%3)*.012,16,12),new THREE.MeshStandardMaterial({color:skin,roughness:.85}));
+    const head=new THREE.Mesh(new THREE.SphereGeometry(.22+(variant%3)*.012,28,20),new THREE.MeshStandardMaterial({color:skin,roughness:.72}));
     head.position.y=1.35;head.castShadow=true;group.add(head);
     group.userData.head=head;
     const neck=new THREE.Mesh(new THREE.CylinderGeometry(.075,.09,.18,10),new THREE.MeshStandardMaterial({color:skin,roughness:.85}));
     neck.position.y=1.12;group.add(neck);
     const hairColor=role==='waiter'?'#28212a':appearance.hair;
-    const hair=new THREE.Mesh(new THREE.SphereGeometry(.23+(variant%5)*.008,10,7,0,Math.PI*2,0,Math.PI*(.48+(variant%4)*.08)),new THREE.MeshStandardMaterial({color:hairColor}));
-    hair.position.set(0,1.42,0);group.add(hair);
+    const hair=new THREE.Mesh(new THREE.SphereGeometry(.23+(variant%5)*.008,24,16,0,Math.PI*2,0,Math.PI*(.48+(variant%4)*.08)),new THREE.MeshStandardMaterial({color:hairColor,roughness:.34,metalness:.04}));
+    hair.position.set(0,1.42,0);hair.castShadow=true;group.add(hair);
+    if(role==='kons'){
+      for(const side of [-1,1]){
+        const lock=new THREE.Mesh(new THREE.CapsuleGeometry(.045,.22,5,10),new THREE.MeshStandardMaterial({color:hairColor,roughness:.36}));
+        lock.position.set(side*.19,1.27,.025);lock.rotation.z=side*.12;group.add(lock);
+      }
+    }
     if(role==='kons'&&['long','wavy','curly','ponytail'].includes(appearance.haircut)){
       const backHair=new THREE.Mesh(new THREE.SphereGeometry(.2,10,8),new THREE.MeshStandardMaterial({color:hairColor}));
       backHair.scale.set(.9,1.75,.78);backHair.position.set(0,1.02,-.12);group.add(backHair);
@@ -178,8 +184,10 @@ export function createGame(canvas) {
       group.userData.legPivots=legPivots;
     }
     if(role==='kons'){
-      const dress=new THREE.Mesh(new THREE.CylinderGeometry(.19,.39,.42,12,1,true),new THREE.MeshStandardMaterial({color:appearance.outfit,metalness:.28,roughness:.32,side:THREE.DoubleSide}));
-      dress.position.y=.43;dress.castShadow=true;group.add(dress);
+      const dress=new THREE.Mesh(new THREE.CylinderGeometry(.19,.39,.42,32,2,true),new THREE.MeshPhysicalMaterial({color:appearance.outfit,metalness:.22,roughness:.26,clearcoat:.48,clearcoatRoughness:.24,sheen:0.35,side:THREE.DoubleSide}));
+      dress.position.y=.43;dress.castShadow=true;dress.receiveShadow=true;group.add(dress);
+      const neckline=new THREE.Mesh(new THREE.TorusGeometry(.17,.018,8,32),new THREE.MeshStandardMaterial({color:'#e7bd79',metalness:.82,roughness:.2}));
+      neckline.rotation.x=Math.PI/2;neckline.position.set(0,.88,.02);group.add(neckline);
       const belt=new THREE.Mesh(new THREE.CylinderGeometry(.245,.245,.045,16),new THREE.MeshStandardMaterial({color:'#e7bd79',metalness:.8,roughness:.22}));
       belt.position.y=.57;group.add(belt);
       for(const side of [-1,1]){
@@ -187,8 +195,14 @@ export function createGame(canvas) {
         strap.position.set(side*.13,1.03,.015);strap.rotation.z=side*.13;group.add(strap);
         const heel=new THREE.Mesh(new THREE.BoxGeometry(.12,.12,.28),new THREE.MeshStandardMaterial({color:'#1b101b',metalness:.3,roughness:.3}));
         heel.position.set(side*.13,.08,.02);group.add(heel);
-        const eye=new THREE.Mesh(new THREE.SphereGeometry(.025,8,8),new THREE.MeshBasicMaterial({color:'#24131c'}));
-        eye.name=`kons-eye-${side}`;eye.position.set(side*.075,1.36,.195);group.add(eye);
+        const sclera=new THREE.Mesh(new THREE.SphereGeometry(.043,16,12),new THREE.MeshStandardMaterial({color:'#f5e9df',roughness:.42}));
+        sclera.scale.set(1.25,.72,.42);sclera.position.set(side*.075,1.36,.187);group.add(sclera);
+        const iris=new THREE.Mesh(new THREE.SphereGeometry(.024,14,10),new THREE.MeshStandardMaterial({color:variant%2?'#6a4938':'#405b57',roughness:.32}));
+        iris.scale.set(1,.95,.48);iris.position.set(side*.075,1.36,.219);group.add(iris);
+        const eye=new THREE.Mesh(new THREE.SphereGeometry(.013,12,8),new THREE.MeshBasicMaterial({color:'#17131a'}));
+        eye.name=`kons-eye-${side}`;eye.position.set(side*.075,1.36,.231);group.add(eye);
+        const eyeGlint=new THREE.Mesh(new THREE.SphereGeometry(.006,8,6),new THREE.MeshBasicMaterial({color:'#ffffff'}));
+        eyeGlint.position.set(side*.068,1.37,.237);group.add(eyeGlint);
         const brow=new THREE.Mesh(new THREE.BoxGeometry(.085,.018,.025),new THREE.MeshStandardMaterial({color:hairColor,roughness:.8}));
         brow.position.set(side*.075,1.415,.19);brow.rotation.z=side*.12;group.add(brow);
         const lash=new THREE.Mesh(new THREE.BoxGeometry(.09,.012,.018),new THREE.MeshStandardMaterial({color:'#24131c'}));
