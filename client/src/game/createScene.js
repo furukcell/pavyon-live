@@ -100,6 +100,42 @@ export function createGame(canvas) {
     label('MASA '+(i+1),x,z+1.8,'#e8c78e');
   });
   for(let i=0;i<7;i++){const post=box('gold-post',-11+i*3.65,2,-10.5,.09,4,.09,'#b9864c',.8);post.castShadow=false;}
+  // A layered rear feature wall frames the stage and gives the room a finished architectural edge.
+  box('rear-wall',0,2.05,-10.92,25.8,4.1,.28,'#241522',.12);
+  for(let i=0;i<9;i++){
+    const x=-10.4+i*2.6;
+    box('wall-inset',x,2.05,-10.73,1.82,2.75,.045,i%2?'#392033':'#321b2d',.18);
+    box('wall-inset-top',x,3.48,-10.68,1.84,.055,.07,'#bd9256',.72);
+    box('wall-inset-bottom',x,.68,-10.68,1.84,.045,.07,'#8e5d49',.55);
+  }
+  for(const x of [-11.4,-8.2,8.2,11.4]){
+    const sconce=box('wall-sconce',x,2.45,-10.48,.18,.5,.12,'#d8b16f',.7);
+    sconce.castShadow=false;
+    const glow=new THREE.PointLight('#f3bd80',1.25,4);glow.position.set(x,2.55,-10.05);scene.add(glow);
+  }
+  // Upholstered VIP benches stay along the perimeter, leaving the reserved guest positions clear.
+  const vipFabric=new THREE.MeshStandardMaterial({color:'#63243f',roughness:.82});
+  const vipGold=new THREE.MeshStandardMaterial({color:'#c49a5d',metalness:.72,roughness:.28});
+  for(const z of [-6.15,-1.65]){
+    const base=new THREE.Mesh(new THREE.BoxGeometry(2.35,.42,.72),vipFabric);
+    base.position.set(10.15,.35,z);base.castShadow=true;scene.add(base);
+    const back=new THREE.Mesh(new THREE.BoxGeometry(2.35,.92,.2),vipFabric);
+    back.position.set(10.15,.92,z-.26);back.castShadow=true;scene.add(back);
+    for(const x of [9.12,11.18]){
+      const arm=new THREE.Mesh(new THREE.BoxGeometry(.22,.62,.76),vipFabric);
+      arm.position.set(x,.57,z);arm.castShadow=true;scene.add(arm);
+      const cap=new THREE.Mesh(new THREE.BoxGeometry(.23,.045,.78),vipGold);
+      cap.position.set(x,.89,z);scene.add(cap);
+    }
+    const piping=new THREE.Mesh(new THREE.BoxGeometry(2.22,.035,.025),vipGold);
+    piping.position.set(10.15,1.32,z-.15);scene.add(piping);
+  }
+  for(const x of [8.95,11.35]){
+    const sideTable=new THREE.Mesh(new THREE.CylinderGeometry(.28,.32,.12,16),vipGold);
+    sideTable.position.set(x,.68,-3.9);scene.add(sideTable);
+    const stem=new THREE.Mesh(new THREE.CylinderGeometry(.045,.06,.62,10),vipGold);
+    stem.position.set(x,.36,-3.9);scene.add(stem);
+  }
 
   const actorGroup=new THREE.Group();scene.add(actorGroup);
   const actors=new Map();
