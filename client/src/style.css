@@ -47,3 +47,6 @@ footer{text-align:center;color:#b08e9d;font-size:9px;letter-spacing:.3px;margin-
 .crowd-tools{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}.crowd-tools button{font-size:9px;padding:7px 5px;background:#292035;border-color:#8d704d}
 
 .comment-sim{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:8px}.comment-sim input{min-width:0;margin:0;padding:8px}.comment-sim button{padding:7px 9px;font-size:9px;white-space:nowrap}
+
+.table-stat{min-width:230px}.table-stat strong{font-size:11px;letter-spacing:.15px;white-space:nowrap}
+@media(max-width:700px){.table-stat{min-width:0}.table-stat strong{font-size:9px;letter-spacing:-.2px}}
