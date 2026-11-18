@@ -3,15 +3,25 @@ const HAIR = ['#211b22','#38251e','#6c4930','#171820','#7b5a3c','#a57a4d','#4b30
 const MALE_CUTS = ['short','fade','curly','side-part','wavy'];
 const FEMALE_CUTS = ['long','bob','wavy','ponytail','curly'];
 
+function hslToHex(h,s,l){
+  const a=s*Math.min(l,1-l);
+  const f=n=>{
+    const k=(n+h/30)%12;
+    const color=l-a*Math.max(-1,Math.min(k-3,9-k,1));
+    return Math.round(255*color).toString(16).padStart(2,'0');
+  };
+  return '#'+f(0)+f(8)+f(4);
+}
+
 function makeVariant(gender,index){
   const hue=(index*0.61803398875+(gender==='female'?0.17:0.03))%1;
   const saturation=.28+((index*7)%5)*.045;
   const lightness=.34+((index*3)%4)*.035;
-  const h=Math.round(hue*360),s=Math.round(saturation*100),l=Math.round(lightness*100);
+  const outfit=hslToHex(hue*360,saturation,lightness);
   return Object.freeze({
     id:`${gender}-${String(index+1).padStart(3,'0')}`,
     gender,
-    outfit:`hsl(${h} ${s}% ${l}%)`,
+    outfit,
     skin:SKIN[(index*5+(gender==='female'?2:0))%SKIN.length],
     hair:HAIR[(index*3+(gender==='female'?1:0))%HAIR.length],
     haircut:(gender==='female'?FEMALE_CUTS:MALE_CUTS)[index%(gender==='female'?FEMALE_CUTS:MALE_CUTS).length],
