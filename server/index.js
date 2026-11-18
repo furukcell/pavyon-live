@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizeDevEvent } from './eventValidation.js';
 import { verifyProviderSignature } from './providerWebhook.js';
+import { parseGiftMapping, resolveGiftAction } from './giftMapping.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -12,6 +13,7 @@ const port = Number(process.env.PORT) || 3001;
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(currentDir, '../dist');
 const io = new Server(httpServer, { transports: ['websocket', 'polling'] });
+const giftMapping = parseGiftMapping(process.env.LIVE_GIFT_MAP || '{}');
 
 // Signed provider bridge: connectors normalize their payload and sign the exact raw JSON bytes.
 app.post('/integrations/events', express.raw({ type: 'application/json', limit: '32kb' }), (req, res) => {
@@ -25,6 +27,7 @@ app.post('/integrations/events', express.raw({ type: 'application/json', limit: 
   const result = normalizeDevEvent(payload);
   if (!result.ok) return res.status(400).json({ error: result.error });
   const event = result.event;
+  if (event.type === 'gift' && !event.action) event.action = resolveGiftAction(event.giftName, giftMapping);
   if (!event.eventId) return res.status(400).json({ error: 'A unique eventId is required.' });
   const now = Date.now();
   for (const [id, expiresAt] of seenEventIds) if (expiresAt <= now) seenEventIds.delete(id);
@@ -38,7 +41,7 @@ app.post('/integrations/events', express.raw({ type: 'application/json', limit: 
 app.use(express.json({ limit: '32kb' }));
 app.get('/health', (_req, res) => res.json({ ok: true, service: 'pavyon-live-server' }));
 app.get('/api/status', (_req, res) => res.json({
-  ok: true, integration: 'simulator-only', connectedClients: io.engine.clientsCount
+  ok: true, integration: process.env.LIVE_PROVIDER_WEBHOOK_SECRET ? 'signed-provider-bridge' : 'simulator-only', connectedClients: io.engine.clientsCount, configuredGiftMappings: giftMapping.size
 }));
 
 // Development-only event bridge. It is not a public TikTok webhook.
