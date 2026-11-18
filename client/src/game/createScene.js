@@ -228,6 +228,16 @@ export function createGame(canvas) {
     stem.position.set(x,.36,-3.9);scene.add(stem);
   }
 
+  // Main guest entrance: a framed doorway and warm threshold lighting.
+  box('entry-portal-frame',0,1.85,10.55,4.1,3.7,.28,'#33202f',.35);
+  box('entry-portal-opening',0,1.65,10.36,2.75,3.15,.16,'#100b13',.08);
+  box('entry-portal-header',0,3.72,10.35,4.35,.22,.42,'#c49a5d',.78);
+  for(const side of [-1,1]){
+    box('entry-portal-column',side*1.82,1.8,10.34,.22,3.55,.3,'#b58a54',.72);
+    box('entry-portal-base',side*1.82,.22,10.34,.48,.3,.52,'#5a2b3c',.32);
+    const sconce=new THREE.PointLight('#e9b978',2.2,4);sconce.position.set(side*1.6,2.65,9.95);scene.add(sconce);
+  }
+  box('entry-threshold',0,.045,9.95,3.1,.07,.9,'#a77a4c',.58);
   const actorGroup=new THREE.Group();scene.add(actorGroup);
   const actors=new Map();
   let customerSequence=0;
@@ -508,8 +518,13 @@ export function createGame(canvas) {
     const variant=customerSequence++;
     const spawn=findCustomerSpawn();
     const actor=makeActor(viewer.id,'customer',variant);actor.userData.name=viewer.name;
-    actor.position.set(spawn.x,0,spawn.z);
-    actor.userData.home=actor.position.clone();
+    // Stagger arrivals across the doorway so a burst of new viewers does not start on one exact point.
+    const lane=(variant%7)-3;
+    const entrance=clampRoomPosition(lane*.48,9.85-Math.floor(variant/7%3)*.42);
+    actor.position.set(entrance.x,0,entrance.z);
+    actor.userData.home=new THREE.Vector3(spawn.x,0,spawn.z);
+    actor.userData.motion='arriving';
+    moveTo(viewer.id,spawn.x,spawn.z);
   }
   function releaseSeat(actor){
     const spot=actor.userData.seat;
@@ -718,6 +733,7 @@ export function createGame(canvas) {
           actor.rotation.y+=angle*Math.min(1,dt*7);
         }else {
           actor.userData.target=null;
+          if(actor.userData.motion==='arriving')actor.userData.motion='idle';
           if(actor.userData.motion==='dance'||actor.userData.motion==='stage'){
             actor.userData.poseFrom=capturePose(actor);
             actor.userData.poseStarted=time;
