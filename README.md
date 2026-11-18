@@ -48,7 +48,7 @@
 
 ### Sıradaki kilometre taşları
 
-1. **M1 — Oyun akışını dondur ve doğrula:** sunucu olay şeması/alan doğrulaması ve isteğe bağlı eventId tekilleştirmesi eklendi; komutlar, kons meşguliyet süreleri, masa/VIP/dans rezervasyonları, garson kuyruğu ve müşteri dönüşleri için istemci uçtan uca senaryoları sırada.
+1. **M1 — Oyun akışını dondur ve doğrula:** sunucu olay şeması/alan doğrulaması, isteğe bağlı eventId tekilleştirmesi ve tek izleyici/tek kons oturum rezervasyon kuralları eklendi; kons meşguliyet zamanlayıcısı, masa/VIP/dans rezervasyonlarının görsel akışı, garson kuyruğu ve müşteri dönüşleri için tarayıcı uçtan uca kontrolleri sırada.
 2. **M2 — Gerçek LIVE olay adaptörü:** izinli/uygun kaynak, sunucu tarafı doğrulama, tekrar olay koruması ve hediye eşlemesi.
 3. **M3 — Yayın ekranı:** OBS/TikTok LIVE Studio Browser Source, yayın overlay'i ve bağlantı durumları.
 4. **M4 — Sağlamlık:** 10/25/50/100 müşteri yük testleri, mobil tarayıcı, hata ve güvenlik kontrolleri.
@@ -69,7 +69,7 @@
 | Garson servis animasyonu | İlk prototip hazır | Tepsi/bardak taşıma görseli, servis pozisyonu, müşteriye gidip dönme; servis öncesi müşterinin dört yanındaki yaklaşma noktalarını mesafe ve çevredeki aktör yoğunluğuna göre puanlayıp daha uygun noktayı seçme; beş garson meşgulse FIFO servis kuyruğu (en fazla 30 talep) |
 | VIP yerleşimi | İlk prototip hazır | Aynı locaya üst üste karakter yığılmasını azaltan dört ayrı çift konumu |
 | Kons-müşteri etkileşimi | İlk prototip hazır | Masaya göre yaklaşma, müşteriye dönme; konsun müşterinin dört yanından daha uygun/boş yaklaşma noktasını seçmesi, eşli dans/VIP/davet öncesi müşterinin koltuğunu serbest bırakma ve oturma pozunu sıfırlama |
-| Etkileşim rezervasyonları | İlk prototip hazır | Dans pisti için altı çift noktası, VIP için dört çift noktası ve aynı izleyicinin eşzamanlı iki kons etkileşimine girmesini engelleme |
+| Etkileşim rezervasyonları | Kural testleri eklendi | Dans pisti için altı çift noktası, VIP için dört çift noktası; tek izleyici/tek kons oturumu kuralı saf JS modülünde otomatik test ediliyor. Sahne yerleşimi ve süre sonu dönüşü ayrıca tarayıcıda doğrulanacak |
 | Yorum ve hediye testleri | Prototip hazır | Komutlar ve normalize edilmiş test hediye olayları |
 | Kons kullanım süresi | İlk akış hazır | Kons meşguliyet kontrolü; davet/dans 5 dk, VIP 3 dk; süre bitince dönüş ve test panelinde müsait/meşgul durumu |
 | Gerçek TikTok bağlantısı | Başlanmadı | Olay kaynağı, izinler ve platforma uygun entegrasyon ayrıca yapılacak |
@@ -232,7 +232,10 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 
 ## Test durumu ve bilinen eksikler
 
-- Sunucu olay normalizasyonu için Node.js testleri eklendi: geçerli yorum, Türkçe kullanıcı adı, boş/uzun alanlar, sayısal beğeni sınırları, hediye aksiyonu/kons kimliği ve eventId doğrulaması. CI artık `npm test` adımını istemci derlemesinden önce çalıştırır; sonuçlar GitHub Actions tamamlandıktan sonra raporlanacak.
+- Sunucu olay normalizasyonu testleri: geçerli yorum/Türkçe kullanıcı adı, boş/uzun alanlar, sayısal beğeni sınırları, hediye aksiyonu/kons kimliği ve eventId doğrulaması.
+- Oyun oturum kuralı testleri: aynı konsun iki izleyiciye verilmesini, bir izleyicinin aynı anda iki konsla eşleşmesini ve geçersiz kons/boş izleyici rezervasyonunu engelleme; kons veya izleyici serbest bırakıldığında rezervasyonun tekrar kullanılabilmesi.
+- `npm test` artık sunucu doğrulama testleriyle birlikte oyun oturum kuralı testlerini de çalıştırır. GitHub Actions istemci derlemesinden önce bu testleri yürütür.
+- Sınırlama: Three.js sahnesinin görsel animasyonları, gerçek tarayıcıdaki zamanlayıcılar ve garsonların hareketli servis kuyruğu henüz otomatik tarayıcı testinden geçmedi; bunlar M1'in kalan manuel/entegrasyon doğrulamasıdır.
 
 - Son geliştirme turunda dans pisti/VIP konum rezervasyonları, dolu alan için güvenli ret, konsun müşteriye yaklaşırken dört yöndeki noktaları mesafe/çevre açıklığına göre değerlendirmesi, aynı izleyicinin eşzamanlı kons etkileşimine girmesini engelleme, dolu 18 koltuk için açık ret, beş garson için 30 taleplik FIFO servis kuyruğu ve kuyrukta geçersiz müşteri kaydından sonra otomatik devam/garsonu boşa çıkarma akışı, hedef noktaları ve yürüyen karakterlerin gerçek konumlarını salon sınırları içinde tutan sınırlandırma, hedef ve hareket konumlarını zemin sınırlarında tutan oda sınırlandırması, masa üstü mum/bardak dekoru, sahne hoparlörleri/LED şeridi, bar şişe dekorları, üç farklı kons dans stili ve etkileşim sürerken izleyicinin komutla görev bozmasının önlenmesi GitHub'a yazıldı. Ancak bu oturumda `npm install`, `npm run build` veya gerçek cihaz tarayıcı testi çalıştırılmadı.
 - Kons animasyonları prosedürel Three.js hareketleridir; sesli kahkaha, gerçekçi yüz kasları, dudak senkronu ve profesyonel dans koreografisi yoktur.
