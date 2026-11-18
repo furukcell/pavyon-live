@@ -71,7 +71,7 @@
 | Kons-müşteri etkileşimi | İlk prototip hazır | Masaya göre yaklaşma, müşteriye dönme; konsun müşterinin dört yanından daha uygun/boş yaklaşma noktasını seçmesi, eşli dans/VIP/davet öncesi müşterinin koltuğunu serbest bırakma ve oturma pozunu sıfırlama |
 | Etkileşim rezervasyonları | Kural testleri eklendi | Dans pisti için altı çift noktası, VIP için dört çift noktası; tek izleyici/tek kons oturumu kuralı saf JS modülünde otomatik test ediliyor. Sahne yerleşimi ve süre sonu dönüşü ayrıca tarayıcıda doğrulanacak |
 | Yorum ve hediye testleri | Prototip hazır | Komutlar ve normalize edilmiş test hediye olayları |
-| Kons kullanım süresi | İlk akış hazır | Kons meşguliyet kontrolü; davet/dans 5 dk, VIP 3 dk; süre bitince dönüş ve test panelinde müsait/meşgul durumu |
+| Kons kullanım süresi | İlk akış hazır | Kons meşguliyet kontrolü; davet/dans 5 dk, VIP 3 dk; süre bitince dönüş ve test panelinde müsait/meşgul durumu. Zamanlayıcı başlatılamazsa kons ve izleyici rezervasyonu geri alınır; yarım kalmış oturum bırakılmaz |
 | Gerçek TikTok bağlantısı | Başlanmadı | Olay kaynağı, izinler ve platforma uygun entegrasyon ayrıca yapılacak |
 | Performans ve yayın testi | Bekliyor | 100 müşteri/115 aktör hedefi gerçek cihazlarda henüz ölçülmedi |
 
