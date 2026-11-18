@@ -285,6 +285,7 @@ export function createGame(canvas) {
       nose.scale.set(.8,.8,.7);nose.position.set(0,1.315,.215);group.add(nose);
       const mouth=new THREE.Mesh(new THREE.SphereGeometry(.032,10,7),new THREE.MeshStandardMaterial({color:'#74434a',roughness:.7}));
       mouth.scale.set(1,.16,.3);mouth.position.set(0,1.265,.202);group.add(mouth);
+      group.userData.mouth=mouth;
     }
     if(role==='kons'){
       const earMaterial=new THREE.MeshStandardMaterial({color:skin,roughness:.78});
@@ -950,8 +951,12 @@ export function createGame(canvas) {
           const side=index===0?-1:1;
           const beat=time*(danceStyle===1?5.5:8)*rhythm+index;
           const danceArm=danceStyle===0?side*(.78+Math.sin(beat)*.2):danceStyle===1?(index===0?-.25:.95)+Math.sin(beat)*.22:side*(.48+Math.sin(beat)*.42);
-          const stageGesture=stagePerforming?Math.sin(time*1.15+actor.userData.phase+index*Math.PI):0;
-          arm.rotation.z=dancing?danceArm:(stagePerforming?(index===0?-.32: .34)+stageGesture*.24:(walking?side*(.08+stride*.19):side*(.12+Math.sin(time*1.8+actor.userData.flirtPhase+index)*.09)));
+          const choreography=stagePerforming?Math.floor(time/12)%3:0;
+          const phrase=(time%12)/12;
+          const wave=stagePerforming?Math.max(0,Math.sin(phrase*Math.PI*2+index*.75)):0;
+          const stageGesture=stagePerforming?(choreography===0?wave:choreography===1?Math.sin(phrase*Math.PI*4+index*Math.PI):Math.max(0,Math.sin(phrase*Math.PI*2))):0;
+          const stageArm=choreography===0?(index===0?-.58:.58):choreography===1?(index===0?-.95:.95):(index===0?-.2:.2);
+          arm.rotation.z=dancing?danceArm:(stagePerforming?stageArm+stageGesture*(choreography===1?.18:.3):(walking?side*(.08+stride*.19):side*(.12+Math.sin(time*1.8+actor.userData.flirtPhase+index)*.09)));
           arm.rotation.x=dancing?Math.sin(time*(danceStyle===2?3.8:5)*rhythm+index)*.16:(stagePerforming?Math.sin(time*1.5+index)*.1:(walking?stride*.1:Math.sin(time*1.3+index)*.04));
         });
         actor.userData.legPivots?.forEach((leg,index)=>{
@@ -1051,6 +1056,7 @@ export function createGame(canvas) {
           actor.userData.armPivots[1].rotation.z=crowdCall?-.82:-.12+gesture*.72;
           actor.userData.armPivots[1].rotation.x=crowdCall?-.38:Math.sin(beat*.8)*.18;
           actor.userData.head.scale.y=1.08+Math.max(0,Math.sin(beat*1.35))*.025;
+          if(actor.userData.mouth)actor.userData.mouth.scale.y=.16+Math.max(0,Math.sin(beat*1.35))*.24;
           actor.position.y=Math.max(0,Math.sin(beat*2))*.018;
           return;
         }
