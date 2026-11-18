@@ -86,13 +86,14 @@ export function createGame(canvas) {
     const targets={dance:[(Math.random()-.5)*4,1],stage:[0,-8.5],seat:[-7+Math.random()*15,5]};
     const target=targets[kind]||targets.dance;moveTo(id,target[0],target[1]);actor.userData.motion=kind;
   }
-  for(let i=1;i<=3;i++){
-    const id='kons-'+i;const actor=makeActor(id,'kons');
-    actor.position.set(-5+i*5,0,-2);actor.userData.home=actor.position.clone();konsHomes.set(id,actor.position.clone());
+  for(let i=1;i<=10;i++){
+    const id='kons-'+i;const actor=makeActor(id,'kons',i-1);
+    actor.position.set(-10+((i-1)%5)*5,0,-2+Math.floor((i-1)/5)*2);
+    actor.userData.home=actor.position.clone();konsHomes.set(id,actor.position.clone());
   }
-  for(let i=1;i<=2;i++){
-    const id='waiter-'+i;const actor=makeActor(id,'waiter');
-    actor.position.set(-9+i*1.2,0,-4);actor.userData.home=actor.position.clone();
+  for(let i=1;i<=5;i++){
+    const id='waiter-'+i;const actor=makeActor(id,'waiter',i-1);
+    actor.position.set(-10+((i-1)%5)*1.5,0,-5);actor.userData.home=actor.position.clone();waiterHomes.set(id,actor.position.clone());
   }
 
   const clock=new THREE.Clock();
