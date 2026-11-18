@@ -15,7 +15,7 @@ const state = {
 };
 const usernameEl = document.querySelector('#username');
 const konsSelect = document.querySelector('#kons-select');
-const allowedCommands = new Set(['!gel', '!dans', '!masa', '!sahne']);
+const allowedCommands = new Set(['!gel', '!dans', '!masa', '!sahne', '!cik']);
 const allowedGiftActions = new Set(['invite', 'dance', 'drink', 'vip', 'stage']);
 const sessionRules = createSessionRules(Object.keys(state.kons));
 const musicAudio = new Audio();
@@ -171,6 +171,26 @@ function addViewer(rawName) {
   updateHud();
   return guest;
 }
+function removeViewer(rawName) {
+  const name=cleanUsername(rawName);
+  const guest=state.viewers.get(name);
+  if(!guest)return false;
+  if(guest.activeKons){
+    const konsId=guest.activeKons;
+    const timer=state.timers.get(konsId);
+    if(timer)window.clearTimeout(timer);
+    state.timers.delete(konsId);
+    sessionRules.releaseViewer(name);
+    state.kons[konsId]=null;
+    game.releaseKons(konsId);
+  }
+  game.removeCustomer(guest.id);
+  state.viewers.delete(name);
+  state.lastCommands.delete(name);
+  updateHud();
+  log(`@<b>${escapeHtml(name)}</b> mekândan ayrıldı; masa ve servis rezervasyonları serbest bırakıldı.`);
+  return true;
+}
 function command(rawName, rawCommand) {
   const name = cleanUsername(rawName);
   const cmd = String(rawCommand || '').trim().toLowerCase();
@@ -179,6 +199,7 @@ function command(rawName, rawCommand) {
   if (now - (state.lastCommands.get(name) || 0) < 1200) return;
   state.lastCommands.set(name, now);
   let guest = state.viewers.get(name);
+  if(cmd==='!cik'){if(!removeViewer(name))log(`@<b>${escapeHtml(name)}</b> zaten mekânda değil.`);return;}
   if (cmd === '!gel') guest = addViewer(name);
   if (!guest) { log(`<b>@${escapeHtml(name)}</b> önce !gel yazarak mekâna katılmalı.`); return; }
   if(guest.activeKons){log(`@<b>${escapeHtml(name)}</b> kons etkileşimi sürerken bu komutu kullanamaz.`);return;}
