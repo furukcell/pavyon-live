@@ -109,7 +109,7 @@ curl -X POST http://localhost:3001/dev/event ^
   -d "{\"type\":\"comment\",\"username\":\"test_user\",\"comment\":\"!gel\"}"
 ```
 
-Desteklenen olay türleri `comment`, `like`, `gift`. Bu uç nokta geliştirme içindir; production ortamında kapalıdır ve TikTok webhook'u değildir.
+Desteklenen olay türleri `comment`, `like`, `gift`. Hediye olayında `action` alanı `invite`, `dance`, `drink`, `vip` veya `stage` değerlerinden biri olursa istemci ilgili oyun aksiyonunu başlatır. Örnek: `{ "type": "gift", "username": "test_user", "giftName": "Rose", "action": "dance", "konsId": "kons-1" }`. Bu uç nokta geliştirme içindir; production ortamında kapalıdır ve TikTok webhook'u değildir.
 
 ## Güvenlik
 
