@@ -304,7 +304,7 @@ export function createGame(canvas) {
     if(role==='kons'){
       for(const side of [-1,1]){
         const lock=new THREE.Mesh(new THREE.CapsuleGeometry(.045,.22,5,10),new THREE.MeshStandardMaterial({color:hairColor,roughness:.36}));
-        lock.position.set(side*.19,1.27,.025);lock.rotation.z=side*.12;group.add(lock);
+        lock.name=`kons-hair-lock-${side}`;lock.position.set(side*.19,1.27,.025);lock.rotation.z=side*.12;group.add(lock);
       }
     }
     if(role==='kons'){
@@ -319,7 +319,7 @@ export function createGame(canvas) {
           new THREE.Vector3(x+side*.018,1.05,.015)
         ]);
         const strandMesh=new THREE.Mesh(new THREE.TubeGeometry(wave,12,.018+(strand%2)*.006,6,false),strandMaterial);
-        strandMesh.castShadow=true;group.add(strandMesh);
+        strandMesh.name=`kons-hair-strand-${strand}`;strandMesh.castShadow=true;group.add(strandMesh);
       }
     }
     if(role!=='kons'){
@@ -339,7 +339,7 @@ export function createGame(canvas) {
     }
     if(role==='kons'&&appearance.haircut==='ponytail'){
       const ponytail=new THREE.Mesh(new THREE.CapsuleGeometry(.075,.38,4,7),new THREE.MeshStandardMaterial({color:hairColor}));
-      ponytail.position.set(0,1.12,-.27);ponytail.rotation.x=-.25;group.add(ponytail);
+      ponytail.name='kons-ponytail';ponytail.position.set(0,1.12,-.27);ponytail.rotation.x=-.25;group.add(ponytail);
     }
     if(role==='kons'&&appearance.haircut==='bob'){
       for(const side of [-1,1]){
@@ -430,11 +430,11 @@ export function createGame(canvas) {
     }
     if(role==='kons'){
       const dress=new THREE.Mesh(new THREE.CylinderGeometry(.19,.39,.42,32,2,true),new THREE.MeshPhysicalMaterial({color:appearance.outfit,metalness:.22,roughness:.26,clearcoat:.48,clearcoatRoughness:.24,sheen:0.35,side:THREE.DoubleSide}));
-      dress.position.y=.43;dress.castShadow=true;dress.receiveShadow=true;group.add(dress);
+      dress.name='kons-dress';dress.position.y=.43;dress.castShadow=true;dress.receiveShadow=true;group.add(dress);
       const bodice=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),new THREE.MeshPhysicalMaterial({color:appearance.outfit,metalness:.18,roughness:.25,clearcoat:.55,clearcoatRoughness:.2}));
       bodice.scale.set(.235,.19,.145);bodice.position.set(0,.88,.045);bodice.castShadow=true;group.add(bodice);
       const skirtLayer=new THREE.Mesh(new THREE.CylinderGeometry(.245,.405,.13,32,1,true),new THREE.MeshPhysicalMaterial({color:appearance.outfit,metalness:.24,roughness:.28,clearcoat:.42,side:THREE.DoubleSide}));
-      skirtLayer.position.y=.27;skirtLayer.castShadow=true;group.add(skirtLayer);
+      skirtLayer.name='kons-skirt';skirtLayer.position.y=.27;skirtLayer.castShadow=true;group.add(skirtLayer);
       const neckline=new THREE.Mesh(new THREE.TorusGeometry(.17,.018,8,32),new THREE.MeshStandardMaterial({color:'#e7bd79',metalness:.82,roughness:.2}));
       neckline.rotation.x=Math.PI/2;neckline.position.set(0,.88,.02);group.add(neckline);
       const belt=new THREE.Mesh(new THREE.CylinderGeometry(.245,.245,.045,16),new THREE.MeshStandardMaterial({color:'#e7bd79',metalness:.8,roughness:.22}));
@@ -980,6 +980,25 @@ export function createGame(canvas) {
         });
         const laughing=actor.userData.motion==='laugh'||(Math.sin(time*.72+actor.userData.flirtPhase*2)>.985);
         const head=actor.userData.head;
+        const hairSway=Math.sin(time*(dancing?5.2*rhythm:walking?4.2:1.7)+actor.userData.phase);
+        [-1,1].forEach(side=>{
+          const lock=actor.getObjectByName(`kons-hair-lock-${side}`);
+          if(lock)lock.rotation.z=side*(.12+hairSway*(dancing?.09:walking?.055:.018));
+        });
+        for(let strand=0;strand<5;strand++){
+          const strandMesh=actor.getObjectByName(`kons-hair-strand-${strand}`);
+          if(strandMesh)strandMesh.rotation.x=hairSway*(dancing?.045:walking?.025:.009)*(strand%2?1:-1);
+        }
+        const ponytail=actor.getObjectByName('kons-ponytail');
+        if(ponytail){
+          ponytail.rotation.x=-.25+hairSway*(dancing?.2:walking?.12:.035);
+          ponytail.rotation.z=hairSway*(dancing?.12:walking?.07:.02);
+        }
+        const dress=actor.getObjectByName('kons-dress');
+        const skirt=actor.getObjectByName('kons-skirt');
+        const fabricSway=dancing?Math.sin(time*5.4*rhythm+actor.userData.phase):walking?stride:Math.sin(time*1.4+actor.userData.phase)*.18;
+        if(dress)dress.rotation.z=fabricSway*(dancing?.075:walking?.035:.012);
+        if(skirt){skirt.rotation.z=fabricSway*(dancing?.14:walking?.065:.025);skirt.rotation.x=dancing?Math.cos(time*5.4*rhythm+actor.userData.phase)*.035:0;}
         const headTilt=actor.userData.motion==='flirt'?Math.sin(time*2+actor.userData.flirtPhase)*.065:
           (dancing?Math.sin(time*3.1*rhythm+actor.userData.phase)*.035:Math.sin(time*.8+actor.userData.flirtPhase)*.012);
         if(head){
