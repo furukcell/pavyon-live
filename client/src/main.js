@@ -249,7 +249,7 @@ function occupyKons(konsId, name, duration, action) {
   state.kons[konsId] = name;
   if(guest)guest.activeKons=konsId;
   updateHud();
-  sessionTimers.start(konsId, name, duration, () => {
+  const timerStarted = sessionTimers.start(konsId, name, duration, () => {
     if (state.kons[konsId] !== name) return;
     sessionRules.releaseKons(konsId);
     state.kons[konsId] = null;
@@ -259,6 +259,16 @@ function occupyKons(konsId, name, duration, action) {
     updateHud();
     log(`<b>${escapeHtml(konsId)}</b> tekrar müsait. @${escapeHtml(name)} eski yerine döndü.`);
   });
+  if (!timerStarted) {
+    sessionRules.releaseKons(konsId);
+    state.kons[konsId] = null;
+    if (guest) guest.activeKons = null;
+    game.releaseKons(konsId);
+    if (guest) game.releaseGuest(guest.id);
+    updateHud();
+    log('Oturum zamanlayıcısı başlatılamadı. Rezervasyon geri alındı.');
+    return false;
+  }
   return true;
 }
 function gift(rawName, type, konsId) {
