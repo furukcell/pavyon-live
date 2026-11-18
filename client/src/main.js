@@ -16,6 +16,118 @@ const usernameEl = document.querySelector('#username');
 const konsSelect = document.querySelector('#kons-select');
 const allowedCommands = new Set(['!gel', '!dans', '!masa', '!sahne']);
 const allowedGiftActions = new Set(['invite', 'dance', 'drink', 'vip', 'stage']);
+const musicAudio = new Audio();
+musicAudio.preload = 'metadata';
+musicAudio.volume = .65;
+const musicState = { tracks: [], favorites: new Set(), category: 'pavyon', currentId: null, objectUrls: [] };
+const musicPanel = document.querySelector('#music-panel');
+const musicList = document.querySelector('#music-track-list');
+const musicNowTitle = document.querySelector('#music-now-title');
+const musicNowCategory = document.querySelector('#music-now-category');
+function activeMusicTracks() {
+  return musicState.tracks.filter(track => musicState.category === 'favorites'
+    ? musicState.favorites.has(track.id)
+    : track.category === musicState.category);
+}
+function renderMusicList() {
+  musicList.replaceChildren();
+  const tracks = activeMusicTracks();
+  if (!tracks.length) {
+    const empty = document.createElement('p');
+    empty.className = 'music-empty';
+    empty.textContent = musicState.category === 'favorites'
+      ? 'Henüz favori müzik yok.'
+      : 'Bu listede henüz müzik yok. Cihazından lisanslı müzik dosyaları ekleyebilirsin.';
+    musicList.append(empty);
+    return;
+  }
+  tracks.forEach(track => {
+    const row = document.createElement('div');
+    row.className = 'music-track' + (track.id === musicState.currentId ? ' playing' : '');
+    const play = document.createElement('button');
+    play.className = 'music-track-play';
+    play.textContent = track.id === musicState.currentId && !musicAudio.paused ? 'Ⅱ' : '▶';
+    play.setAttribute('aria-label', track.name + ' çal');
+    play.addEventListener('click', () => playMusic(track.id));
+    const name = document.createElement('span');
+    name.className = 'music-track-name';
+    name.textContent = track.name;
+    const favorite = document.createElement('button');
+    favorite.className = 'music-favorite';
+    favorite.textContent = musicState.favorites.has(track.id) ? '★' : '☆';
+    favorite.setAttribute('aria-label', 'Favorilere ekle/çıkar');
+    favorite.addEventListener('click', () => {
+      if (musicState.favorites.has(track.id)) musicState.favorites.delete(track.id);
+      else musicState.favorites.add(track.id);
+      renderMusicList();
+    });
+    row.append(play, name, favorite);
+    musicList.append(row);
+  });
+}
+function playMusic(id) {
+  const track = musicState.tracks.find(item => item.id === id);
+  if (!track) return;
+  musicState.currentId = id;
+  musicAudio.src = track.url;
+  musicAudio.play().then(() => {
+    musicNowTitle.textContent = track.name;
+    musicNowCategory.textContent = track.category === 'ankara' ? 'Ankara Havaları' : 'Pavyon';
+    document.querySelector('#music-play').textContent = 'Ⅱ';
+    renderMusicList();
+  }).catch(() => {
+    musicNowTitle.textContent = 'Tarayıcı müziği başlatamadı';
+    log('Müzik başlatılamadı. Dosyanın ses formatını kontrol et ve tekrar dene.');
+  });
+}
+function stepMusic(direction) {
+  const tracks = activeMusicTracks();
+  if (!tracks.length) return;
+  let index = tracks.findIndex(track => track.id === musicState.currentId);
+  index = index < 0 ? (direction > 0 ? -1 : 0) : index;
+  const next = (index + direction + tracks.length) % tracks.length;
+  playMusic(tracks[next].id);
+}
+document.querySelector('#music-toggle').addEventListener('click', () => {
+  musicPanel.hidden = !musicPanel.hidden;
+  document.querySelector('#music-toggle').setAttribute('aria-expanded', String(!musicPanel.hidden));
+});
+document.querySelector('#music-close').addEventListener('click', () => {
+  musicPanel.hidden = true;
+  document.querySelector('#music-toggle').setAttribute('aria-expanded', 'false');
+});
+document.querySelectorAll('[data-music-category]').forEach(button => button.addEventListener('click', () => {
+  musicState.category = button.dataset.musicCategory;
+  document.querySelectorAll('[data-music-category]').forEach(item => item.classList.toggle('active', item === button));
+  renderMusicList();
+}));
+document.querySelector('#music-files').addEventListener('change', event => {
+  const category = musicState.category === 'ankara' ? 'ankara' : 'pavyon';
+  const files = [...(event.target.files || [])].filter(file => file.type.startsWith('audio/'));
+  files.forEach(file => {
+    const url = URL.createObjectURL(file);
+    musicState.objectUrls.push(url);
+    musicState.tracks.push({ id: crypto.randomUUID(), name: file.name.replace(/\\.[^.]+$/, ''), category, url });
+  });
+  renderMusicList();
+  if (files.length) log(`${files.length} müzik dosyası ${category === 'ankara' ? 'Ankara Havaları' : 'Pavyon'} listesine eklendi.`);
+  event.target.value = '';
+});
+document.querySelector('#music-play').addEventListener('click', () => {
+  if (musicAudio.paused) {
+    if (musicState.currentId) musicAudio.play().then(() => { document.querySelector('#music-play').textContent = 'Ⅱ'; }).catch(() => {});
+    else stepMusic(1);
+  } else {
+    musicAudio.pause();
+    document.querySelector('#music-play').textContent = '▶';
+    renderMusicList();
+  }
+});
+document.querySelector('#music-prev').addEventListener('click', () => stepMusic(-1));
+document.querySelector('#music-next').addEventListener('click', () => stepMusic(1));
+document.querySelector('#music-volume').addEventListener('input', event => { musicAudio.volume = Number(event.target.value) / 100; });
+musicAudio.addEventListener('ended', () => stepMusic(1));
+
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, char => ({
@@ -147,5 +259,5 @@ socket.on('live:event',event=>{
 updateHud();log('Oyun başlatıldı. Test panelinden bir kullanıcıyı mekâna al.');
 window.addEventListener('beforeunload',()=>{
   for(const timer of state.timers.values())window.clearTimeout(timer);
-  socket.disconnect();game.dispose();
+  socket.disconnect();game.dispose();musicAudio.pause();musicState.objectUrls.forEach(url=>URL.revokeObjectURL(url));
 });
