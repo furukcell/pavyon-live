@@ -194,16 +194,18 @@ export function createGame(canvas) {
   }
   function releaseSeat(actor){if(actor.userData.seat){actor.userData.seat.occupied=false;actor.userData.seat=null;}}
   function seatCustomer(id){
-    const actor=actors.get(id);if(!actor)return;
+    const actor=actors.get(id);if(!actor)return false;
+    const currentSeat=actor.userData.seat;
+    const spot=seatSpots.find(item=>!item.occupied||item===currentSeat);
+    if(!spot)return false;
     releaseSeat(actor);
-    const spot=seatSpots.find(item=>!item.occupied);
-    if(!spot){moveTo(id,(Math.random()-.5)*12,(Math.random()-.5)*8);return;}
     spot.occupied=true;actor.userData.seat=spot;actor.userData.motion='walking-to-seat';actor.userData.targetRotation=spot.rotation;
     moveTo(id,spot.x,spot.z);
+    return true;
   }
   function animateActor(id,kind){
-    const actor=actors.get(id);if(!actor)return;
-    if(kind==='seat'){seatCustomer(id);return;}
+    const actor=actors.get(id);if(!actor)return false;
+    if(kind==='seat')return seatCustomer(id);
     releaseSeat(actor);
     if(actor.userData.role==='customer'){
       if(actor.userData.body)actor.userData.body.position.y=.72;
@@ -212,7 +214,7 @@ export function createGame(canvas) {
       actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});
     }
     const targets={dance:[(Math.random()-.5)*4,1],stage:[0,-8.5]};
-    const target=targets[kind]||targets.dance;moveTo(id,target[0],target[1]);actor.userData.motion=kind;
+    const target=targets[kind]||targets.dance;moveTo(id,target[0],target[1]);actor.userData.motion=kind;return true;
   }
   for(let i=1;i<=10;i++){
     const id='kons-'+i;const actor=makeActor(id,'kons',i-1);
@@ -329,7 +331,7 @@ export function createGame(canvas) {
     dance:id=>animateActor(id,'dance'),
     seat:id=>animateActor(id,'seat'),
     stage:id=>animateActor(id,'stage'),
-    drink:(customerId)=>{const customer=actors.get(customerId);if(!customer)return;const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));if(!waiterId)return;waiterBusy.add(waiterId);const waiter=actors.get(waiterId);if(waiter)waiter.userData.motion='serving';moveTo(waiterId,customer.position.x-1.1,customer.position.z);window.setTimeout(()=>{const home=waiterHomes.get(waiterId);if(home)moveTo(waiterId,home.x,home.z);if(waiter)waiter.userData.motion='idle';waiterBusy.delete(waiterId);},4500);},
+    drink:(customerId)=>{const customer=actors.get(customerId);if(!customer)return false;const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));if(!waiterId)return false;waiterBusy.add(waiterId);const waiter=actors.get(waiterId);if(waiter)waiter.userData.motion='serving';moveTo(waiterId,customer.position.x-1.1,customer.position.z);window.setTimeout(()=>{const home=waiterHomes.get(waiterId);if(home)moveTo(waiterId,home.x,home.z);if(waiter)waiter.userData.motion='idle';waiterBusy.delete(waiterId);},4500);return true;},
     konsToTable:(k,id)=>{const customer=actors.get(id),hostess=actors.get(k);if(!customer||!hostess)return false;const angle=customer.rotation.y;const offset=new THREE.Vector3(Math.sin(angle+Math.PI/2)*1.05,0,Math.cos(angle+Math.PI/2)*1.05);const tx=customer.position.x+offset.x,tz=customer.position.z+offset.z;hostess.userData.motion='flirt';hostess.userData.targetRotation=Math.atan2(customer.position.x-tx,customer.position.z-tz);moveTo(k,tx,tz);return true;},
     konsDance:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...danceAssignments.values()].map(slot=>slot));const slot=danceSlots.find(item=>!occupied.has(item));if(!slot)return false;danceAssignments.set(k,slot);releaseSeat(guest);if(guest.userData.body)guest.userData.body.position.y=.72;if(guest.userData.head)guest.userData.head.position.y=1.35;guest.userData.motion='dance';guest.userData.targetRotation=Math.PI/2;hostess.userData.motion='dance';hostess.userData.targetRotation=-Math.PI/2;moveTo(id,slot.x-.65,slot.z);moveTo(k,slot.x+.65,slot.z);return true;},
     vip:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...vipAssignments.values()].map(slot=>slot));const slot=vipSlots.find(item=>!occupied.has(item));if(!slot)return false;vipAssignments.set(k,slot);hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;guest.userData.targetRotation=Math.PI/2;moveTo(k,slot.x+.55,slot.z);moveTo(id,slot.x-.55,slot.z);return true;},
