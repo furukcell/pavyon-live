@@ -15,6 +15,7 @@ const state = {
 const usernameEl = document.querySelector('#username');
 const konsSelect = document.querySelector('#kons-select');
 const allowedCommands = new Set(['!gel', '!dans', '!masa', '!sahne']);
+const allowedGiftActions = new Set(['invite', 'dance', 'drink', 'vip', 'stage']);
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, char => ({
@@ -101,7 +102,11 @@ socket.on('live:event',event=>{
   if(!event||typeof event!=='object')return;
   if(event.type==='comment'&&typeof event.username==='string'&&typeof event.comment==='string')command(event.username,event.comment);
   else if(event.type==='like'){state.likes+=Math.max(1,Math.min(10000,Number(event.count)||1));game.setLikes(state.likes);updateHud();}
-  else if(event.type==='gift'&&typeof event.username==='string')log(`LIVE hediye olayı alındı: <b>@${escapeHtml(event.username)}</b> · hediye eşleştirmesi henüz yapılandırılmadı.`);
+  else if(event.type==='gift'&&typeof event.username==='string'){
+    const action = String(event.action || '').toLowerCase();
+    if (allowedGiftActions.has(action)) gift(event.username, action, state.kons[event.konsId] !== undefined ? event.konsId : konsSelect.value);
+    else log(`LIVE hediye olayı alındı: <b>@${escapeHtml(event.username)}</b> · tanımlı oyun aksiyonu yok (giftName: ${escapeHtml(event.giftName || 'bilinmiyor')}).`);
+  }
 });
 updateHud();log('Oyun başlatıldı. Test panelinden bir kullanıcıyı mekâna al.');
 window.addEventListener('beforeunload',()=>{
