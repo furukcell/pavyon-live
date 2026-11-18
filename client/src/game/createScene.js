@@ -61,15 +61,20 @@ export function createGame(canvas) {
   const waiterHomes=new Map();
   const waiterBusy=new Set();
   const konsColors=['#a92f59','#692b62','#bd7544','#345e77','#8d3b45','#75539a','#b08a36','#3f786a','#934c70','#5c4a37'];
+  const skinTones=['#e8bd9b','#d6a17e','#b97855','#f0c9a8','#986447','#c88d6d'];
+  const hairTones=['#211b22','#38251e','#6c4930','#171820','#7b5a3c'];
   const colors=['#4b9a8c','#c28b48','#5572a8','#a84e6b','#77914d','#8967a6','#cf7950'];
   function makeActor(id,role='customer',variant=0){
     const group=new THREE.Group();group.userData={id,role,target:null,phase:Math.random()*6,motion:'idle'};
-    const color=role==='kons'?konsColors[variant%konsColors.length]:role==='waiter'?'#e7dfd3':colors[variant%colors.length];
-    const body=new THREE.Mesh(new THREE.CapsuleGeometry(.28,.68,3,7),new THREE.MeshStandardMaterial({color,roughness:.75}));
+    const generatedColor=new THREE.Color().setHSL((variant*0.137)%1,.34,.43);
+    const color=role==='kons'?konsColors[variant%konsColors.length]:role==='waiter'?'#e7dfd3':generatedColor;
+    const body=new THREE.Mesh(new THREE.CapsuleGeometry(.26+(variant%4)*.012,.64+(variant%3)*.045,3,7),new THREE.MeshStandardMaterial({color,roughness:.75}));
     body.position.y=.72;body.castShadow=true;group.add(body);
-    const head=new THREE.Mesh(new THREE.SphereGeometry(.23,12,10),new THREE.MeshStandardMaterial({color:'#d9a783',roughness:.85}));
+    const skin=role==='waiter'?'#d6ad8c':skinTones[(variant*7+3)%skinTones.length];
+    const head=new THREE.Mesh(new THREE.SphereGeometry(.22+(variant%3)*.012,12,10),new THREE.MeshStandardMaterial({color:skin,roughness:.85}));
     head.position.y=1.35;head.castShadow=true;group.add(head);
-    const hair=new THREE.Mesh(new THREE.SphereGeometry(.24,10,7,0,Math.PI*2,0,Math.PI*.55),new THREE.MeshStandardMaterial({color:role==='kons'?'#241622':'#28212a'}));
+    const hairColor=role==='kons'?'#241622':role==='waiter'?'#28212a':hairTones[(variant*3)%hairTones.length];
+    const hair=new THREE.Mesh(new THREE.SphereGeometry(.23+(variant%5)*.008,10,7,0,Math.PI*2,0,Math.PI*(.48+(variant%4)*.08)),new THREE.MeshStandardMaterial({color:hairColor}));
     hair.position.set(0,1.42,0);group.add(hair);
     const ring=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.045,12),new THREE.MeshStandardMaterial({color:role==='kons'?'#e3bd76':'#8f6b7b',metalness:.55}));
     ring.position.y=.04;group.add(ring);
@@ -78,8 +83,9 @@ export function createGame(canvas) {
   }
   function moveTo(id,x,z){const actor=actors.get(id);if(actor)actor.userData.target=new THREE.Vector3(x,0,z);}
   function addCustomer(viewer){
-    const actor=makeActor(viewer.id,'customer');actor.userData.name=viewer.name;
-    moveTo(viewer.id,(Math.random()-.5)*12,(Math.random()-.5)*7);
+    const variant=actors.size+Math.floor(Math.random()*101);
+    const actor=makeActor(viewer.id,'customer',variant);actor.userData.name=viewer.name;
+    actor.position.set((Math.random()-.5)*14,0,(Math.random()-.5)*11);
   }
   function animateActor(id,kind){
     const actor=actors.get(id);if(!actor)return;
