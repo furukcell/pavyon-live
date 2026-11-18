@@ -267,6 +267,46 @@ export function createGame(canvas) {
     actor.position.set(-10+((i-1)%5)*1.5,0,-5);actor.userData.home=actor.position.clone();waiterHomes.set(id,actor.position.clone());
   }
 
+  function finishWaiterService(waiterId){
+    const waiter=actors.get(waiterId);
+    if(!waiter)return;
+    let nextGuestId=null;
+    while(waiterQueue.length&&!nextGuestId){
+      const candidate=waiterQueue.shift();
+      if(actors.has(candidate))nextGuestId=candidate;
+    }
+    if(nextGuestId){
+      startWaiterService(waiterId,nextGuestId);
+      return;
+    }
+    const home=waiterHomes.get(waiterId);
+    if(home)moveTo(waiterId,home.x,home.z);
+    waiter.userData.motion='idle';
+    waiterBusy.delete(waiterId);
+  }
+  function startWaiterService(waiterId,guestId){
+    const waiter=actors.get(waiterId),guest=actors.get(guestId);
+    if(!waiter||!guest){
+      finishWaiterService(waiterId);
+      return false;
+    }
+    waiterBusy.add(waiterId);
+    waiter.userData.motion='serving';
+    moveTo(waiterId,guest.position.x-1.1,guest.position.z);
+    window.setTimeout(()=>finishWaiterService(waiterId),4500);
+    return true;
+  }
+  function requestDrink(customerId){
+    if(!actors.has(customerId))return false;
+    const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));
+    if(!waiterId){
+      if(waiterQueue.length>=30)return false;
+      waiterQueue.push(customerId);
+      return 'queued';
+    }
+    return startWaiterService(waiterId,customerId)?'serving':false;
+  }
+
   const clock=new THREE.Clock();
   function resize(){
     const width=canvas.clientWidth||window.innerWidth,height=canvas.clientHeight||window.innerHeight;
@@ -396,7 +436,7 @@ export function createGame(canvas) {
     dance:id=>animateActor(id,'dance'),
     seat:id=>animateActor(id,'seat'),
     stage:id=>animateActor(id,'stage'),
-    drink:(customerId)=>{if(!actors.has(customerId))return false;const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));if(!waiterId){if(waiterQueue.length>=30)return false;waiterQueue.push(customerId);return 'queued';}const dispatch=(id,guestId)=>{const guest=actors.get(guestId),waiter=actors.get(id);if(!guest||!waiter){waiterBusy.delete(id);return false;}waiterBusy.add(id);waiter.userData.motion='serving';moveTo(id,guest.position.x-1.1,guest.position.z);window.setTimeout(()=>{let next=null;while(waiterQueue.length&&!next){const candidate=waiterQueue.shift();if(actors.has(candidate))next=candidate;}if(next){dispatch(id,next);return;}const home=waiterHomes.get(id);if(home)moveTo(id,home.x,home.z);waiter.userData.motion='idle';waiterBusy.delete(id);},4500);return true;};dispatch(waiterId,customerId);return 'serving';},
+    drink:requestDrink,
     konsToTable:(k,id)=>{const customer=actors.get(id),hostess=actors.get(k);if(!customer||!hostess)return false;const angle=customer.rotation.y;const offset=new THREE.Vector3(Math.sin(angle+Math.PI/2)*1.05,0,Math.cos(angle+Math.PI/2)*1.05);const tx=customer.position.x+offset.x,tz=customer.position.z+offset.z;hostess.userData.motion='flirt';hostess.userData.targetRotation=Math.atan2(customer.position.x-tx,customer.position.z-tz);moveTo(k,tx,tz);return true;},
     konsDance:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...danceAssignments.values()].map(slot=>slot));const slot=danceSlots.find(item=>!occupied.has(item));if(!slot)return false;danceAssignments.set(k,slot);releaseSeat(guest);if(guest.userData.body)guest.userData.body.position.y=.72;if(guest.userData.head)guest.userData.head.position.y=1.35;guest.userData.motion='dance';guest.userData.targetRotation=Math.PI/2;hostess.userData.motion='dance';hostess.userData.targetRotation=-Math.PI/2;moveTo(id,slot.x-.65,slot.z);moveTo(k,slot.x+.65,slot.z);return true;},
     vip:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...vipAssignments.values()].map(slot=>slot));const slot=vipSlots.find(item=>!occupied.has(item));if(!slot)return false;vipAssignments.set(k,slot);hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;guest.userData.targetRotation=Math.PI/2;moveTo(k,slot.x+.55,slot.z);moveTo(id,slot.x-.55,slot.z);return true;},
