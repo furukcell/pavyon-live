@@ -60,7 +60,6 @@ export function createGame(canvas) {
   const actorGroup=new THREE.Group();scene.add(actorGroup);
   const actors=new Map();
   let customerSequence=0;
-  let customerSequence=0;
   const konsHomes=new Map();
   const waiterHomes=new Map();
   const waiterBusy=new Set();
@@ -69,20 +68,41 @@ export function createGame(canvas) {
   const hairTones=['#211b22','#38251e','#6c4930','#171820','#7b5a3c'];
   const colors=['#4b9a8c','#c28b48','#5572a8','#a84e6b','#77914d','#8967a6','#cf7950'];
   function makeActor(id,role='customer',variant=0){
-    const group=new THREE.Group();group.userData={id,role,target:null,phase:Math.random()*6,motion:'idle'};
-    const generatedColor=new THREE.Color().setHSL((variant*0.137)%1,.34,.43);
+    const group=new THREE.Group();
+    const appearance=getCustomerAppearanceByIndex(role==='kons'?variant*2+1:variant);
+    group.userData={id,role,target:null,phase:Math.random()*6,motion:'idle',flirtPhase:Math.random()*Math.PI*2};
+    const generatedColor=role==='customer'?appearance.outfit:new THREE.Color().setHSL((variant*0.137)%1,.34,.43);
     const color=role==='kons'?konsColors[variant%konsColors.length]:role==='waiter'?'#e7dfd3':generatedColor;
-    const body=new THREE.Mesh(new THREE.CapsuleGeometry(.26+(variant%4)*.012,.64+(variant%3)*.045,3,7),new THREE.MeshStandardMaterial({color,roughness:.75}));
+    const body=new THREE.Mesh(new THREE.CapsuleGeometry(role==='kons'?.235:.26+(variant%4)*.012,role==='kons'?.58:.64+(variant%3)*.045,3,7),new THREE.MeshStandardMaterial({color,roughness:.48,metalness:role==='kons'?.12:0}));
     body.position.y=.72;body.castShadow=true;group.add(body);
-    const skin=role==='waiter'?'#d6ad8c':skinTones[(variant*7+3)%skinTones.length];
+    const skin=role==='waiter'?'#d6ad8c':appearance.skin;
     const head=new THREE.Mesh(new THREE.SphereGeometry(.22+(variant%3)*.012,12,10),new THREE.MeshStandardMaterial({color:skin,roughness:.85}));
     head.position.y=1.35;head.castShadow=true;group.add(head);
-    const hairColor=role==='kons'?'#241622':role==='waiter'?'#28212a':hairTones[(variant*3)%hairTones.length];
+    const hairColor=role==='waiter'?'#28212a':appearance.hair;
     const hair=new THREE.Mesh(new THREE.SphereGeometry(.23+(variant%5)*.008,10,7,0,Math.PI*2,0,Math.PI*(.48+(variant%4)*.08)),new THREE.MeshStandardMaterial({color:hairColor}));
     hair.position.set(0,1.42,0);group.add(hair);
-    if(appearance?.gender==='female'&&['long','wavy','curly'].includes(appearance.haircut)){
+    if(role==='kons'&&['long','wavy','curly','ponytail'].includes(appearance.haircut)){
       const backHair=new THREE.Mesh(new THREE.SphereGeometry(.2,10,8),new THREE.MeshStandardMaterial({color:hairColor}));
-      backHair.scale.set(.82,1.5,.72);backHair.position.set(0,1.12,-.12);group.add(backHair);
+      backHair.scale.set(.9,1.75,.78);backHair.position.set(0,1.02,-.12);group.add(backHair);
+    }
+    if(role==='kons'){
+      const dress=new THREE.Mesh(new THREE.CylinderGeometry(.19,.39,.42,12,1,true),new THREE.MeshStandardMaterial({color:appearance.outfit,metalness:.28,roughness:.32,side:THREE.DoubleSide}));
+      dress.position.y=.43;dress.castShadow=true;group.add(dress);
+      const belt=new THREE.Mesh(new THREE.CylinderGeometry(.245,.245,.045,16),new THREE.MeshStandardMaterial({color:'#e7bd79',metalness:.8,roughness:.22}));
+      belt.position.y=.57;group.add(belt);
+      for(const side of [-1,1]){
+        const strap=new THREE.Mesh(new THREE.BoxGeometry(.045,.28,.045),new THREE.MeshStandardMaterial({color:'#e7bd79',metalness:.65}));
+        strap.position.set(side*.13,1.03,.015);strap.rotation.z=side*.13;group.add(strap);
+        const heel=new THREE.Mesh(new THREE.BoxGeometry(.12,.12,.28),new THREE.MeshStandardMaterial({color:'#1b101b',metalness:.3,roughness:.3}));
+        heel.position.set(side*.13,.08,.02);group.add(heel);
+        const eye=new THREE.Mesh(new THREE.SphereGeometry(.025,8,8),new THREE.MeshBasicMaterial({color:'#24131c'}));
+        eye.position.set(side*.075,1.36,.195);group.add(eye);
+      }
+      const smileCurve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(-.055,1.25,.205),new THREE.Vector3(0,1.22,.23),new THREE.Vector3(.055,1.25,.205));
+      const smile=new THREE.Mesh(new THREE.TubeGeometry(smileCurve,8,.012,5,false),new THREE.MeshBasicMaterial({color:'#7e263c'}));
+      smile.name='kons-smile';group.add(smile);
+      const earring=new THREE.Mesh(new THREE.TorusGeometry(.035,.009,5,10),new THREE.MeshStandardMaterial({color:'#e8c27e',metalness:.8}));
+      earring.position.set(.22,1.2,.01);group.add(earring);
     }
     const ring=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.045,12),new THREE.MeshStandardMaterial({color:role==='kons'?'#e3bd76':'#8f6b7b',metalness:.55}));
     ring.position.y=.04;group.add(ring);
@@ -140,7 +160,13 @@ export function createGame(canvas) {
         if(distance>.08){actor.position.x+=dx/distance*Math.min(distance,dt*2.4);actor.position.z+=dz/distance*Math.min(distance,dt*2.4);actor.rotation.y=Math.atan2(dx,dz);}
         else {actor.userData.target=null;if(actor.userData.targetRotation!==undefined){actor.rotation.y=actor.userData.targetRotation;delete actor.userData.targetRotation;}}
       }
-      if(actor.userData.motion==='dance'){
+      if(actor.userData.role==='kons'){
+        const flirt=Math.sin(time*1.7+actor.userData.flirtPhase);
+        actor.rotation.z=(actor.userData.motion==='dance'?Math.sin(time*7+actor.userData.phase)*.18:flirt*.035);
+        actor.position.y=actor.userData.motion==='dance'?Math.abs(Math.sin(time*7+actor.userData.phase))*.08:Math.max(0,flirt)*.018;
+        const smile=actor.getObjectByName('kons-smile');
+        if(smile)smile.scale.y=actor.userData.motion==='laugh'?1.8:1+Math.max(0,flirt)*.25;
+      }else if(actor.userData.motion==='dance'){
         actor.rotation.z=Math.sin(time*7+actor.userData.phase)*.16;
         actor.position.y=Math.abs(Math.sin(time*7+actor.userData.phase))*.08;
       }else{actor.rotation.z=0;actor.position.y=0;}
@@ -154,9 +180,9 @@ export function createGame(canvas) {
     seat:id=>animateActor(id,'seat'),
     stage:id=>animateActor(id,'stage'),
     drink:(customerId)=>{const customer=actors.get(customerId);if(!customer)return;const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));if(!waiterId)return;waiterBusy.add(waiterId);moveTo(waiterId,customer.position.x-1.1,customer.position.z);window.setTimeout(()=>{const home=waiterHomes.get(waiterId);if(home)moveTo(waiterId,home.x,home.z);waiterBusy.delete(waiterId);},4500);},
-    konsToTable:(k,id)=>{const customer=actors.get(id);if(customer)moveTo(k,customer.position.x+1.2,customer.position.z);},
-    konsDance:(k,id)=>{animateActor(k,'dance');animateActor(id,'dance');},
-    vip:(k,id)=>{moveTo(k,8,-4);moveTo(id,7,-4);},
+    konsToTable:(k,id)=>{const customer=actors.get(id);if(customer){const hostess=actors.get(k);if(hostess)hostess.userData.motion='flirt';moveTo(k,customer.position.x+1.2,customer.position.z);}},
+    konsDance:(k,id)=>{const hostess=actors.get(k);if(hostess)hostess.userData.motion='dance';animateActor(id,'dance');},
+    vip:(k,id)=>{const hostess=actors.get(k);if(hostess)hostess.userData.motion='flirt';moveTo(k,8,-4);moveTo(id,7,-4);},
     releaseKons:k=>{const home=konsHomes.get(k);if(home){moveTo(k,home.x,home.z);const actor=actors.get(k);if(actor)actor.userData.motion='idle';}},
     show:id=>animateActor(id,'stage'),
     setLikes:value=>{redGlow.intensity=35+Math.min(value,500)*.08;goldGlow.intensity=28+Math.min(value,500)*.04;},
