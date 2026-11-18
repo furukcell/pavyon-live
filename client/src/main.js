@@ -64,9 +64,10 @@ function command(rawName, rawCommand) {
   let guest = state.viewers.get(name);
   if (cmd === '!gel') guest = addViewer(name);
   if (!guest) { log(`<b>@${escapeHtml(name)}</b> önce !gel yazarak mekâna katılmalı.`); return; }
-  if (cmd === '!dans') { guest.action='dancing';game.dance(guest.id);log(`<b>@${escapeHtml(name)}</b> dans pistine çıktı.`); }
-  else if (cmd === '!masa') { guest.action='seated';game.seat(guest.id);log(`<b>@${escapeHtml(name)}</b> masaya oturdu.`); }
-  else if (cmd === '!sahne') { guest.action='stage';game.stage(guest.id);log(`<b>@${escapeHtml(name)}</b> sahneye çıktı.`); }
+  if(guest.activeKons){log(`@<b>${escapeHtml(name)}</b> kons etkileşimi sürerken bu komutu kullanamaz.`);return;}
+  if (cmd === '!dans') { if(game.dance(guest.id)){guest.action='dancing';log(`<b>@${escapeHtml(name)}</b> dans pistine çıktı.`);} }
+  else if (cmd === '!masa') { if(game.seat(guest.id)){guest.action='seated';log(`<b>@${escapeHtml(name)}</b> masaya oturdu.`);}else log('Bütün masalar dolu. Bir koltuk boşalınca tekrar dene.'); }
+  else if (cmd === '!sahne') { if(game.stage(guest.id)){guest.action='stage';log(`<b>@${escapeHtml(name)}</b> sahneye çıktı.`);} }
 }
 function occupyKons(konsId, name, duration, action) {
   if (!Object.prototype.hasOwnProperty.call(state.kons,konsId)) { log('Geçersiz kons seçimi.'); return false; }
@@ -93,7 +94,7 @@ function gift(rawName, type, konsId) {
   const name = cleanUsername(rawName);
   const guest = state.viewers.get(name) || addViewer(name);
   if (!guest) return;
-  if (type === 'drink') { game.drink(guest.id);log(`Garson, <b>@${escapeHtml(name)}</b> için servis götürüyor.`);return; }
+  if (type === 'drink') { if(game.drink(guest.id))log(`Garson, <b>@${escapeHtml(name)}</b> için servis götürüyor.`);else log('Şu anda bütün garsonlar serviste. Biraz sonra tekrar dene.');return; }
   if (type === 'stage') { game.show(guest.id);log(`<b>@${escapeHtml(name)}</b> için sahne gösterisi başladı.`);return; }
   const duration = type === 'dance' || type === 'invite' ? 5*60_000 : 3*60_000;
   const actions = {
