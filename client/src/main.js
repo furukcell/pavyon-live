@@ -36,6 +36,11 @@ function username() { return cleanUsername(usernameEl.value); }
 function updateHud() {
   document.querySelector('#guest-count').textContent = `${state.viewers.size} / 100`;
   document.querySelector('#kons-count').textContent = `${Object.values(state.kons).filter(value => !value).length} / 10 müsait`;
+  document.querySelectorAll('#kons-select option').forEach(option=>{
+    const owner=state.kons[option.value];
+    option.disabled=Boolean(owner);
+    option.textContent=owner?`${option.value.replace('kons-','Kons ')} · @${owner}`:`${option.value.replace('kons-','Kons ')} · Müsait`;
+  });
   document.querySelector('#like-count').textContent = state.likes.toLocaleString('tr-TR');
 }
 function addViewer(rawName) {
