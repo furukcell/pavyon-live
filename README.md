@@ -48,7 +48,7 @@
 - Altı masada dekoratif mum ışığı, iki bardak ve içecek detayları.
 - Sahne, dans pisti, servis alanı, VIP loca ve 6 müşteri masası.
 - Sahne yanında hoparlör kuleleri, sahne önü LED şeridi ve servis barında şişe dekorları.
-- Her masada 3 koltuk olmak üzere 18 koltuk noktası; boş koltuklar sırayla atanır.
+- Her masada 3 koltuk olmak üzere 18 koltuk noktası; müşteriye en yakın boş koltuk atanır; oturan müşteri tekrar otur komutu verirse mevcut koltuğunu korur.
 - Üstten perspektif kamera; dar ekranlarda daha geniş dikey kadraj.
 - Sahne üzerinde renkli, ritmik hareket eden dört spot ışığı.
 - Oyun havası / bireysel dans yaklaşımı; halay mekaniği yok.
@@ -73,7 +73,7 @@
 - Profiller saç, ten, kıyafet rengi, boy, yapı ve aksesuar parametreleri sağlar. 200 ayrı elle modellenmiş karakter dosyası değildir.
 - Oyuncu girişlerinde aynı anda en fazla 100 müşteri kabul edilir.
 - 5 garson örneği sahneye eklenir; aynı temel placeholder modelinden türetilir.
-- Müşteriler boş koltuğa yürür; varışta gövde alçalması, hafif öne eğilme ve bacak/kol pozisyonuyla oturma pozu alır. Dans sırasında kollar ve bacaklar ritmik hareket eder. 18 koltuk doluysa müşteri rastgele dolaştırılmaz; açık kapasite mesajı verilir. Oturan müşteri tekrar otur komutu verirse kendi koltuğunu korur.
+- Müşteriler kendisine en yakın boş koltuğa yürür; varışta gövde alçalması, hafif öne eğilme ve bacak/kol pozisyonuyla oturma pozu alır. Zaten oturuyorsa tekrar komutunda koltuğunu değiştirmez. Dans sırasında kollar ve bacaklar ritmik hareket eder. 18 koltuk doluysa müşteri rastgele dolaştırılmaz; açık kapasite mesajı verilir. Oturan müşteri tekrar otur komutu verirse kendi koltuğunu korur.
 - Kons etkileşimi devam eden izleyici `!dans`, `!masa`, `!sahne` komutlarıyla görevini yarıda kesemez; etkileşim süresi tamamlanınca normal komutları kullanabilir.
 - Garsonların eline tepsi ve bardak görseli eklendi; servis sırasında kol pozisyonu değişir ve garson müşteriye gidip başlangıç noktasına döner. Beş garsonun tamamı meşgulse talepler FIFO sıraya alınır; sıra 30 istekte sınırlıdır. Sırası gelen müşteri silinmişse atlanır.
 - VIP locada dört ayrı çift konumu ayrıldı; dolu konumlar yeni VIP çiftine atanmaz. Bu ilk seviye konum ayırmadır, genel fiziksel çarpışma motoru değildir.
@@ -171,7 +171,7 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 
 1. **Karakter görsel kalitesi:** Kons yüzü, saç, kıyafet ve aksesuar detaylarını geliştirmek; garson ve müşteri modellerini tutarlılaştırmak. Son eklenenler: at kuyruğu/bob saç varyantı, iki taraflı küpe, kolye, bileklik, etek ucu detayı, sahne makyajı, kaş/kirpik/burun/dudak ve vücut oranı varyasyonu.
 2. **Animasyon kalitesi:** Daha doğal yürüme, oturma, dans, gülme ve etkileşim geçişleri; mevcut pivot animasyonlarını iyileştirmek. Son eklenenler: kons ve müşteri yürüyüş/oturma/dans hareketleri; garson tepsi-servis pozu; VIP çiftlerinin yüz yüze yönlenmesi.
-3. **Etkileşim yaşam döngüsü:** Masa/VIP konumları, genel çakışma önleme, kuyruk, dolu masa yönetimi ve her aksiyon sonrası doğru başlangıç konumuna dönüş. VIP için dört, dans pisti için altı çift konumu rezervasyonu; aynı izleyici için eşzamanlı kons etkileşimi engeli eklendi. Genel fiziksel çarpışma ve kuyruk sistemi hâlâ yapılacak.
+3. **Etkileşim yaşam döngüsü:** Masa/VIP konumları, genel çakışma önleme, kuyruk, dolu masa yönetimi ve her aksiyon sonrası doğru başlangıç konumuna dönüş. VIP için dört, dans pisti için altı çift konumu rezervasyonu; aynı izleyici için eşzamanlı kons etkileşimi engeli ve müşteriye en yakın boş koltuk seçimi eklendi. Genel fiziksel çarpışma ve kuyruk sistemi hâlâ yapılacak.
 4. **Sahne ve arayüz cilası:** Işık, dekor, masa durumları, kons müsaitlik göstergesi ve yayın overlay'i. Son eklenen: dört hareketli sahne spotu.
 5. **Test ve optimizasyon:** 10/25/50/100 müşteri yük testi, mobil GPU ve bellek ölçümü, gerçek tarayıcı testleri.
 6. **TikTok LIVE entegrasyonu:** Uygun ve izinli olay kaynağına bağlanma; hediye-adım eşlemesi ve güvenli sunucu doğrulaması.
