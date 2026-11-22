@@ -5,7 +5,7 @@ export function disposeSceneResources(scene) {
   const textures = new Set();
   const inspectedValues = new WeakSet();
 
-  function collectTextures(value) {
+  function collectTextures(value, inspectMaterial = false) {
     if (!value || typeof value !== 'object') return;
     if (value.isTexture) {
       textures.add(value);
@@ -21,7 +21,7 @@ export function disposeSceneResources(scene) {
       return;
     }
     const prototype = Object.getPrototypeOf(value);
-    if (prototype === Object.prototype || prototype === null) {
+    if (inspectMaterial || prototype === Object.prototype || prototype === null) {
       Object.values(value).forEach(collectTextures);
     }
   }
@@ -33,7 +33,7 @@ export function disposeSceneResources(scene) {
       : object.material ? [object.material] : [];
     objectMaterials.forEach(material => {
       materials.add(material);
-      collectTextures(material);
+      collectTextures(material, true);
     });
   });
 
