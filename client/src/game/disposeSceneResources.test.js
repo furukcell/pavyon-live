@@ -58,3 +58,23 @@ test('finds textures nested in shader uniforms and cyclic user data', () => {
   assert.deepEqual(result, { geometries: 0, materials: 1, textures: 2 });
   assert.deepEqual(calls, { material: 1, uniformTexture: 1, userTexture: 1 });
 });
+
+
+test('inspects enumerable properties on Three.js-style material instances', () => {
+  const calls = { material: 0, map: 0, uniform: 0 };
+  const map = { isTexture: true, dispose: () => calls.map++ };
+  const uniform = { isTexture: true, dispose: () => calls.uniform++ };
+  class MaterialFixture {
+    constructor() {
+      this.map = map;
+      this.uniforms = { uMap: { value: uniform } };
+    }
+    dispose() { calls.material++; }
+  }
+  const material = new MaterialFixture();
+  const scene = { traverse(visitor) { visitor({ material }); } };
+
+  const result = disposeSceneResources(scene);
+  assert.deepEqual(result, { geometries: 0, materials: 1, textures: 2 });
+  assert.deepEqual(calls, { material: 1, map: 1, uniform: 1 });
+});
