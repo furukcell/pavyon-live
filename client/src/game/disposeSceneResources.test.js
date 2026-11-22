@@ -41,3 +41,20 @@ test('disposes nested actor resources including shared textures once', () => {
   assert.deepEqual(result, { geometries: 1, materials: 1, textures: 1 });
   assert.deepEqual(calls, { geometry: 1, material: 1, texture: 1 });
 });
+
+test('finds textures nested in shader uniforms and cyclic user data', () => {
+  const calls = { material: 0, uniformTexture: 0, userTexture: 0 };
+  const uniformTexture = { isTexture: true, dispose: () => calls.uniformTexture++ };
+  const userTexture = { isTexture: true, dispose: () => calls.userTexture++ };
+  const material = {
+    uniforms: { uScene: { value: [uniformTexture, { nested: uniformTexture }] } },
+    userData: { texture: userTexture },
+    dispose: () => calls.material++
+  };
+  material.userData.self = material.userData;
+  const scene = { traverse(visitor) { visitor({ material }); } };
+
+  const result = disposeSceneResources(scene);
+  assert.deepEqual(result, { geometries: 0, materials: 1, textures: 2 });
+  assert.deepEqual(calls, { material: 1, uniformTexture: 1, userTexture: 1 });
+});
