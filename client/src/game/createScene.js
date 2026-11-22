@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { getCustomerAppearanceByIndex } from './characterCatalog.js';
 import { createWaiterQueue, createWaiterServiceLedger } from './waiterQueue.js';
+import { disposeSceneResources } from './disposeSceneResources.js';
 
 export function createGame(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -882,6 +883,7 @@ export function createGame(canvas) {
   }
   const observer=new ResizeObserver(resize);observer.observe(canvas);resize();
   let raf=0;
+  let disposed=false;
   let musicMood='pavyon';
   function tick(){
     raf=requestAnimationFrame(tick);const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;
@@ -1269,6 +1271,6 @@ export function createGame(canvas) {
     show:id=>animateActor(id,'stage'),
     getTableStatus:()=>tableStates.map(table=>({id:table.id,occupied:table.occupied,capacity:table.seats.length})),
     setLikes:value=>{redGlow.intensity=35+Math.min(value,500)*.08;goldGlow.intensity=28+Math.min(value,500)*.04;},
-    dispose:()=>{cancelAnimationFrame(raf);observer.disconnect();waiterServiceTimers.forEach(timer=>window.clearTimeout(timer));waiterServiceTimers.clear();waiterQueue.clear();activeCustomerServices.clear();renderer.dispose();}
+    dispose:()=>{if(disposed)return;disposed=true;cancelAnimationFrame(raf);observer.disconnect();waiterServiceTimers.forEach(timer=>window.clearTimeout(timer));waiterServiceTimers.clear();waiterQueue.clear();activeCustomerServices.clear();disposeSceneResources(scene);renderer.renderLists.dispose();renderer.dispose();}
   };
 }
