@@ -23,3 +23,21 @@ test('supports scenes without GPU resources', () => {
   const result = disposeSceneResources({ traverse(visitor) { visitor({}); } });
   assert.deepEqual(result, { geometries: 0, materials: 0, textures: 0 });
 });
+
+test('disposes nested actor resources including shared textures once', () => {
+  const calls = { geometry: 0, material: 0, texture: 0 };
+  const texture = { isTexture: true, dispose: () => calls.texture++ };
+  const material = { map: texture, normalMap: texture, dispose: () => calls.material++ };
+  const geometry = { dispose: () => calls.geometry++ };
+  const child = { geometry, material };
+  const actor = {
+    traverse(visitor) {
+      visitor({ geometry, material });
+      visitor(child);
+    }
+  };
+
+  const result = disposeSceneResources(actor);
+  assert.deepEqual(result, { geometries: 1, materials: 1, textures: 1 });
+  assert.deepEqual(calls, { geometry: 1, material: 1, texture: 1 });
+});
