@@ -1262,10 +1262,9 @@ export function createGame(canvas) {
       }
       releaseSeat(actor);
       actorGroup.remove(actor);actors.delete(id);
-      actor.traverse(part=>{
-        if(part.geometry)part.geometry.dispose();
-        if(part.material){if(Array.isArray(part.material))part.material.forEach(material=>material.dispose());else part.material.dispose();}
-      });
+      // Use the same deduplicated cleanup path as full-scene disposal so
+      // dynamically removed customers also release material textures.
+      disposeSceneResources(actor);
       return true;
     },
     show:id=>animateActor(id,'stage'),
