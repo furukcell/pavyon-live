@@ -1,8 +1,30 @@
-// Dispose scene-owned GPU resources once, including shared textures/materials.
+// Dispose scene-owned GPU resources once, including shared and nested uniform textures.
 export function disposeSceneResources(scene) {
   const geometries = new Set();
   const materials = new Set();
   const textures = new Set();
+  const inspectedValues = new WeakSet();
+
+  function collectTextures(value) {
+    if (!value || typeof value !== 'object') return;
+    if (value.isTexture) {
+      textures.add(value);
+      return;
+    }
+    if (inspectedValues.has(value)) return;
+    inspectedValues.add(value);
+
+    // Three.js uniforms commonly hold textures inside { value }, arrays or
+    // plain nested objects. Avoid walking arbitrary Three.js class instances.
+    if (Array.isArray(value)) {
+      value.forEach(collectTextures);
+      return;
+    }
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype === Object.prototype || prototype === null) {
+      Object.values(value).forEach(collectTextures);
+    }
+  }
 
   scene.traverse(object => {
     if (object.geometry) geometries.add(object.geometry);
@@ -11,9 +33,7 @@ export function disposeSceneResources(scene) {
       : object.material ? [object.material] : [];
     objectMaterials.forEach(material => {
       materials.add(material);
-      Object.values(material).forEach(value => {
-        if (value && value.isTexture) textures.add(value);
-      });
+      collectTextures(material);
     });
   });
 
