@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 
 test('loads the 3D game and processes viewer commands', async ({ page }) => {
   const pageErrors = [];
-  page.on('pageerror', error => pageErrors.push(error.message));
+  page.on('pageerror', error => { if (!pageErrors.length) pageErrors.push(error.stack || error.message); });
 
   await page.goto('/');
   await expect(page.locator('#game-canvas')).toBeVisible();
@@ -65,6 +65,7 @@ test('runs all five gift actions and updates the live event status', async ({ pa
 
   const before = await page.request.get('/api/status');
   const beforeStatus = await before.json();
+  const likesBefore = Number(await page.locator('#like-count').textContent());
   const payload = { type: 'like', username: 'e2e_provider', count: 7, eventId: 'e2e-event-once' };
   const accepted = await page.request.post('/dev/event', { data: payload });
   expect(accepted.status()).toBe(202);
@@ -76,7 +77,7 @@ test('runs all five gift actions and updates the live event status', async ({ pa
   expect(after.accepted).toBe(beforeStatus.accepted + 1);
   expect(after.likes).toBe(beforeStatus.likes + 1);
   await expect(page.locator('#live-event-count')).toHaveText(String(after.accepted));
-  await expect(page.locator('#like-count')).toHaveText(String(after.likes));
+  await expect(page.locator('#like-count')).toHaveText(String(likesBefore + 7));
   await expect(page.locator('#live-event-history')).toContainText('e2e_provider');
 });
 
