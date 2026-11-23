@@ -317,13 +317,14 @@ test('service startup rolls back its assignment when approach calculation fails'
   ]);
   const motions = [];
   const timers = new Map();
+  let moveCalled = false;
   const manager = createWaiterServiceManager({
     queue, ledger,
     getActor: id => actors.get(id),
     getWaiterIds: () => ['waiter-1'],
     getHome: () => ({ x: 0, z: 0 }),
     findApproach: () => ({ x: Number.NaN, z: 2 }),
-    moveTo: () => assert.fail('moveTo must not run without a valid approach'),
+    moveTo: () => { moveCalled = true; },
     setMotion: (_id, motion) => motions.push(motion),
     setTimer: callback => { timers.set(1, callback); return 1; },
     clearTimer: id => timers.delete(id)
@@ -335,6 +336,7 @@ test('service startup rolls back its assignment when approach calculation fails'
   assert.equal(manager.isBusy('waiter-1'), false);
   assert.equal(queue.size, 0);
   assert.equal(timers.size, 0);
+  assert.equal(moveCalled, false);
   assert.deepEqual(motions, ['serving', 'idle']);
 });
 
