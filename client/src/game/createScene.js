@@ -1216,9 +1216,11 @@ export function createGame(canvas) {
         actor.position.y=mix(actor.position.y,transition.y);
         const blendPart=(part,from)=>{
           if(!part||!from)return;
-          part.rotation.x=mix(part.rotation.x,from.rotation.x);
-          part.rotation.y=mix(part.rotation.y,from.rotation.y);
-          part.rotation.z=mix(part.rotation.z,from.rotation.z);
+          const rotation=from.rotation||from;
+          if(!rotation||typeof rotation.x!=='number'||typeof rotation.y!=='number'||typeof rotation.z!=='number')return;
+          part.rotation.x=mix(part.rotation.x,rotation.x);
+          part.rotation.y=mix(part.rotation.y,rotation.y);
+          part.rotation.z=mix(part.rotation.z,rotation.z);
         };
         if(actor.userData.body&&transition.body){
           actor.userData.body.position.y=mix(actor.userData.body.position.y,transition.body.positionY);
