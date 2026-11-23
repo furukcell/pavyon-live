@@ -412,7 +412,7 @@ test('timer cancellation failure cannot strand the next queued customer', () => 
   assert.equal(manager.isBusy('waiter-1'), true);
 });
 
-test('visual reset failure does not keep waiter logically busy or block FIFO queue', () => {
+test('visual movement failure while advancing FIFO queue does not strand waiter assignment', () => {
   const queue = createWaiterQueue(10);
   const ledger = createWaiterServiceLedger();
   const actors = new Map([
@@ -428,15 +428,20 @@ test('visual reset failure does not keep waiter logically busy or block FIFO que
     getWaiterIds: () => ['waiter-1'],
     getHome: () => ({ x: 0, z: 0 }),
     findApproach: () => ({ x: 1, z: 1 }),
-    moveTo: () => { throw new Error('scene movement failure'); },
-    setMotion: () => { throw new Error('scene animation failure'); },
+    moveTo: () => { if (timerId > 0) throw new Error('scene movement failure'); },
+    setMotion: () => {},
     setTimer: callback => { const id = ++timerId; timers.set(id, callback); return id; },
     clearTimer: id => timers.delete(id)
   });
 
-  // A failed visual start rolls back the assignment and does not mark busy.
-  assert.equal(manager.request('guest-a'), false);
-  assert.equal(manager.isBusy('waiter-1'), false);
+  assert.equal(manager.request('guest-a'), 'serving');
+  assert.equal(manager.request('guest-b'), 'queued');
+  const finishFirst = [...timers.values()][0];
+  finishFirst();
+
+  // The next service's movement fails, but its ledger/busy state is rolled back.
   assert.equal(ledger.waiterFor('guest-a'), null);
+  assert.equal(ledger.waiterFor('guest-b'), null);
+  assert.equal(manager.isBusy('waiter-1'), false);
   assert.equal(queue.size, 0);
 });
