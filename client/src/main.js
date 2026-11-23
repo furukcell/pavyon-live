@@ -7,6 +7,7 @@ import { GIFT_ACTIONS, getGiftActionRule } from './game/giftRules.js';
 import { createSessionTimers } from './game/sessionTimers.js';
 import { createKonsSessionLifecycle } from './game/konsSessionLifecycle.js';
 import { runReservedAction } from './game/reservedAction.js';
+import { removeViewerLifecycle } from './game/removeViewerLifecycle.js';
 
 // In development Vite proxies /socket.io to the local game server.
 // In production the Express server serves both the built game and Socket.IO.
@@ -248,13 +249,18 @@ function removeViewer(rawName) {
   if(!name)return false;
   const guest=state.viewers.get(name);
   if(!guest)return false;
-  if(guest.activeKons) konsLifecycle.end(guest.activeKons, name);
-  game.removeCustomer(guest.id);
-  state.viewers.delete(name);
-  state.lastCommands.delete(name);
-  updateHud();
-  log(`@<b>${escapeHtml(name)}</b> mekândan ayrıldı; masa ve servis rezervasyonları serbest bırakıldı.`);
-  return true;
+  const removed=removeViewerLifecycle({
+    guest,
+    name,
+    endKons:(konsId,viewerName)=>konsLifecycle.end(konsId,viewerName),
+    removeCustomer:guestId=>game.removeCustomer(guestId),
+    deleteViewer:viewerName=>state.viewers.delete(viewerName),
+    deleteLastCommand:viewerName=>state.lastCommands.delete(viewerName),
+    updateHud,
+    onCleanupError:()=>log('Müşteri ayrılırken bir sahne temizliği hata verdi; izleyici kaydı yine de kapatıldı.')
+  });
+  log(`@<b>${escapeHtml(name)}</b> mekândan ayrıldı; oyun oturumu kapatıldı.`);
+  return removed;
 }
 function command(rawName, rawCommand) {
   const name = cleanUsername(rawName);
