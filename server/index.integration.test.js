@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { createProviderSignature } from './providerWebhook.js';
 
 async function startServer(extraEnv = {}) {
   const child = spawn(process.execPath, ['server/index.js'], {
@@ -43,7 +44,8 @@ async function startServer(extraEnv = {}) {
 }
 
 test('production server smoke: health, status, normalized events and idempotency', async () => {
-  const server = await startServer({ LIVE_GIFT_MAP: JSON.stringify({ Rose: 'dance' }) });
+  const secret = 'integration-test-secret-with-sufficient-entropy';
+  const server = await startServer({ LIVE_GIFT_MAP: JSON.stringify({ Rose: 'dance' }), LIVE_PROVIDER_WEBHOOK_SECRET: secret });
   try {
     const health = await fetch(`${server.baseUrl}/health`);
     assert.equal(health.status, 200);
@@ -78,10 +80,46 @@ test('production server smoke: health, status, normalized events and idempotency
     });
     assert.equal(invalid.status, 400);
 
-    const noSecret = await fetch(`${server.baseUrl}/integrations/events`, {
+    const rawBody = Buffer.from(JSON.stringify({ type: 'like', username: 'signed_viewer', count: 3, eventId: 'signed-event-once' }));
+    const timestamp = String(Date.now());
+    const signature = createProviderSignature(rawBody, timestamp, secret);
+    const signed = await fetch(`${server.baseUrl}/integrations/events`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-pavyon-timestamp': timestamp, 'x-pavyon-signature': signature },
+      body: rawBody
+    });
+    assert.equal(signed.status, 202);
+
+    const replay = await fetch(`${server.baseUrl}/integrations/events`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-pavyon-timestamp': timestamp, 'x-pavyon-signature': signature },
+      body: rawBody
+    });
+    assert.equal(replay.status, 200);
+    assert.equal((await replay.json()).duplicate, true);
+
+    const badSignature = await fetch(`${server.baseUrl}/integrations/events`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-pavyon-timestamp': timestamp, 'x-pavyon-signature': `sha256=${'0'.repeat(64)}` },
+      body: rawBody
+    });
+    assert.equal(badSignature.status, 401);
+
+    const finalStatus = await (await fetch(`${server.baseUrl}/api/status`)).json();
+    assert.equal(finalStatus.accepted, 2);
+    assert.equal(finalStatus.likes, 1);
+  } finally {
+    await server.stop();
+  }
+});
+
+test('provider bridge remains disabled when no signing secret is configured', async () => {
+  const server = await startServer();
+  try {
+    const response = await fetch(`${server.baseUrl}/integrations/events`, {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}'
     });
-    assert.equal(noSecret.status, 503);
+    assert.equal(response.status, 503);
   } finally {
     await server.stop();
   }
