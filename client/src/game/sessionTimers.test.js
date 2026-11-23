@@ -126,3 +126,38 @@ test('failed replacement does not leave the previous viewer session active', () 
   assert.equal(timers.size, 0);
   assert.equal(pending.size, 0);
 });
+
+
+test('clears the registry even when the browser clearTimeout API throws', () => {
+  let scheduled;
+  let expirations = 0;
+  const timers = createSessionTimers({
+    setTimeoutFn(callback) { scheduled = callback; return 41; },
+    clearTimeoutFn() { throw new Error('timer API unavailable'); }
+  });
+  assert.equal(timers.start('kons-1', 'viewer-a', 300_000, () => expirations++), true);
+  assert.equal(timers.cancel('kons-1'), true);
+  assert.equal(timers.has('kons-1'), false);
+  assert.equal(timers.size, 0);
+  // A timer that could not be physically cleared is harmless after registry removal.
+  scheduled();
+  assert.equal(expirations, 0);
+});
+
+test('cancelAll continues cleaning timers when one clearTimeout call throws', () => {
+  const scheduled = [];
+  const cleared = [];
+  const timers = createSessionTimers({
+    setTimeoutFn(callback) { scheduled.push(callback); return scheduled.length; },
+    clearTimeoutFn(id) {
+      cleared.push(id);
+      if (id === 1) throw new Error('first timer could not be cleared');
+    }
+  });
+  timers.start('kons-1', 'viewer-a', 300_000, () => {});
+  timers.start('kons-2', 'viewer-b', 300_000, () => {});
+  assert.doesNotThrow(() => timers.cancelAll());
+  assert.deepEqual(cleared, [1, 2]);
+  assert.equal(timers.size, 0);
+  scheduled.forEach(callback => callback());
+});
