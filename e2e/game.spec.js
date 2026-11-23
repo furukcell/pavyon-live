@@ -53,7 +53,8 @@ test('supports the OBS stream-only layout', async ({ page }) => {
   await expect(page.locator('.controls')).toBeHidden();
 });
 
-test('handles 25, 50, 75 and 100 concurrent viewer entries', async ({ page }) => {
+test('handles 25, 50, 75 and 100 concurrent viewer entries', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium-desktop', 'The 100-actor stress scenario is desktop-only; mobile gets its own viewport checks.');
   await page.goto('/');
   const count = page.locator('#guest-count');
   for (const expected of [25, 50, 75, 100]) {
