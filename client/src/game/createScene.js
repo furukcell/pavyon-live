@@ -1239,6 +1239,7 @@ export function createGame(canvas) {
     konsDance:(k,id)=>{
       const hostess=actors.get(k),guest=actors.get(id);
       if(!hostess||!guest)return false;
+      if(vipReservations.forOwner(k)||vipReservations.forGuest(k)||vipReservations.forOwner(id)||vipReservations.forGuest(id))return false;
       const slot=danceReservations.reserve(k,id);
       if(!slot)return false;
       prepareGuestForInteraction(guest);
@@ -1250,6 +1251,7 @@ export function createGame(canvas) {
     vip:(k,id)=>{
       const hostess=actors.get(k),guest=actors.get(id);
       if(!hostess||!guest)return false;
+      if(danceReservations.forOwner(k)||danceReservations.forGuest(k)||danceReservations.forOwner(id)||danceReservations.forGuest(id))return false;
       const slot=vipReservations.reserve(k,id);
       if(!slot)return false;
       prepareGuestForInteraction(guest);
