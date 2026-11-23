@@ -84,3 +84,45 @@ test('rejects invalid session timer input', () => {
   assert.equal(timers.start('kons-1', 'viewer-a', 100, null), false);
   assert.equal(timers.size, 0);
 });
+
+
+test('returns false and leaves no timer when the browser timer API throws', () => {
+  const timers = createSessionTimers({
+    setTimeoutFn() { throw new Error('timer API unavailable'); },
+    clearTimeoutFn() {}
+  });
+  assert.equal(timers.start('kons-1', 'viewer-a', 300_000, () => {}), false);
+  assert.equal(timers.has('kons-1'), false);
+  assert.equal(timers.size, 0);
+});
+
+test('rejects a timer API that does not return a cancellable handle', () => {
+  const timers = createSessionTimers({
+    setTimeoutFn() { return undefined; },
+    clearTimeoutFn() {}
+  });
+  assert.equal(timers.start('kons-1', 'viewer-a', 300_000, () => {}), false);
+  assert.equal(timers.has('kons-1'), false);
+  assert.equal(timers.size, 0);
+});
+
+test('failed replacement does not leave the previous viewer session active', () => {
+  let shouldThrow = false;
+  let nextId = 0;
+  const pending = new Map();
+  const timers = createSessionTimers({
+    setTimeoutFn(callback) {
+      if (shouldThrow) throw new Error('timer API unavailable');
+      const id = ++nextId;
+      pending.set(id, callback);
+      return id;
+    },
+    clearTimeoutFn(id) { pending.delete(id); }
+  });
+  assert.equal(timers.start('kons-1', 'viewer-a', 300_000, () => {}), true);
+  shouldThrow = true;
+  assert.equal(timers.start('kons-1', 'viewer-b', 180_000, () => {}), false);
+  assert.equal(timers.viewerFor('kons-1'), null);
+  assert.equal(timers.size, 0);
+  assert.equal(pending.size, 0);
+});
