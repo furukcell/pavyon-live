@@ -6,8 +6,8 @@ import { cleanupCustomerExit } from './customerExitLifecycle.js';
 
 export function createGame(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-  renderer.shadowMap.enabled = true;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 700 ? 1 : 1.5));
+  renderer.shadowMap.enabled = window.innerWidth >= 700;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -20,7 +20,7 @@ export function createGame(canvas) {
 
   scene.add(new THREE.HemisphereLight('#ffd9c4', '#291329', 2));
   const key = new THREE.DirectionalLight('#ffe2bd', 2.2);
-  key.position.set(-7, 14, 8); key.castShadow = true; key.shadow.mapSize.set(1024,1024); scene.add(key);
+  key.position.set(-7, 14, 8); key.castShadow = window.innerWidth >= 700; key.shadow.mapSize.set(window.innerWidth < 700 ? 512 : 1024, window.innerWidth < 700 ? 512 : 1024); scene.add(key);
   const redGlow = new THREE.PointLight('#e33368', 35, 22); redGlow.position.set(-6,4,-3); scene.add(redGlow);
   const goldGlow = new THREE.PointLight('#ffc66d', 28, 20); goldGlow.position.set(7,4,2); scene.add(goldGlow);
   const vipLights=[];
@@ -864,6 +864,11 @@ export function createGame(canvas) {
   const clock=new THREE.Clock();
   function resize(){
     const width=canvas.clientWidth||window.innerWidth,height=canvas.clientHeight||window.innerHeight;
+    const mobile=width<700;
+    const pixelRatio=Math.min(window.devicePixelRatio||1,mobile?1:1.5);
+    if(renderer.getPixelRatio()!==pixelRatio)renderer.setPixelRatio(pixelRatio);
+    renderer.shadowMap.enabled=!mobile;
+    key.castShadow=!mobile;
     renderer.setSize(width,height,false);camera.aspect=width/height;
     // Portrait screens need a wider view of the whole room.
     camera.fov=width<700?48:38;camera.position.set(0,width<700?27:22,width<700?31:25);
