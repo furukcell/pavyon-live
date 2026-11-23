@@ -228,3 +228,46 @@ test('dispose clears timers, queue, assignments and busy state', () => {
   assert.equal(h.ledger.hasCustomer('guest-a'), false);
   assert.equal(h.manager.isBusy('waiter-1'), false);
 });
+
+
+import { createPairSlotManager } from './waiterQueue.js';
+
+test('pair slot manager allocates unique slots and prevents participant double-booking', () => {
+  const slots = [{ id: 'slot-a' }, { id: 'slot-b' }];
+  const manager = createPairSlotManager(slots);
+  assert.equal(manager.reserve('kons-1', 'guest-1'), slots[0]);
+  assert.equal(manager.reserve('kons-2', 'guest-2'), slots[1]);
+  assert.equal(manager.reserve('kons-3', 'guest-3'), null);
+  assert.equal(manager.reserve('kons-1', 'guest-4'), null);
+  assert.equal(manager.reserve('kons-4', 'guest-1'), null);
+  assert.equal(manager.reserve('guest-9', 'guest-9'), null);
+  assert.equal(manager.size, 2);
+});
+
+test('either participant can release a pair and make its slot available again', () => {
+  const slots = [{ id: 'slot-a' }];
+  const manager = createPairSlotManager(slots);
+  assert.equal(manager.reserve('kons-1', 'guest-1'), slots[0]);
+  assert.deepEqual(manager.forGuest('guest-1'), {
+    ownerId: 'kons-1', guestId: 'guest-1', slot: slots[0]
+  });
+  assert.deepEqual(manager.release('guest-1'), {
+    ownerId: 'kons-1', guestId: 'guest-1', slot: slots[0]
+  });
+  assert.equal(manager.release('guest-1'), null);
+  assert.equal(manager.reserve('kons-2', 'guest-2'), slots[0]);
+  assert.deepEqual(manager.release('kons-2'), {
+    ownerId: 'kons-2', guestId: 'guest-2', slot: slots[0]
+  });
+  assert.equal(manager.size, 0);
+});
+
+test('clearing pair reservations releases every owner and guest', () => {
+  const manager = createPairSlotManager([{ id: 'slot-a' }, { id: 'slot-b' }]);
+  manager.reserve('kons-1', 'guest-1');
+  manager.reserve('kons-2', 'guest-2');
+  manager.clear();
+  assert.equal(manager.size, 0);
+  assert.equal(manager.forOwner('kons-1'), null);
+  assert.equal(manager.forGuest('guest-2'), null);
+});
