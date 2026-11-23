@@ -1,5 +1,9 @@
 name: Build and browser checks
 
+concurrency:
+  group: pavyon-live-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
