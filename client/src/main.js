@@ -5,6 +5,7 @@ import { createSessionRules } from './game/sessionRules.js';
 import { normalizeViewerName } from './game/viewerRules.js';
 import { GIFT_ACTIONS, getGiftActionRule } from './game/giftRules.js';
 import { createSessionTimers } from './game/sessionTimers.js';
+import { createKonsSessionLifecycle } from './game/konsSessionLifecycle.js';
 
 // In development Vite proxies /socket.io to the local game server.
 // In production the Express server serves both the built game and Socket.IO.
@@ -64,6 +65,16 @@ const sessionRules = createSessionRules(Object.keys(state.kons));
 const sessionTimers = createSessionTimers({
   setTimeoutFn: window.setTimeout.bind(window),
   clearTimeoutFn: window.clearTimeout.bind(window)
+});
+const konsLifecycle = createKonsSessionLifecycle({
+  getOwner: konsId => state.kons[konsId],
+  setOwner: (konsId, viewer) => { state.kons[konsId] = viewer; },
+  cancelTimer: konsId => sessionTimers.cancel(konsId),
+  releaseRules: konsId => sessionRules.releaseKons(konsId),
+  getViewer: name => state.viewers.get(name),
+  releaseKons: konsId => game.releaseKons(konsId),
+  releaseGuest: guestId => game.releaseGuest(guestId),
+  onReleased: () => updateHud()
 });
 const musicAudio = new Audio();
 musicAudio.preload = 'metadata';
@@ -236,13 +247,7 @@ function removeViewer(rawName) {
   if(!name)return false;
   const guest=state.viewers.get(name);
   if(!guest)return false;
-  if(guest.activeKons){
-    const konsId=guest.activeKons;
-    sessionTimers.cancel(konsId);
-    sessionRules.releaseViewer(name);
-    state.kons[konsId]=null;
-    game.releaseKons(konsId);
-  }
+  if(guest.activeKons) konsLifecycle.end(guest.activeKons, name);
   game.removeCustomer(guest.id);
   state.viewers.delete(name);
   state.lastCommands.delete(name);
@@ -292,22 +297,11 @@ function occupyKons(konsId, name, duration, action) {
   if(guest)guest.activeKons=konsId;
   updateHud();
   const timerStarted = sessionTimers.start(konsId, name, duration, () => {
-    if (state.kons[konsId] !== name) return;
-    sessionRules.releaseKons(konsId);
-    state.kons[konsId] = null;
-    game.releaseKons(konsId);
-    const activeGuest=state.viewers.get(name);
-    if(activeGuest){activeGuest.activeKons=null;activeGuest.action='standing';game.releaseGuest(activeGuest.id);}
-    updateHud();
+    if (!konsLifecycle.end(konsId, name)) return;
     log(`<b>${escapeHtml(konsId)}</b> tekrar müsait. @${escapeHtml(name)} eski yerine döndü.`);
   });
   if (!timerStarted) {
-    sessionRules.releaseKons(konsId);
-    state.kons[konsId] = null;
-    if (guest) guest.activeKons = null;
-    game.releaseKons(konsId);
-    if (guest) game.releaseGuest(guest.id);
-    updateHud();
+    konsLifecycle.end(konsId, name);
     log('Oturum zamanlayıcısı başlatılamadı. Rezervasyon geri alındı.');
     return false;
   }
