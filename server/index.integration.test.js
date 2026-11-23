@@ -50,6 +50,11 @@ test('production server smoke: health, status, normalized events and idempotency
     const health = await fetch(`${server.baseUrl}/health`);
     assert.equal(health.status, 200);
     assert.equal((await health.json()).ok, true);
+    assert.equal(health.headers.get('x-content-type-options'), 'nosniff');
+    assert.equal(health.headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
+    assert.equal(health.headers.get('x-frame-options'), 'SAMEORIGIN');
+    assert.equal(health.headers.get('cache-control'), 'no-store');
+    assert.equal(health.headers.get('x-powered-by'), null);
 
     const initial = await (await fetch(`${server.baseUrl}/api/status`)).json();
     assert.equal(initial.ok, true);
