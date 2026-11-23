@@ -225,3 +225,34 @@ export function createPairSlotManager(slots) {
     }
   };
 }
+
+
+// Shares participant exclusivity across dance and VIP, not just within each
+// individual slot pool.
+export function createInteractionReservationManager({ danceSlots, vipSlots }) {
+  const dance = createPairSlotManager(danceSlots);
+  const vip = createPairSlotManager(vipSlots);
+
+  function isReserved(manager, participantId) {
+    return Boolean(manager.forOwner(participantId) || manager.forGuest(participantId));
+  }
+
+  return {
+    reserveDance(ownerId, guestId) {
+      if (isReserved(vip, ownerId) || isReserved(vip, guestId)) return null;
+      return dance.reserve(ownerId, guestId);
+    },
+    reserveVip(ownerId, guestId) {
+      if (isReserved(dance, ownerId) || isReserved(dance, guestId)) return null;
+      return vip.reserve(ownerId, guestId);
+    },
+    releaseDance: participantId => dance.release(participantId),
+    releaseVip: participantId => vip.release(participantId),
+    clear() {
+      dance.clear();
+      vip.clear();
+    },
+    get danceCount() { return dance.size; },
+    get vipCount() { return vip.size; }
+  };
+}
