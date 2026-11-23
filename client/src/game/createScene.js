@@ -828,24 +828,22 @@ export function createGame(canvas) {
     return best||clampRoomPosition(guest.position.x-1.05,guest.position.z);
   }
   function finishWaiterService(waiterId){
-    const waiter=actors.get(waiterId);
-    if(!waiter)return;
+    // Release bookkeeping even if a waiter actor has already disappeared.
     activeCustomerServices.finish(waiterId);
-    let nextGuestId=null;
     const previousTimer=waiterServiceTimers.get(waiterId);
     if(previousTimer){window.clearTimeout(previousTimer);waiterServiceTimers.delete(waiterId);}
+    waiterBusy.delete(waiterId);
+    const waiter=actors.get(waiterId);
+    if(!waiter)return;
+    let nextGuestId=null;
     while(waiterQueue.size&&!nextGuestId){
       const candidate=waiterQueue.dequeue();
       if(actors.has(candidate))nextGuestId=candidate;
     }
-    if(nextGuestId){
-      startWaiterService(waiterId,nextGuestId);
-      return;
-    }
+    if(nextGuestId&&startWaiterService(waiterId,nextGuestId))return;
     const home=waiterHomes.get(waiterId);
     if(home)moveTo(waiterId,home.x,home.z);
     waiter.userData.motion='idle';
-    waiterBusy.delete(waiterId);
   }
   function startWaiterService(waiterId,guestId){
     const waiter=actors.get(waiterId),guest=actors.get(guestId);
@@ -858,7 +856,13 @@ export function createGame(canvas) {
     waiter.userData.motion='serving';
     const approach=findWaiterApproach(waiter,guest);
     moveTo(waiterId,approach.x,approach.z);
-    const timer=window.setTimeout(()=>{waiterServiceTimers.delete(waiterId);finishWaiterService(waiterId);},4500);
+    let timer;
+    timer=window.setTimeout(()=>{
+      // An already-queued timeout must not finish a newer service for this waiter.
+      if(waiterServiceTimers.get(waiterId)!==timer)return;
+      waiterServiceTimers.delete(waiterId);
+      finishWaiterService(waiterId);
+    },4500);
     waiterServiceTimers.set(waiterId,timer);
     return true;
   }
