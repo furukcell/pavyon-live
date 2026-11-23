@@ -34,7 +34,7 @@
 **Son doğrulama: 23 Kasım 2026.** GitHub Actions üzerinde `npm test` 91/91 test ile geçti ve `npm run build` başarılı üretim derlemesi oluşturdu. CI sırasında waiterQueue.test.js içindeki yinelenen import ve bir testteki hatalı beklenti düzeltildi. Tarayıcı E2E, gerçek cihaz, yük testi ve gerçek LIVE provası henüz yapılmadı.
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
-- **V1 yayın hedefi: yaklaşık %41 (yeniden hesaplandı).** Aşağıdaki yedi iş paketinin mevcut yüzdelerinin eşit ağırlıklı aritmetik ortalamasıdır; paketler için farklı ağırlıklar tanımlanmadı. Önceki %95 kaydı doğrulanabilir değildi ve kaldırıldı. CI test/build geçişi doğrulandı; gerçek TikTok, tarayıcı E2E, yük/mobil testleri ve yayın provası tamamlanmadı.
+- **V1 yayın hedefi: yaklaşık %37 (yeniden hesaplandı).** Aşağıdaki yedi iş paketinin mevcut yüzdelerinin eşit ağırlıklı aritmetik ortalamasıdır (256 / 7 = %36,6; yuvarlanmış %37); paketler için farklı ağırlıklar tanımlanmadı. Önceki %95 kaydı doğrulanabilir değildi ve kaldırıldı. CI test/build geçişi doğrulandı; gerçek TikTok, tarayıcı E2E, yük/mobil testleri ve yayın provası tamamlanmadı.
 - Yüzde yalnızca aşağıdaki V1 kabul kriterleri tamamlanıp doğrulandığında artar. Kodun yazılmış olması tek başına tamamlandı sayılmaz; ilgili akışın test edilmesi gerekir.
 - Bir iş paketi tamamlandıktan sonra yeni fikir eklenmesi o paketin yüzdesini düşürmez. V1 için zorunlu yeni bir hata bulunursa yalnızca ilgili kriter yeniden açılır ve nedeni not edilir.
 
