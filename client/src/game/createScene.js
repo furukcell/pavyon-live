@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { getCustomerAppearanceByIndex } from './characterCatalog.js';
-import { createWaiterQueue, createWaiterServiceLedger, createWaiterServiceManager } from './waiterQueue.js';
+import { createWaiterQueue, createWaiterServiceLedger, createWaiterServiceManager, createPairSlotManager } from './waiterQueue.js';
 import { disposeSceneResources } from './disposeSceneResources.js';
 
 export function createGame(canvas) {
@@ -248,9 +248,9 @@ export function createGame(canvas) {
   const waiterQueue=createWaiterQueue(30);
   const activeCustomerServices=createWaiterServiceLedger();
   const vipSlots=[{x:7,z:-5},{x:8.5,z:-5},{x:7,z:-2.8},{x:8.5,z:-2.8}];
-  const vipAssignments=new Map();
+  const vipReservations=createPairSlotManager(vipSlots);
   const danceSlots=[{x:-3,z:1},{x:0,z:1},{x:3,z:1},{x:-3,z:3},{x:0,z:3},{x:3,z:3}];
-  const danceAssignments=new Map();
+  const danceReservations=createPairSlotManager(danceSlots);
   const konsColors=['#a92f59','#692b62','#bd7544','#345e77','#8d3b45','#75539a','#b08a36','#3f786a','#934c70','#5c4a37'];
   const skinTones=['#e8bd9b','#d6a17e','#b97855','#f0c9a8','#986447','#c88d6d'];
   const hairTones=['#211b22','#38251e','#6c4930','#171820','#7b5a3c'];
@@ -687,7 +687,7 @@ export function createGame(canvas) {
     guest.userData.danceStyle=i%3;
     hostess.userData.danceTempo=[0.92,1.08,1.2][i%3];
     guest.userData.danceTempo=[1.02,0.94,1.14][i%3];
-    danceAssignments.set(hostessId,slot);
+    danceReservations.reserve(hostessId,guestId);
   }
 
 
@@ -838,6 +838,29 @@ export function createGame(canvas) {
     clearTimer:timer=>window.clearTimeout(timer),
     serviceDuration:4500
   });
+
+  function resetKonsHome(id){
+    const home=konsHomes.get(id),actor=actors.get(id);
+    if(home&&actor){moveTo(id,home.x,home.z);actor.userData.motion='idle';}
+  }
+  function resetGuestHome(id){
+    const actor=actors.get(id);
+    if(!actor)return;
+    releaseSeat(actor);actor.userData.motion='idle';
+    if(actor.userData.body){actor.userData.body.position.y=.72;actor.userData.body.rotation.x=0;}
+    if(actor.userData.head)actor.userData.head.position.y=1.35;
+    actor.userData.legPivots?.forEach(leg=>leg.rotation.x=0);
+    actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});
+    const home=actor.userData.home;
+    if(home)moveTo(id,home.x,home.z);
+  }
+  function releaseInteractionPair(manager,participantId){
+    const pair=manager.release(participantId);
+    if(!pair)return false;
+    resetKonsHome(pair.ownerId);
+    resetGuestHome(pair.guestId);
+    return true;
+  }
 
   const clock=new THREE.Clock();
   function resize(){
@@ -1213,13 +1236,43 @@ export function createGame(canvas) {
       moveTo(k,chosen.point.x,chosen.point.z);
       return true;
     },
-    konsDance:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...danceAssignments.values()].map(slot=>slot));const slot=danceSlots.find(item=>!occupied.has(item));if(!slot)return false;danceAssignments.set(k,slot);prepareGuestForInteraction(guest);guest.userData.motion='dance';guest.userData.targetRotation=Math.PI/2;hostess.userData.motion='dance';hostess.userData.targetRotation=-Math.PI/2;moveTo(id,slot.x-.65,slot.z);moveTo(k,slot.x+.65,slot.z);return true;},
-    vip:(k,id)=>{const hostess=actors.get(k),guest=actors.get(id);if(!hostess||!guest)return false;const occupied=new Set([...vipAssignments.values()].map(slot=>slot));const slot=vipSlots.find(item=>!occupied.has(item));if(!slot)return false;vipAssignments.set(k,slot);prepareGuestForInteraction(guest);hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;guest.userData.targetRotation=Math.PI/2;moveTo(k,slot.x+.55,slot.z);moveTo(id,slot.x-.55,slot.z);return true;},
-    releaseKons:k=>{const home=konsHomes.get(k);if(home){moveTo(k,home.x,home.z);const actor=actors.get(k);if(actor)actor.userData.motion='idle';}vipAssignments.delete(k);danceAssignments.delete(k);},
-    releaseGuest:id=>{const actor=actors.get(id);if(actor){releaseSeat(actor);actor.userData.motion='idle';if(actor.userData.body)actor.userData.body.position.y=.72;if(actor.userData.head)actor.userData.head.position.y=1.35;actor.userData.legPivots?.forEach(leg=>leg.rotation.x=0);actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});const home=actor.userData.home;if(home)moveTo(id,home.x,home.z);}},
+    konsDance:(k,id)=>{
+      const hostess=actors.get(k),guest=actors.get(id);
+      if(!hostess||!guest)return false;
+      const slot=danceReservations.reserve(k,id);
+      if(!slot)return false;
+      prepareGuestForInteraction(guest);
+      guest.userData.motion='dance';guest.userData.targetRotation=Math.PI/2;
+      hostess.userData.motion='dance';hostess.userData.targetRotation=-Math.PI/2;
+      moveTo(id,slot.x-.65,slot.z);moveTo(k,slot.x+.65,slot.z);
+      return true;
+    },
+    vip:(k,id)=>{
+      const hostess=actors.get(k),guest=actors.get(id);
+      if(!hostess||!guest)return false;
+      const slot=vipReservations.reserve(k,id);
+      if(!slot)return false;
+      prepareGuestForInteraction(guest);
+      hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;
+      guest.userData.targetRotation=Math.PI/2;
+      moveTo(k,slot.x+.55,slot.z);moveTo(id,slot.x-.55,slot.z);
+      return true;
+    },
+    releaseKons:k=>{
+      releaseInteractionPair(danceReservations,k);
+      releaseInteractionPair(vipReservations,k);
+      resetKonsHome(k);
+    },
+    releaseGuest:id=>{
+      releaseInteractionPair(danceReservations,id);
+      releaseInteractionPair(vipReservations,id);
+      resetGuestHome(id);
+    },
     removeCustomer:id=>{
       const actor=actors.get(id);if(!actor)return false;
       waiterServices.cancelCustomer(id);
+      releaseInteractionPair(danceReservations,id);
+      releaseInteractionPair(vipReservations,id);
       releaseSeat(actor);
       actorGroup.remove(actor);actors.delete(id);
       // Use the same deduplicated cleanup path as full-scene disposal so
@@ -1230,6 +1283,6 @@ export function createGame(canvas) {
     show:id=>animateActor(id,'stage'),
     getTableStatus:()=>tableStates.map(table=>({id:table.id,occupied:table.occupied,capacity:table.seats.length})),
     setLikes:value=>{redGlow.intensity=35+Math.min(value,500)*.08;goldGlow.intensity=28+Math.min(value,500)*.04;},
-    dispose:()=>{if(disposed)return;disposed=true;cancelAnimationFrame(raf);observer.disconnect();waiterServices.dispose();disposeSceneResources(scene);renderer.renderLists.dispose();renderer.dispose();}
+    dispose:()=>{if(disposed)return;disposed=true;cancelAnimationFrame(raf);observer.disconnect();waiterServices.dispose();danceReservations.clear();vipReservations.clear();disposeSceneResources(scene);renderer.renderLists.dispose();renderer.dispose();}
   };
 }
