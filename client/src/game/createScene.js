@@ -569,6 +569,7 @@ export function createGame(canvas) {
     const spawn=findCustomerSpawn();
     const entrance=findCustomerEntrance();
     const actor=makeActor(viewer.id,'customer',variant);
+    updateCrowdQuality();
     actor.userData.name=viewer.name;
     actor.position.set(entrance.x,0,entrance.z);
     actor.userData.home=new THREE.Vector3(spawn.x,0,spawn.z);
@@ -862,13 +863,19 @@ export function createGame(canvas) {
   }
 
   const clock=new THREE.Clock();
+  function updateCrowdQuality(){
+    const mobile=(canvas.clientWidth||window.innerWidth)<700;
+    const crowded=actors.size>30;
+    const pixelRatio=Math.min(window.devicePixelRatio||1,mobile||crowded?1:1.5);
+    if(renderer.getPixelRatio()!==pixelRatio)renderer.setPixelRatio(pixelRatio);
+    const shadows=!mobile&&!crowded;
+    if(renderer.shadowMap.enabled!==shadows)renderer.shadowMap.enabled=shadows;
+    key.castShadow=shadows;
+  }
   function resize(){
     const width=canvas.clientWidth||window.innerWidth,height=canvas.clientHeight||window.innerHeight;
     const mobile=width<700;
-    const pixelRatio=Math.min(window.devicePixelRatio||1,mobile?1:1.5);
-    if(renderer.getPixelRatio()!==pixelRatio)renderer.setPixelRatio(pixelRatio);
-    renderer.shadowMap.enabled=!mobile;
-    key.castShadow=!mobile;
+    updateCrowdQuality();
     renderer.setSize(width,height,false);camera.aspect=width/height;
     // Portrait screens need a wider view of the whole room.
     camera.fov=width<700?48:38;camera.position.set(0,width<700?27:22,width<700?31:25);
@@ -1274,7 +1281,7 @@ export function createGame(canvas) {
     },
     removeCustomer:id=>{
       const actor=actors.get(id);
-      return cleanupCustomerExit({
+      const removed=cleanupCustomerExit({
         customerId:id,
         actor,
         cancelService:customerId=>waiterServices.cancelCustomer(customerId),
@@ -1285,6 +1292,8 @@ export function createGame(canvas) {
         forget:customerId=>actors.delete(customerId),
         dispose:customer=>disposeSceneResources(customer)
       });
+      updateCrowdQuality();
+      return removed;
     },
     show:id=>animateActor(id,'stage'),
     getTableStatus:()=>tableStates.map(table=>({id:table.id,occupied:table.occupied,capacity:table.seats.length})),
