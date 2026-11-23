@@ -34,7 +34,7 @@
 **Son doğrulama: 23 Kasım 2026.** GitHub Actions üzerinde `npm test` 91/91 test ile geçti ve `npm run build` başarılı üretim derlemesi oluşturdu. CI sırasında waiterQueue.test.js içindeki yinelenen import ve bir testteki hatalı beklenti düzeltildi. Tarayıcı E2E, gerçek cihaz, yük testi ve gerçek LIVE provası henüz yapılmadı.
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
-- **V1 yayın hedefi: yaklaşık %37 (yeniden hesaplandı).** Aşağıdaki yedi iş paketinin mevcut yüzdelerinin eşit ağırlıklı aritmetik ortalamasıdır (256 / 7 = %36,6; yuvarlanmış %37); paketler için farklı ağırlıklar tanımlanmadı. Önceki %95 kaydı doğrulanabilir değildi ve kaldırıldı. CI test/build geçişi doğrulandı; gerçek TikTok, tarayıcı E2E, yük/mobil testleri ve yayın provası tamamlanmadı.
+- **Mevcut teslim hedefi: yaklaşık %43 (gerçek TikTok bağlantısı hariç).** Bu oran, TikTok dışındaki altı iş paketinin kayıtlı yüzdelerinin eşit ağırlıklı ortalamasıdır (256 / 6 = %42,7; yuvarlanmış %43). TikTok bağlantısı ayrı ve ertelenmiş bir iş paketidir; bu çalışmanın kapsamına dahil değildir. Önceki %95 kaydı doğrulanabilir değildi ve kaldırıldı. Tarayıcı E2E, gerçek cihaz, performans, hosting ve OBS provası doğrulanmadan tamamlandı sayılmayacak.
 - Yüzde yalnızca aşağıdaki V1 kabul kriterleri tamamlanıp doğrulandığında artar. Kodun yazılmış olması tek başına tamamlandı sayılmaz; ilgili akışın test edilmesi gerekir.
 - Bir iş paketi tamamlandıktan sonra yeni fikir eklenmesi o paketin yüzdesini düşürmez. V1 için zorunlu yeni bir hata bulunursa yalnızca ilgili kriter yeniden açılır ve nedeni not edilir.
 
@@ -44,7 +44,7 @@
 | Karakterler ve animasyon | %50 | Kons/müşteri/garson akışlarının cihazda kontrolü |
 | Oyun kuralları ve hediye akışları | %68 | Tüm komut ve hediye senaryolarının uçtan uca testi |
 | Sunucu ve olay altyapısı | %55 | Doğrulanmış olay, hata ve tekrar olay testleri |
-| Gerçek TikTok LIVE bağlantısı | %0 | Gerçek yayından olay alındığının kanıtı |
+| Gerçek TikTok LIVE bağlantısı (ertelendi) | %0 | Bu teslim kapsamı dışında; sonraki ayrı aşama |
 | Performans, güvenlik ve canlı prova | %5 | Yük testi, mobil test ve başarılı yayın provası |
 | Hosting/yayın hazırlığı | %10 | Dağıtım, sağlık kontrolü ve Browser Source doğrulaması |
 
@@ -57,7 +57,7 @@
 5. **M5 — İlk canlı prova:** hosting üzerinde gerçek yayına bağlanıp tüm akışları baştan sona doğrulama.
 
 
-### Canlı olay geçmişi ve yayın HUD
+\n\n### TikTok bağlantısı hariç mevcut bitirme kapsamı\n\n- Tarayıcı E2E altyapısı eklendi: masaüstü ve mobil Chromium projeleri, komut/hediye akışı, OBS stream görünümü, 25/50/75/100 izleyici giriş senaryosu.\n- Sunucu HTTP entegrasyon testleri eklendi: health/status, hediye eşlemesi, eventId tekilleştirme, imzalı provider webhook, hatalı imza reddi ve production ortamında geliştirme endpoint'inin kapalı olması.\n- Mobilde 700px altı ekranda piksel oranı 1'e düşürülüyor; kalabalık 30 karakteri aşınca gölge haritası kapatılıp piksel oranı 1'e çekiliyor.\n- HTTP güvenlik başlıkları, status/health için no-store, Socket.IO mesaj boyutu/zaman aşımı sınırları ve SIGTERM/SIGINT için kontrollü kapanış eklendi.\n- Bu yeni tarayıcı ve sunucu entegrasyon testleri CI'da yeşil sonuç vermeden tamamlanmış kabul edilmeyecek. Gerçek TikTok hesabına bağlanma ve gerçek TikTok olay kaynağı bu kapsamın dışında kalır.\n\n### Canlı olay geçmişi ve yayın HUD
 
 - Sunucu son 20 kabul edilmiş yorum/beğeni/hediye olayını bellekte tutar; eski kayıtlar otomatik düşürülür.
 - `/api/status` ve Socket.IO `live:status` yanıtı `recentEvents` listesini içerir.
