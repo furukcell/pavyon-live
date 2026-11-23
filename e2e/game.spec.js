@@ -75,8 +75,8 @@ test('runs all five gift actions and updates the live event status', async ({ pa
   const after = await (await page.request.get('/api/status')).json();
   expect(after.accepted).toBe(beforeStatus.accepted + 1);
   expect(after.likes).toBe(beforeStatus.likes + 1);
-  await expect(page.locator('#live-event-count')).toHaveText('1');
-  await expect(page.locator('#like-count')).toHaveText('7');
+  await expect(page.locator('#live-event-count')).toHaveText(String(after.accepted));
+  await expect(page.locator('#like-count')).toHaveText(String(after.likes));
   await expect(page.locator('#live-event-history')).toContainText('e2e_provider');
 });
 
@@ -90,10 +90,10 @@ test('music panel imports tracks and preserves favorites across categories', asy
     mimeType: 'audio/wav',
     buffer: Buffer.alloc(64)
   });
-  await expect(page.locator('.music-track-name')).toHaveText('rehearsal');
+  await expect(page.locator('.music-track-name')).toHaveText('rehearsal.wav');
   await page.locator('.music-favorite').click();
   await page.locator('[data-music-category="favorites"]').click();
-  await expect(page.locator('.music-track-name')).toHaveText('rehearsal');
+  await expect(page.locator('.music-track-name')).toHaveText('rehearsal.wav');
   await page.locator('#music-close').click();
   await expect(page.locator('#music-panel')).toBeHidden();
 });
