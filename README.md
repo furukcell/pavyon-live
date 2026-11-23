@@ -31,10 +31,10 @@
 
 ## İlerleme takibi — sabit hesap yöntemi
 
-**Son geliştirme oturumu: 23 Kasım 2026.** Kons hediye aksiyonlarında kısmi sahne rezervasyonlarını geri alan işlem bütünlüğü eklendi. İzleyici ayrılışında da kons zamanlayıcısı veya sahne temizliği hata verse bile izleyicinin yetkili oyun kaydı, komut bekleme kaydı ve HUD sayısı temizleniyor. Yeni izleyici ayrılış modülü için beş hedefli Node testi geçti. Tam proje `npm test`, `npm run build`, tarayıcı E2E ve gerçek LIVE provası henüz doğrulanmadı.
+**Son doğrulama: 23 Kasım 2026.** GitHub Actions üzerinde `npm test` 91/91 test ile geçti ve `npm run build` başarılı üretim derlemesi oluşturdu. CI sırasında waiterQueue.test.js içindeki yinelenen import ve bir testteki hatalı beklenti düzeltildi. Tarayıcı E2E, gerçek cihaz, yük testi ve gerçek LIVE provası henüz yapılmadı.
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
-- **V1 yayın hedefi: %95 (önceki kayıtlı %90 üzerine bu oturumda +5 puan; kons hediye aksiyonları başarısız olduğunda kısmi sahne rezervasyonlarını da geri alan işlem bütünlüğü eklendi. Yeni işlem yardımcısının dört hedefli Node testi geçti; tam proje/CI/tarayıcı E2E doğrulaması ve canlı prova hâlâ bekliyor.)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
+- **V1 yayın hedefi: yaklaşık %41 (yeniden hesaplandı).** Aşağıdaki yedi iş paketinin mevcut yüzdelerinin eşit ağırlıklı aritmetik ortalamasıdır; paketler için farklı ağırlıklar tanımlanmadı. Önceki %95 kaydı doğrulanabilir değildi ve kaldırıldı. CI test/build geçişi doğrulandı; gerçek TikTok, tarayıcı E2E, yük/mobil testleri ve yayın provası tamamlanmadı.
 - Yüzde yalnızca aşağıdaki V1 kabul kriterleri tamamlanıp doğrulandığında artar. Kodun yazılmış olması tek başına tamamlandı sayılmaz; ilgili akışın test edilmesi gerekir.
 - Bir iş paketi tamamlandıktan sonra yeni fikir eklenmesi o paketin yüzdesini düşürmez. V1 için zorunlu yeni bir hata bulunursa yalnızca ilgili kriter yeniden açılır ve nedeni not edilir.
 
