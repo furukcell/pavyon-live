@@ -380,3 +380,63 @@ test('service startup rolls back when timer creation throws and waiter can be re
     ['waiter-1', 1, 2]
   ]);
 });
+
+
+test('timer cancellation failure cannot strand the next queued customer', () => {
+  const queue = createWaiterQueue(10);
+  const ledger = createWaiterServiceLedger();
+  const actors = new Map([
+    ['waiter-1', { id: 'waiter-1' }],
+    ['guest-a', { id: 'guest-a' }],
+    ['guest-b', { id: 'guest-b' }]
+  ]);
+  const timers = new Map();
+  let timerId = 0;
+  const manager = createWaiterServiceManager({
+    queue, ledger,
+    getActor: id => actors.get(id),
+    getWaiterIds: () => ['waiter-1'],
+    getHome: () => ({ x: 0, z: 0 }),
+    findApproach: () => ({ x: 1, z: 1 }),
+    moveTo: () => {},
+    setMotion: () => {},
+    setTimer: callback => { const id = ++timerId; timers.set(id, callback); return id; },
+    clearTimer: () => { throw new Error('timer host failure'); }
+  });
+
+  assert.equal(manager.request('guest-a'), 'serving');
+  assert.equal(manager.request('guest-b'), 'queued');
+  assert.equal(manager.cancelCustomer('guest-a'), 'waiter-1');
+  assert.equal(ledger.waiterFor('guest-a'), null);
+  assert.equal(ledger.waiterFor('guest-b'), 'waiter-1');
+  assert.equal(manager.isBusy('waiter-1'), true);
+});
+
+test('visual reset failure does not keep waiter logically busy or block FIFO queue', () => {
+  const queue = createWaiterQueue(10);
+  const ledger = createWaiterServiceLedger();
+  const actors = new Map([
+    ['waiter-1', { id: 'waiter-1' }],
+    ['guest-a', { id: 'guest-a' }],
+    ['guest-b', { id: 'guest-b' }]
+  ]);
+  const timers = new Map();
+  let timerId = 0;
+  const manager = createWaiterServiceManager({
+    queue, ledger,
+    getActor: id => actors.get(id),
+    getWaiterIds: () => ['waiter-1'],
+    getHome: () => ({ x: 0, z: 0 }),
+    findApproach: () => ({ x: 1, z: 1 }),
+    moveTo: () => { throw new Error('scene movement failure'); },
+    setMotion: () => { throw new Error('scene animation failure'); },
+    setTimer: callback => { const id = ++timerId; timers.set(id, callback); return id; },
+    clearTimer: id => timers.delete(id)
+  });
+
+  // A failed visual start rolls back the assignment and does not mark busy.
+  assert.equal(manager.request('guest-a'), false);
+  assert.equal(manager.isBusy('waiter-1'), false);
+  assert.equal(ledger.waiterFor('guest-a'), null);
+  assert.equal(queue.size, 0);
+});
