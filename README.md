@@ -2,7 +2,7 @@
 
 **TikTok LIVE izleyicilerinin yorum, beğeni ve hediyelerle katılacağı 3D pavyon oyunu.**
 
-> **Proje durumu (18 Kasım 2026):** Görsel ve etkileşim prototipi geliştiriliyor. Oyun henüz gerçek TikTok LIVE hesabına bağlı değil. Bu depoda profesyonel harici 3D model dosyaları bulunmuyor; karakterler Three.js geometrileriyle kod üzerinden üretiliyor.
+> **Proje durumu (23 Kasım 2026):** Görsel ve etkileşim prototipi geliştiriliyor. Oyun henüz gerçek TikTok LIVE hesabına bağlı değil. Bu depoda profesyonel harici 3D model dosyaları bulunmuyor; karakterler Three.js geometrileriyle kod üzerinden üretiliyor.
 
 ## İlk yayın sürümü (V1) — kapsam sabitlendi
 
@@ -31,16 +31,18 @@
 
 ## İlerleme takibi — sabit hesap yöntemi
 
+**Son geliştirme oturumu: 23 Kasım 2026.** Dans ve VIP etkileşimlerinde her iki katılımcı için tek aktif oturum kuralı eklendi. Katılımcı ayrıldığında veya kons serbest bırakıldığında eşleşme ve slot birlikte temizleniyor; boşalan slot yeniden kullanılabiliyor. Birim testleri yazıldı; sahnenin gerçek tarayıcı akışı henüz E2E olarak doğrulanmadı.
+
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
-- **V1 yayın hedefi: %55 (bu oturumda +5 puan; sınırlı ve gizlilik odaklı canlı olay geçmişi, yayın HUD gösterimi ve otomatik testler CI'da başarılı)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
+- **V1 yayın hedefi: %65 (önceki oturumdaki %60'tan +5 puan; garson servis yöneticisi ve dans/VIP ortak rezervasyon yöneticisi sahneye bağlandı, rezervasyon/iptal/çakışma testleri eklendi. Son sahne entegrasyonunun CI ve tarayıcı E2E doğrulaması henüz bekliyor.)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
 - Yüzde yalnızca aşağıdaki V1 kabul kriterleri tamamlanıp doğrulandığında artar. Kodun yazılmış olması tek başına tamamlandı sayılmaz; ilgili akışın test edilmesi gerekir.
 - Bir iş paketi tamamlandıktan sonra yeni fikir eklenmesi o paketin yüzdesini düşürmez. V1 için zorunlu yeni bir hata bulunursa yalnızca ilgili kriter yeniden açılır ve nedeni not edilir.
 
 | V1 iş paketi | Başlangıç durumu | Tamamlanma kanıtı |
 |---|---:|---|
 | 3D mekân ve sahne | %68 | Mobil/masaüstü sahne kontrolü ve temel görsel kabul |
-| Karakterler ve animasyon | %40 | Kons/müşteri/garson akışlarının cihazda kontrolü |
-| Oyun kuralları ve hediye akışları | %58 | Tüm komut ve hediye senaryolarının uçtan uca testi |
+| Karakterler ve animasyon | %45 | Kons/müşteri/garson akışlarının cihazda kontrolü |
+| Oyun kuralları ve hediye akışları | %63 | Tüm komut ve hediye senaryolarının uçtan uca testi |
 | Sunucu ve olay altyapısı | %55 | Doğrulanmış olay, hata ve tekrar olay testleri |
 | Gerçek TikTok LIVE bağlantısı | %0 | Gerçek yayından olay alındığının kanıtı |
 | Performans, güvenlik ve canlı prova | %5 | Yük testi, mobil test ve başarılı yayın provası |
@@ -48,7 +50,7 @@
 
 ### Sıradaki kilometre taşları
 
-1. **M1 — Oyun akışını dondur ve doğrula:** sunucu olay şeması/alan doğrulaması, isteğe bağlı eventId tekilleştirmesi ve tek izleyici/tek kons oturum rezervasyon kuralları eklendi; kons meşguliyet zamanlayıcısı, masa/VIP/dans rezervasyonlarının görsel akışı, garson kuyruğu ve müşteri dönüşleri için tarayıcı uçtan uca kontrolleri sırada.
+1. **M1 — Oyun akışını dondur ve doğrula:** sunucu olay şeması/alan doğrulaması, isteğe bağlı eventId tekilleştirmesi ve tek izleyici/tek kons oturum rezervasyon kuralları eklendi; garson servis yöneticisi ile dans/VIP çift rezervasyon ve çapraz mod çakışma kuralları sahneye bağlandı. Slot ayırma/iptal testleri eklendi; tam tarayıcı uçtan uca prova ve son CI doğrulaması sırada.
 2. **M2 — Gerçek LIVE olay adaptörü:** izinli/uygun kaynak, sunucu tarafı doğrulama, tekrar olay koruması ve hediye eşlemesi.
 3. **M3 — Yayın ekranı:** OBS/TikTok LIVE Studio Browser Source, yayın overlay'i ve bağlantı durumları.
 4. **M4 — Sağlamlık:** 10/25/50/100 müşteri yük testleri, mobil tarayıcı, hata ve güvenlik kontrolleri.
