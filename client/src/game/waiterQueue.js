@@ -74,3 +74,104 @@ export function createWaiterServiceLedger() {
     }
   };
 }
+
+
+// Coordinates the queue, active-service ledger and timeout lifecycle. All
+// browser/game dependencies are injected so the scheduling rules stay testable.
+export function createWaiterServiceManager({
+  queue,
+  ledger,
+  getActor,
+  getWaiterIds,
+  getHome,
+  findApproach,
+  moveTo,
+  setMotion,
+  setTimer = setTimeout,
+  clearTimer = clearTimeout,
+  serviceDuration = 4500
+}) {
+  const busy = new Set();
+  const timers = new Map();
+
+  function clearWaiterTimer(waiterId) {
+    const timer = timers.get(waiterId);
+    if (timer !== undefined) {
+      clearTimer(timer);
+      timers.delete(waiterId);
+    }
+  }
+
+  function start(waiterId, customerId) {
+    const waiter = getActor(waiterId);
+    const customer = getActor(customerId);
+    if (!waiter || !customer) {
+      finish(waiterId);
+      return false;
+    }
+    if (!ledger.start(waiterId, customerId)) return false;
+
+    busy.add(waiterId);
+    setMotion(waiterId, 'serving');
+    const approach = findApproach(waiter, customer);
+    moveTo(waiterId, approach.x, approach.z);
+
+    let timer;
+    timer = setTimer(() => {
+      if (timers.get(waiterId) !== timer) return;
+      timers.delete(waiterId);
+      finish(waiterId);
+    }, serviceDuration);
+    timers.set(waiterId, timer);
+    return true;
+  }
+
+  function finish(waiterId) {
+    ledger.finish(waiterId);
+    clearWaiterTimer(waiterId);
+    busy.delete(waiterId);
+
+    const waiter = getActor(waiterId);
+    if (!waiter) return;
+
+    let nextCustomerId = null;
+    while (queue.size && !nextCustomerId) {
+      const candidate = queue.dequeue();
+      if (getActor(candidate)) nextCustomerId = candidate;
+    }
+    if (nextCustomerId && start(waiterId, nextCustomerId)) return;
+
+    const home = getHome(waiterId);
+    if (home) moveTo(waiterId, home.x, home.z);
+    setMotion(waiterId, 'idle');
+  }
+
+  function request(customerId) {
+    if (!getActor(customerId)) return false;
+    if (ledger.hasCustomer(customerId) || queue.has(customerId)) return 'duplicate';
+
+    const waiterId = [...getWaiterIds()].find(id => !busy.has(id));
+    if (!waiterId) {
+      const result = queue.enqueue(customerId);
+      return result === true ? 'queued' : result === 'duplicate' ? 'duplicate' : false;
+    }
+    return start(waiterId, customerId) ? 'serving' : false;
+  }
+
+  function cancelCustomer(customerId) {
+    queue.remove(customerId);
+    const waiterId = ledger.cancelCustomer(customerId);
+    if (waiterId) finish(waiterId);
+    return waiterId;
+  }
+
+  function dispose() {
+    timers.forEach(timer => clearTimer(timer));
+    timers.clear();
+    busy.clear();
+    queue.clear();
+    ledger.clear();
+  }
+
+  return { request, finish, cancelCustomer, dispose, isBusy: id => busy.has(id) };
+}
