@@ -20,11 +20,16 @@ export function createSessionTimers({
 
     cancel(konsId);
     const entry = { handle: null, viewerId };
-    entry.handle = setTimeoutFn(() => {
-      if (timers.get(konsId) !== entry) return;
-      timers.delete(konsId);
-      onExpire({ konsId, viewerId });
-    }, durationMs);
+    try {
+      entry.handle = setTimeoutFn(() => {
+        if (timers.get(konsId) !== entry) return;
+        timers.delete(konsId);
+        onExpire({ konsId, viewerId });
+      }, durationMs);
+    } catch {
+      return false;
+    }
+    if (entry.handle === undefined || entry.handle === null) return false;
     timers.set(konsId, entry);
     return true;
   }
