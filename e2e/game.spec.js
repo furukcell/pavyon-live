@@ -90,10 +90,10 @@ test('music panel imports tracks and preserves favorites across categories', asy
     mimeType: 'audio/wav',
     buffer: Buffer.alloc(64)
   });
-  await expect(page.locator('.music-track-name')).toHaveText('rehearsal.wav');
+  await expect(page.locator('.music-track-name')).toHaveText('rehearsal');
   await page.locator('.music-favorite').click();
   await page.locator('[data-music-category="favorites"]').click();
-  await expect(page.locator('.music-track-name')).toHaveText('rehearsal.wav');
+  await expect(page.locator('.music-track-name')).toHaveText('rehearsal');
   await page.locator('#music-close').click();
   await expect(page.locator('#music-panel')).toBeHidden();
 });
