@@ -90,3 +90,25 @@ test('returns null when cancelling a customer without an active service', () => 
   const ledger = createWaiterServiceLedger();
   assert.equal(ledger.cancelCustomer('guest-missing'), null);
 });
+
+
+test('rejects invalid waiter and customer identifiers without mutating the ledger', () => {
+  const ledger = createWaiterServiceLedger();
+  assert.equal(ledger.start('', 'guest-a'), false);
+  assert.equal(ledger.start('waiter-1', ''), false);
+  assert.equal(ledger.start(null, 'guest-a'), false);
+  assert.equal(ledger.start('waiter-1', null), false);
+  assert.equal(ledger.finish('waiter-1'), null);
+  assert.equal(ledger.hasCustomer('guest-a'), false);
+  assert.equal(ledger.waiterFor('guest-a'), null);
+});
+
+test('customer cancellation is idempotent and does not release another waiter', () => {
+  const ledger = createWaiterServiceLedger();
+  assert.equal(ledger.start('waiter-1', 'guest-a'), true);
+  assert.equal(ledger.start('waiter-2', 'guest-b'), true);
+  assert.equal(ledger.cancelCustomer('guest-a'), 'waiter-1');
+  assert.equal(ledger.cancelCustomer('guest-a'), null);
+  assert.equal(ledger.waiterFor('guest-b'), 'waiter-2');
+  assert.equal(ledger.finish('waiter-2'), 'guest-b');
+});
