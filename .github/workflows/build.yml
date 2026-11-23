@@ -1,4 +1,4 @@
-name: Build check
+name: Build and browser checks
 
 on:
   push:
@@ -7,8 +7,9 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,7 +19,18 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
-      - name: Run server validation tests
+      - name: Run unit and server validation tests
         run: npm test
-      - name: Build client
+      - name: Build production client
         run: npm run build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run desktop, mobile and audience-load browser tests
+        run: npm run test:e2e
+      - name: Upload Playwright failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failure-artifacts
+          path: test-results/
+          if-no-files-found: ignore
