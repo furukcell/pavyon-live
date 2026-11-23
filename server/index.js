@@ -59,6 +59,7 @@ app.post('/dev/event', (req, res) => {
   if (!result.ok) return res.status(400).json({ error: result.error });
 
   const event = result.event;
+  if (event.type === 'gift' && !event.action) event.action = resolveGiftAction(event.giftName, giftMapping);
   if (event.eventId) {
     const now = Date.now();
     for (const [id, expiresAt] of seenEventIds) {
