@@ -10,7 +10,8 @@ import { createLiveMetrics } from './liveMetrics.js';
 
 const app = express();
 const httpServer = createServer(app);
-const port = Number(process.env.PORT) || 3001;
+const configuredPort = process.env.PORT;
+const port = configuredPort === undefined ? 3001 : Number(configuredPort);
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(currentDir, '../dist');
 const io = new Server(httpServer, { transports: ['websocket', 'polling'] });
@@ -88,4 +89,4 @@ io.on('connection', socket => {
   socket.emit('live:status', publicLiveStatus());
   socket.on('disconnect', () => console.log(`Game client disconnected: ${socket.id}`));
 });
-httpServer.listen(port, '0.0.0.0', () => console.log(`PAVYON LIVE server listening on port ${port}`));
+httpServer.listen(port, '0.0.0.0', () => console.log(`PAVYON LIVE server listening on port ${httpServer.address().port}`));
