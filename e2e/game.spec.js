@@ -18,18 +18,46 @@ test('loads the 3D game and processes viewer commands', async ({ page }) => {
   await expect(page.locator('#event-log')).toContainText('dans pistine çıktı');
 
   await page.waitForTimeout(1250);
+  await page.locator('[data-command="!masa"]').click();
+  await expect(page.locator('#event-log')).toContainText('masaya oturdu');
+
+  await page.waitForTimeout(1250);
+  await page.locator('[data-command="!sahne"]').click();
+  await expect(page.locator('#event-log')).toContainText('sahneye çıktı');
+
+  await page.waitForTimeout(1250);
   await page.locator('[data-command="!cik"]').click();
   await expect(page.locator('#guest-count')).toHaveText('0 / 100');
   expect(pageErrors).toEqual([]);
 });
 
-test('processes a test gift and updates the live event status', async ({ page }) => {
+test('runs all five gift actions and updates the live event status', async ({ page }) => {
   await page.goto('/');
-  await page.locator('#username').fill('e2e_gift');
+
+  await page.locator('#username').fill('e2e_invite');
+  await page.locator('#kons-select').selectOption('kons-1');
+  await page.locator('[data-gift="invite"]').click();
+  await expect(page.locator('#event-log')).toContainText('masasına gidiyor');
+
+  await page.locator('#username').fill('e2e_dance');
+  await page.locator('#kons-select').selectOption('kons-2');
+  await page.locator('[data-gift="dance"]').click();
+  await expect(page.locator('#event-log')).toContainText('birlikte dans ediyor');
+
+  await page.locator('#username').fill('e2e_vip');
+  await page.locator('#kons-select').selectOption('kons-3');
+  await page.locator('[data-gift="vip"]').click();
+  await expect(page.locator('#event-log')).toContainText('VIP locaya geçti');
+
+  await page.locator('#username').fill('e2e_drink');
   await page.locator('[data-gift="drink"]').click();
-  await expect(page.locator('#guest-count')).toHaveText('1 / 100');
   await expect(page.locator('#event-log')).toContainText('servis');
-  
+
+  await page.locator('#username').fill('e2e_stage');
+  await page.locator('[data-gift="stage"]').click();
+  await expect(page.locator('#event-log')).toContainText('sahne gösterisi başladı');
+  await expect(page.locator('#guest-count')).toHaveText('5 / 100');
+
   const before = await page.request.get('/api/status');
   const beforeStatus = await before.json();
   const payload = { type: 'like', username: 'e2e_provider', count: 7, eventId: 'e2e-event-once' };
