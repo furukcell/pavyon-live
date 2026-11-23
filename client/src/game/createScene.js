@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { getCustomerAppearanceByIndex } from './characterCatalog.js';
-import { createWaiterQueue, createWaiterServiceLedger } from './waiterQueue.js';
+import { createWaiterQueue, createWaiterServiceLedger, createWaiterServiceManager } from './waiterQueue.js';
 import { disposeSceneResources } from './disposeSceneResources.js';
 
 export function createGame(canvas) {
@@ -245,9 +245,7 @@ export function createGame(canvas) {
   let customerSequence=0;
   const konsHomes=new Map();
   const waiterHomes=new Map();
-  const waiterBusy=new Set();
   const waiterQueue=createWaiterQueue(30);
-  const waiterServiceTimers=new Map();
   const activeCustomerServices=createWaiterServiceLedger();
   const vipSlots=[{x:7,z:-5},{x:8.5,z:-5},{x:7,z:-2.8},{x:8.5,z:-2.8}];
   const vipAssignments=new Map();
@@ -827,55 +825,19 @@ export function createGame(canvas) {
     });
     return best||clampRoomPosition(guest.position.x-1.05,guest.position.z);
   }
-  function finishWaiterService(waiterId){
-    // Release bookkeeping even if a waiter actor has already disappeared.
-    activeCustomerServices.finish(waiterId);
-    const previousTimer=waiterServiceTimers.get(waiterId);
-    if(previousTimer){window.clearTimeout(previousTimer);waiterServiceTimers.delete(waiterId);}
-    waiterBusy.delete(waiterId);
-    const waiter=actors.get(waiterId);
-    if(!waiter)return;
-    let nextGuestId=null;
-    while(waiterQueue.size&&!nextGuestId){
-      const candidate=waiterQueue.dequeue();
-      if(actors.has(candidate))nextGuestId=candidate;
-    }
-    if(nextGuestId&&startWaiterService(waiterId,nextGuestId))return;
-    const home=waiterHomes.get(waiterId);
-    if(home)moveTo(waiterId,home.x,home.z);
-    waiter.userData.motion='idle';
-  }
-  function startWaiterService(waiterId,guestId){
-    const waiter=actors.get(waiterId),guest=actors.get(guestId);
-    if(!waiter||!guest){
-      finishWaiterService(waiterId);
-      return false;
-    }
-    if(!activeCustomerServices.start(waiterId,guestId))return false;
-    waiterBusy.add(waiterId);
-    waiter.userData.motion='serving';
-    const approach=findWaiterApproach(waiter,guest);
-    moveTo(waiterId,approach.x,approach.z);
-    let timer;
-    timer=window.setTimeout(()=>{
-      // An already-queued timeout must not finish a newer service for this waiter.
-      if(waiterServiceTimers.get(waiterId)!==timer)return;
-      waiterServiceTimers.delete(waiterId);
-      finishWaiterService(waiterId);
-    },4500);
-    waiterServiceTimers.set(waiterId,timer);
-    return true;
-  }
-  function requestDrink(customerId){
-    if(!actors.has(customerId))return false;
-    if(activeCustomerServices.hasCustomer(customerId)||waiterQueue.has(customerId))return 'duplicate';
-    const waiterId=[...waiterHomes.keys()].find(id=>!waiterBusy.has(id));
-    if(!waiterId){
-      const queued=waiterQueue.enqueue(customerId);
-      return queued===true?'queued':queued==='duplicate'?'duplicate':false;
-    }
-    return startWaiterService(waiterId,customerId)?'serving':false;
-  }
+  const waiterServices=createWaiterServiceManager({
+    queue:waiterQueue,
+    ledger:activeCustomerServices,
+    getActor:id=>actors.get(id),
+    getWaiterIds:()=>waiterHomes.keys(),
+    getHome:id=>waiterHomes.get(id),
+    findApproach:findWaiterApproach,
+    moveTo,
+    setMotion:(id,motion)=>{const actor=actors.get(id);if(actor)actor.userData.motion=motion;},
+    setTimer:(callback,delay)=>window.setTimeout(callback,delay),
+    clearTimer:timer=>window.clearTimeout(timer),
+    serviceDuration:4500
+  });
 
   const clock=new THREE.Clock();
   function resize(){
@@ -1228,7 +1190,7 @@ export function createGame(canvas) {
     dance:id=>animateActor(id,'dance'),
     seat:id=>animateActor(id,'seat'),
     stage:id=>animateActor(id,'stage'),
-    drink:requestDrink,
+    drink:waiterServices.request,
     konsToTable:(k,id)=>{
       const customer=actors.get(id),hostess=actors.get(k);
       if(!customer||!hostess)return false;
@@ -1257,13 +1219,7 @@ export function createGame(canvas) {
     releaseGuest:id=>{const actor=actors.get(id);if(actor){releaseSeat(actor);actor.userData.motion='idle';if(actor.userData.body)actor.userData.body.position.y=.72;if(actor.userData.head)actor.userData.head.position.y=1.35;actor.userData.legPivots?.forEach(leg=>leg.rotation.x=0);actor.userData.armPivots?.forEach(arm=>{arm.rotation.x=0;arm.rotation.z=0;});const home=actor.userData.home;if(home)moveTo(id,home.x,home.z);}},
     removeCustomer:id=>{
       const actor=actors.get(id);if(!actor)return false;
-      waiterQueue.remove(id);
-      const waiterId=activeCustomerServices.cancelCustomer(id);
-      if(waiterId){
-        const timer=waiterServiceTimers.get(waiterId);
-        if(timer){window.clearTimeout(timer);waiterServiceTimers.delete(waiterId);}
-        finishWaiterService(waiterId);
-      }
+      waiterServices.cancelCustomer(id);
       releaseSeat(actor);
       actorGroup.remove(actor);actors.delete(id);
       // Use the same deduplicated cleanup path as full-scene disposal so
@@ -1274,6 +1230,6 @@ export function createGame(canvas) {
     show:id=>animateActor(id,'stage'),
     getTableStatus:()=>tableStates.map(table=>({id:table.id,occupied:table.occupied,capacity:table.seats.length})),
     setLikes:value=>{redGlow.intensity=35+Math.min(value,500)*.08;goldGlow.intensity=28+Math.min(value,500)*.04;},
-    dispose:()=>{if(disposed)return;disposed=true;cancelAnimationFrame(raf);observer.disconnect();waiterServiceTimers.forEach(timer=>window.clearTimeout(timer));waiterServiceTimers.clear();waiterQueue.clear();activeCustomerServices.clear();disposeSceneResources(scene);renderer.renderLists.dispose();renderer.dispose();}
+    dispose:()=>{if(disposed)return;disposed=true;cancelAnimationFrame(raf);observer.disconnect();waiterServices.dispose();disposeSceneResources(scene);renderer.renderLists.dispose();renderer.dispose();}
   };
 }
