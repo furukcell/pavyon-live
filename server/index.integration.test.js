@@ -53,7 +53,7 @@ test('production server smoke: health, status, normalized events and idempotency
 
     const initial = await (await fetch(`${server.baseUrl}/api/status`)).json();
     assert.equal(initial.ok, true);
-    assert.equal(initial.integration, 'simulator-only');
+    assert.equal(initial.integration, 'signed-provider-bridge');
     assert.equal(initial.accepted, 0);
 
     const payload = { type: 'gift', username: 'test_viewer', giftName: 'Rose', eventId: 'integration-once' };
@@ -114,7 +114,7 @@ test('production server smoke: health, status, normalized events and idempotency
 });
 
 test('provider bridge remains disabled when no signing secret is configured', async () => {
-  const server = await startServer();
+  const server = await startServer({ LIVE_PROVIDER_WEBHOOK_SECRET: '' });
   try {
     const response = await fetch(`${server.baseUrl}/integrations/events`, {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}'
