@@ -170,7 +170,7 @@ document.querySelector('#music-files').addEventListener('change', event => {
   files.forEach(file => {
     const url = URL.createObjectURL(file);
     musicState.objectUrls.push(url);
-    musicState.tracks.push({ id: crypto.randomUUID(), name: file.name.replace(/\\.[^.]+$/, ''), category, url });
+    musicState.tracks.push({ id: crypto.randomUUID(), name: file.name.replace(/\.[^.]+$/, ''), category, url });
   });
   renderMusicList();
   if (files.length) log(`${files.length} müzik dosyası ${category === 'ankara' ? 'Ankara Havaları' : 'Pavyon'} listesine eklendi.`);
