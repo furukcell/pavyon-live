@@ -105,25 +105,40 @@ export function createWaiterServiceManager({
   function start(waiterId, customerId) {
     const waiter = getActor(waiterId);
     const customer = getActor(customerId);
-    if (!waiter || !customer) {
-      finish(waiterId);
-      return false;
-    }
+    if (!waiter || !customer) return false;
     if (!ledger.start(waiterId, customerId)) return false;
 
     busy.add(waiterId);
-    setMotion(waiterId, 'serving');
-    const approach = findApproach(waiter, customer);
-    moveTo(waiterId, approach.x, approach.z);
+    try {
+      setMotion(waiterId, 'serving');
+      const approach = findApproach(waiter, customer);
+      if (!approach || !Number.isFinite(approach.x) || !Number.isFinite(approach.z)) {
+        throw new Error('No valid waiter approach position');
+      }
+      moveTo(waiterId, approach.x, approach.z);
 
-    let timer;
-    timer = setTimer(() => {
-      if (timers.get(waiterId) !== timer) return;
-      timers.delete(waiterId);
-      finish(waiterId);
-    }, serviceDuration);
-    timers.set(waiterId, timer);
-    return true;
+      let timer;
+      timer = setTimer(() => {
+        if (timers.get(waiterId) !== timer) return;
+        timers.delete(waiterId);
+        finish(waiterId);
+      }, serviceDuration);
+      if (timer === undefined || timer === null) {
+        throw new Error('Waiter service timer could not be created');
+      }
+      timers.set(waiterId, timer);
+      return true;
+    } catch {
+      clearWaiterTimer(waiterId);
+      ledger.cancelCustomer(customerId);
+      busy.delete(waiterId);
+      const home = getHome(waiterId);
+      if (home) {
+        try { moveTo(waiterId, home.x, home.z); } catch {}
+      }
+      try { setMotion(waiterId, 'idle'); } catch {}
+      return false;
+    }
   }
 
   function finish(waiterId) {
