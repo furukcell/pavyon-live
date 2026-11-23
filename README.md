@@ -31,10 +31,10 @@
 
 ## İlerleme takibi — sabit hesap yöntemi
 
-**Son geliştirme oturumu: 23 Kasım 2026.** Kons oturum kapanışı ve müşteri çıkış temizliği hata toleranslı yaşam döngülerine ayrıldı. Garson servis yöneticisinde de timer iptal API'si hata verse bile sahiplik kaydı önce kaldırılıyor; görsel hareket/animasyon hataları servis ledger'ını veya FIFO kuyruğunun ilerlemesini kilitlemiyor. Bu oturumdaki garson hata senaryoları için iki regresyon testi eklendi. Önceki oturumlarda kons ve müşteri çıkış modüllerinin dört testlik hedefli kümeleri geçmişti. Ana tarayıcı akışı, tam `npm test` ve `npm run build` henüz doğrulanmadı.
+**Son geliştirme oturumu: 23 Kasım 2026.** Kons oturum kapanışı ve müşteri çıkış temizliği hata toleranslı yaşam döngülerine ayrıldı. Garson servis yöneticisinde timer iptal API'si hata verse bile sahiplik kaydı önce kaldırılıyor; görsel hareket hataları servis ledger'ını veya FIFO kuyruğunun ilerlemesini kilitlemiyor. İki yeni garson hata senaryosu testi eklendi; bu iki senaryonun izole Node test koşusunda 2/2 doğrulaması geçti. Depodaki tam test dosyası, ana tarayıcı akışı, tam `npm test` ve `npm run build` henüz doğrulanmadı.
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
-- **V1 yayın hedefi: %90 (önceki oturumdaki %80 üzerine iki oturumda toplam +10 puan; müşteri çıkış temizliği ve garson servis yaşam döngüsünün hata toleransı güçlendirildi. Garson hata senaryoları için iki yeni regresyon testi eklendi; bu son testlerin çalıştırılması ve tam proje/CI/tarayıcı E2E doğrulaması henüz bekliyor.)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
+- **V1 yayın hedefi: %90 (önceki oturumda düzeltilen %85 üzerine bu oturumda +5 puan; müşteri çıkış temizliği ve garson servis yaşam döngüsünün hata toleransı güçlendirildi. İki garson hata senaryosu izole Node test koşusunda geçti; tam proje/CI/tarayıcı E2E doğrulaması henüz bekliyor.)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
 - Yüzde yalnızca aşağıdaki V1 kabul kriterleri tamamlanıp doğrulandığında artar. Kodun yazılmış olması tek başına tamamlandı sayılmaz; ilgili akışın test edilmesi gerekir.
 - Bir iş paketi tamamlandıktan sonra yeni fikir eklenmesi o paketin yüzdesini düşürmez. V1 için zorunlu yeni bir hata bulunursa yalnızca ilgili kriter yeniden açılır ve nedeni not edilir.
 
