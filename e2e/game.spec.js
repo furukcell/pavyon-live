@@ -107,11 +107,14 @@ test('supports the OBS stream-only layout', async ({ page }) => {
   await expect(page.locator('.controls')).toBeHidden();
 });
 
-test('handles 25, 50, 75 and 100 concurrent viewer entries', async ({ page }, testInfo) => {
+test('handles 10, 25, 50 and 100 concurrent viewer entries', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium-desktop', 'The 100-actor stress scenario is desktop-only; mobile gets its own viewport checks.');
   test.setTimeout(120_000);
   await page.goto('/');
   const count = page.locator('#guest-count');
+  await page.locator('[data-spawn="10"]').click();
+  await expect(count).toHaveText('10 / 100', { timeout: 20_000 });
+  await page.reload();
   for (const expected of [25, 50, 75, 100]) {
     await page.locator('[data-spawn="25"]').click();
     await expect(count).toHaveText(`${expected} / 100`, { timeout: 20_000 });
