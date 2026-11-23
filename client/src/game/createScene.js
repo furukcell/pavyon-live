@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { getCustomerAppearanceByIndex } from './characterCatalog.js';
 import { createWaiterQueue, createWaiterServiceLedger, createWaiterServiceManager, createInteractionReservationManager } from './waiterQueue.js';
 import { disposeSceneResources } from './disposeSceneResources.js';
+import { cleanupCustomerExit } from './customerExitLifecycle.js';
 
 export function createGame(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -1267,16 +1268,18 @@ export function createGame(canvas) {
       resetGuestHome(id);
     },
     removeCustomer:id=>{
-      const actor=actors.get(id);if(!actor)return false;
-      waiterServices.cancelCustomer(id);
-      releaseInteractionPair(interactionReservations.releaseDance(id));
-      releaseInteractionPair(interactionReservations.releaseVip(id));
-      releaseSeat(actor);
-      actorGroup.remove(actor);actors.delete(id);
-      // Use the same deduplicated cleanup path as full-scene disposal so
-      // dynamically removed customers also release material textures.
-      disposeSceneResources(actor);
-      return true;
+      const actor=actors.get(id);
+      return cleanupCustomerExit({
+        customerId:id,
+        actor,
+        cancelService:customerId=>waiterServices.cancelCustomer(customerId),
+        releaseDance:customerId=>releaseInteractionPair(interactionReservations.releaseDance(customerId)),
+        releaseVip:customerId=>releaseInteractionPair(interactionReservations.releaseVip(customerId)),
+        releaseSeat:customer=>releaseSeat(customer),
+        detach:customer=>actorGroup.remove(customer),
+        forget:customerId=>actors.delete(customerId),
+        dispose:customer=>disposeSceneResources(customer)
+      });
     },
     show:id=>animateActor(id,'stage'),
     getTableStatus:()=>tableStates.map(table=>({id:table.id,occupied:table.occupied,capacity:table.seats.length})),
