@@ -271,3 +271,36 @@ test('clearing pair reservations releases every owner and guest', () => {
   assert.equal(manager.forOwner('kons-1'), null);
   assert.equal(manager.forGuest('guest-2'), null);
 });
+
+
+import { createInteractionReservationManager } from './waiterQueue.js';
+
+test('dance and VIP cannot reserve the same participant at the same time', () => {
+  const manager = createInteractionReservationManager({
+    danceSlots: [{ id: 'dance-a' }],
+    vipSlots: [{ id: 'vip-a' }]
+  });
+  assert.deepEqual(manager.reserveDance('kons-1', 'guest-1'), { id: 'dance-a' });
+  assert.equal(manager.reserveVip('kons-1', 'guest-2'), null);
+  assert.equal(manager.reserveVip('kons-2', 'guest-1'), null);
+  assert.deepEqual(manager.releaseDance('guest-1'), {
+    ownerId: 'kons-1', guestId: 'guest-1', slot: { id: 'dance-a' }
+  });
+  assert.deepEqual(manager.reserveVip('kons-1', 'guest-2'), { id: 'vip-a' });
+  assert.equal(manager.reserveDance('kons-3', 'guest-2'), null);
+  assert.equal(manager.danceCount, 0);
+  assert.equal(manager.vipCount, 1);
+});
+
+test('releasing one interaction mode does not clear reservations in the other mode', () => {
+  const manager = createInteractionReservationManager({
+    danceSlots: [{ id: 'dance-a' }],
+    vipSlots: [{ id: 'vip-a' }]
+  });
+  manager.reserveDance('kons-1', 'guest-1');
+  manager.releaseDance('kons-1');
+  manager.reserveVip('kons-2', 'guest-2');
+  manager.clear();
+  assert.equal(manager.danceCount, 0);
+  assert.equal(manager.vipCount, 0);
+});
