@@ -175,3 +175,53 @@ export function createWaiterServiceManager({
 
   return { request, finish, cancelCustomer, dispose, isBusy: id => busy.has(id) };
 }
+
+
+// Reserves interaction positions as owner/guest pairs. Either participant can
+// release the reservation, preventing abandoned dance/VIP slots after exits.
+export function createPairSlotManager(slots) {
+  const byOwner = new Map();
+  const ownerByGuest = new Map();
+
+  function release(participantId) {
+    const ownerId = byOwner.has(participantId)
+      ? participantId
+      : ownerByGuest.get(participantId);
+    if (!ownerId) return null;
+    const pair = byOwner.get(ownerId);
+    byOwner.delete(ownerId);
+    ownerByGuest.delete(pair.guestId);
+    return { ownerId, guestId: pair.guestId, slot: pair.slot };
+  }
+
+  return {
+    reserve(ownerId, guestId) {
+      if (typeof ownerId !== 'string' || !ownerId ||
+          typeof guestId !== 'string' || !guestId || ownerId === guestId) return null;
+      if (byOwner.has(ownerId) || ownerByGuest.has(ownerId) ||
+          byOwner.has(guestId) || ownerByGuest.has(guestId)) return null;
+      const occupied = new Set([...byOwner.values()].map(pair => pair.slot));
+      const slot = slots.find(candidate => !occupied.has(candidate));
+      if (!slot) return null;
+      byOwner.set(ownerId, { guestId, slot });
+      ownerByGuest.set(guestId, ownerId);
+      return slot;
+    },
+    release,
+    forOwner(ownerId) {
+      const pair = byOwner.get(ownerId);
+      return pair ? { ownerId, guestId: pair.guestId, slot: pair.slot } : null;
+    },
+    forGuest(guestId) {
+      const ownerId = ownerByGuest.get(guestId);
+      return ownerId ? this.forOwner(ownerId) : null;
+    },
+    clear() {
+      byOwner.clear();
+      ownerByGuest.clear();
+    },
+    get size() {
+      return byOwner.size;
+    }
+  };
+}
