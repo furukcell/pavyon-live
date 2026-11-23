@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
 
+test.beforeEach(async ({ page }) => {
+  await page.route(/^https:\/\/(fonts\.googleapis|fonts\.gstatic)\.com\//, route => route.abort());
+  page.setDefaultNavigationTimeout(15_000);
+});
+
 test('loads the 3D game and processes viewer commands', async ({ page }) => {
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));
