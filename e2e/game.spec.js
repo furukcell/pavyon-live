@@ -42,6 +42,9 @@ test('processes a test gift and updates the live event status', async ({ page })
   const after = await (await page.request.get('/api/status')).json();
   expect(after.accepted).toBe(beforeStatus.accepted + 1);
   expect(after.likes).toBe(beforeStatus.likes + 1);
+  await expect(page.locator('#live-event-count')).toHaveText('1');
+  await expect(page.locator('#like-count')).toHaveText('7');
+  await expect(page.locator('#live-event-history')).toContainText('e2e_provider');
 });
 
 test('supports the OBS stream-only layout', async ({ page }) => {
