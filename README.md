@@ -31,7 +31,7 @@
 
 ## İlerleme takibi — sabit hesap yöntemi
 
-**Son geliştirme oturumu: 23 Kasım 2026.** Kons oturum kapanışı, müşteri çıkışı ve garson servis temizliği hata toleranslı hale getirildi. Kons hediye aksiyonları için işlem bütünlüğü eklendi: sahne aksiyonu çift rezervasyonu kısmen oluşturup hata verir veya başarısız dönerse sahne tarafındaki kons/müşteri rezervasyonları ve mantıksal oturum rezervasyonu geri alınıyor. Yeni işlem yardımcısının dört hedefli Node testi geçti; tam proje testi, build ve tarayıcı E2E henüz doğrulanmadı.
+**Son geliştirme oturumu: 23 Kasım 2026.** Kons hediye aksiyonlarında kısmi sahne rezervasyonlarını geri alan işlem bütünlüğü eklendi. İzleyici ayrılışında da kons zamanlayıcısı veya sahne temizliği hata verse bile izleyicinin yetkili oyun kaydı, komut bekleme kaydı ve HUD sayısı temizleniyor. Yeni izleyici ayrılış modülü için beş hedefli Node testi geçti. Tam proje `npm test`, `npm run build`, tarayıcı E2E ve gerçek LIVE provası henüz doğrulanmadı.
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
 - **V1 yayın hedefi: %95 (önceki kayıtlı %90 üzerine bu oturumda +5 puan; kons hediye aksiyonları başarısız olduğunda kısmi sahne rezervasyonlarını da geri alan işlem bütünlüğü eklendi. Yeni işlem yardımcısının dört hedefli Node testi geçti; tam proje/CI/tarayıcı E2E doğrulaması ve canlı prova hâlâ bekliyor.)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
