@@ -96,10 +96,15 @@ export function createWaiterServiceManager({
 
   function clearWaiterTimer(waiterId) {
     const timer = timers.get(waiterId);
-    if (timer !== undefined) {
-      clearTimer(timer);
-      timers.delete(waiterId);
-    }
+    if (timer === undefined) return;
+    // Remove ownership before calling the host timer API. Even if that API
+    // throws, a stale callback can no longer finish a later assignment.
+    timers.delete(waiterId);
+    try { clearTimer(timer); } catch {}
+  }
+
+  function safely(run) {
+    try { return run(); } catch { return undefined; }
   }
 
   function start(waiterId, customerId) {
@@ -130,35 +135,34 @@ export function createWaiterServiceManager({
       return true;
     } catch {
       clearWaiterTimer(waiterId);
-      ledger.cancelCustomer(customerId);
+      safely(() => ledger.cancelCustomer(customerId));
       busy.delete(waiterId);
-      const home = getHome(waiterId);
-      if (home) {
-        try { moveTo(waiterId, home.x, home.z); } catch {}
-      }
-      try { setMotion(waiterId, 'idle'); } catch {}
+      const home = safely(() => getHome(waiterId));
+      if (home) safely(() => moveTo(waiterId, home.x, home.z));
+      safely(() => setMotion(waiterId, 'idle'));
       return false;
     }
   }
 
   function finish(waiterId) {
-    ledger.finish(waiterId);
+    // Release logical ownership first; visual movement is best-effort only.
+    safely(() => ledger.finish(waiterId));
     clearWaiterTimer(waiterId);
     busy.delete(waiterId);
 
-    const waiter = getActor(waiterId);
+    const waiter = safely(() => getActor(waiterId));
     if (!waiter) return;
 
     let nextCustomerId = null;
     while (queue.size && !nextCustomerId) {
       const candidate = queue.dequeue();
-      if (getActor(candidate)) nextCustomerId = candidate;
+      if (safely(() => getActor(candidate))) nextCustomerId = candidate;
     }
     if (nextCustomerId && start(waiterId, nextCustomerId)) return;
 
-    const home = getHome(waiterId);
-    if (home) moveTo(waiterId, home.x, home.z);
-    setMotion(waiterId, 'idle');
+    const home = safely(() => getHome(waiterId));
+    if (home) safely(() => moveTo(waiterId, home.x, home.z));
+    safely(() => setMotion(waiterId, 'idle'));
   }
 
   function request(customerId) {
