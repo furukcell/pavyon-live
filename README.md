@@ -31,7 +31,7 @@
 
 ## İlerleme takibi — sabit hesap yöntemi
 
-**Son geliştirme oturumu: 23 Kasım 2026.** Dans ve VIP etkileşimlerinde her iki katılımcı için tek aktif oturum kuralı eklendi. Katılımcı ayrıldığında veya kons serbest bırakıldığında eşleşme ve slot birlikte temizleniyor; boşalan slot yeniden kullanılabiliyor. Garson servis başlatma ve kons oturum zamanlayıcısı artık yaklaşma noktası, hareket veya zamanlayıcı oluşturma hatalarında rezervasyonları geri alıyor. Bu hata senaryoları için birim testleri yazıldı; son değişikliklerin CI ve gerçek tarayıcı akışı henüz doğrulanmadı.
+**Son geliştirme oturumu: 23 Kasım 2026.** Kons oturumlarının süre dolumu, müşteri ayrılışı ve zamanlayıcı başlatma hatası yolları tek bir idempotent yaşam döngüsüne bağlandı. Eski oturuma ait gecikmiş bitiş olayı yeni oturumu kapatamıyor; bir alt sistemin temizliği hata verse bile diğer temizlik adımları sürüyor. Yaşam döngüsü için dört hedefli Node testi çalıştırıldı ve geçti. Ana tarayıcı akışı, tam `npm test` ve `npm run build` henüz doğrulanmadı.
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
 - **V1 yayın hedefi: %70 (önceki oturumdaki %65'tan +5 puan; garson servis başlatma ve kons oturum zamanlayıcısında hata durumunda atomik geri alma eklendi; bozuk yaklaşma noktası, timer API hatası ve başarısız oturum yenileme testleri yazıldı. Son testlerin CI ve tarayıcı E2E doğrulaması henüz bekliyor.)** — bu oran artık kapsam sabitken takip edilecek; yeni V2 fikirleri paydayı büyütmeyecek.
@@ -50,7 +50,7 @@
 
 ### Sıradaki kilometre taşları
 
-1. **M1 — Oyun akışını dondur ve doğrula:** sunucu olay şeması/alan doğrulaması, isteğe bağlı eventId tekilleştirmesi ve tek izleyici/tek kons oturum rezervasyon kuralları eklendi; garson servis yöneticisi ile dans/VIP çift rezervasyon ve çapraz mod çakışma kuralları sahneye bağlandı. Garson servis başlatma ve kons zamanlayıcısı hata durumlarında geri alma yapıyor; slot ayırma/iptal ve hata kurtarma testleri eklendi. Tam tarayıcı uçtan uca prova ve son CI doğrulaması sırada.
+1. **M1 — Oyun akışını dondur ve doğrula:** sunucu olay şeması/alan doğrulaması, isteğe bağlı eventId tekilleştirmesi ve tek izleyici/tek kons oturum rezervasyon kuralları eklendi; garson servis yöneticisi ile dans/VIP çift rezervasyon ve çapraz mod çakışma kuralları sahneye bağlandı. Garson servis başlatma ve kons zamanlayıcısı hata durumlarında geri alma yapıyor; kons oturumunun süre dolumu, izleyici ayrılışı ve timer başlatma hatası aynı idempotent temizleme yaşam döngüsünü kullanıyor. Dört hedefli yaşam döngüsü testi geçti; tam tarayıcı E2E doğrulaması sırada. Tam tarayıcı uçtan uca prova ve son CI doğrulaması sırada.
 2. **M2 — Gerçek LIVE olay adaptörü:** izinli/uygun kaynak, sunucu tarafı doğrulama, tekrar olay koruması ve hediye eşlemesi.
 3. **M3 — Yayın ekranı:** OBS/TikTok LIVE Studio Browser Source, yayın overlay'i ve bağlantı durumları.
 4. **M4 — Sağlamlık:** 10/25/50/100 müşteri yük testleri, mobil tarayıcı, hata ve güvenlik kontrolleri.
@@ -315,6 +315,8 @@ Desteklenen hediye aksiyonları: `invite`, `dance`, `drink`, `vip`, `stage`. Bu 
 ### Kons oturum zamanlayıcısı
 - Kons oturum süreleri ayrı bir test edilebilir zamanlayıcı yöneticisiyle tutulur.
 - Müşteri ayrıldığında ilgili zamanlayıcı iptal edilir; uygulama kapanırken tüm oturum zamanlayıcıları temizlenir.
+- Süre dolumu, müşteri ayrılışı ve zamanlayıcı başlatma hatası aynı yaşam döngüsünden geçer; bitiş işlemi idempotenttir ve eski oturumun callback'i yeni oturumu kapatamaz.
+- Timer, rezervasyon veya sahne temizleme adımlarından biri hata verse bile kalan temizleme adımları denenir; dört hedefli yaşam döngüsü testi geçti.
 - Aynı kons için yeni zamanlayıcı kurulursa eski zamanlayıcı iptal edilir; eski oturumun geç gelen callback'i yeni oturumu bitiremez.
 - Süre dolunca zamanlayıcı kaydı callback çalıştırılmadan önce silinir; aynı oturum iki kez tamamlanmaz.
 - Testler süre dolumu, müşteri ayrılışı, zamanlayıcı değiştirme, toplu temizleme ve geçersiz girdileri kapsar.
