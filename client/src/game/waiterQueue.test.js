@@ -304,3 +304,77 @@ test('releasing one interaction mode does not clear reservations in the other mo
   assert.equal(manager.danceCount, 0);
   assert.equal(manager.vipCount, 0);
 });
+
+
+import { createWaiterServiceManager } from './waiterQueue.js';
+
+test('service startup rolls back its assignment when approach calculation fails', () => {
+  const queue = createWaiterQueue(5);
+  const ledger = createWaiterServiceLedger();
+  const actors = new Map([
+    ['waiter-1', { id: 'waiter-1' }],
+    ['guest-a', { id: 'guest-a' }]
+  ]);
+  const motions = [];
+  const timers = new Map();
+  const manager = createWaiterServiceManager({
+    queue, ledger,
+    getActor: id => actors.get(id),
+    getWaiterIds: () => ['waiter-1'],
+    getHome: () => ({ x: 0, z: 0 }),
+    findApproach: () => ({ x: Number.NaN, z: 2 }),
+    moveTo: () => assert.fail('moveTo must not run without a valid approach'),
+    setMotion: (_id, motion) => motions.push(motion),
+    setTimer: callback => { timers.set(1, callback); return 1; },
+    clearTimer: id => timers.delete(id)
+  });
+
+  assert.equal(manager.request('guest-a'), false);
+  assert.equal(ledger.hasCustomer('guest-a'), false);
+  assert.equal(ledger.waiterFor('guest-a'), null);
+  assert.equal(manager.isBusy('waiter-1'), false);
+  assert.equal(queue.size, 0);
+  assert.equal(timers.size, 0);
+  assert.deepEqual(motions, ['serving', 'idle']);
+});
+
+test('service startup rolls back when timer creation throws and waiter can be reused', () => {
+  const queue = createWaiterQueue(5);
+  const ledger = createWaiterServiceLedger();
+  const actors = new Map([
+    ['waiter-1', { id: 'waiter-1' }],
+    ['guest-a', { id: 'guest-a' }],
+    ['guest-b', { id: 'guest-b' }]
+  ]);
+  let shouldThrow = true;
+  const motions = [];
+  const moves = [];
+  const manager = createWaiterServiceManager({
+    queue, ledger,
+    getActor: id => actors.get(id),
+    getWaiterIds: () => ['waiter-1'],
+    getHome: () => ({ x: 0, z: 0 }),
+    findApproach: () => ({ x: 1, z: 2 }),
+    moveTo: (...args) => moves.push(args),
+    setMotion: (_id, motion) => motions.push(motion),
+    setTimer: callback => {
+      if (shouldThrow) throw new Error('timer unavailable');
+      return callback;
+    },
+    clearTimer: () => {}
+  });
+
+  assert.equal(manager.request('guest-a'), false);
+  assert.equal(ledger.hasCustomer('guest-a'), false);
+  assert.equal(manager.isBusy('waiter-1'), false);
+  shouldThrow = false;
+  assert.equal(manager.request('guest-b'), 'serving');
+  assert.equal(ledger.waiterFor('guest-b'), 'waiter-1');
+  assert.equal(manager.isBusy('waiter-1'), true);
+  assert.deepEqual(motions, ['serving', 'idle', 'serving']);
+  assert.deepEqual(moves, [
+    ['waiter-1', 1, 2],
+    ['waiter-1', 0, 0],
+    ['waiter-1', 1, 2]
+  ]);
+});
