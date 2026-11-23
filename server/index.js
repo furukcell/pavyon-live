@@ -14,9 +14,18 @@ const configuredPort = process.env.PORT;
 const port = configuredPort === undefined ? 3001 : Number(configuredPort);
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(currentDir, '../dist');
-const io = new Server(httpServer, { transports: ['websocket', 'polling'] });
+const io = new Server(httpServer, { transports: ['websocket', 'polling'], maxHttpBufferSize: 32 * 1024, pingTimeout: 20_000, pingInterval: 25_000 });
 const giftMapping = parseGiftMapping(process.env.LIVE_GIFT_MAP || '{}');
 const liveMetrics = createLiveMetrics();
+
+app.disable('x-powered-by');
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
 function publicLiveStatus() { return { ...liveMetrics.snapshot(), integration: process.env.LIVE_PROVIDER_WEBHOOK_SECRET ? 'signed-provider-bridge' : 'simulator-only', connectedClients: io.engine.clientsCount, configuredGiftMappings: giftMapping.size }; }
 function recordLiveEvent(event) { liveMetrics.record(event); io.emit('live:status', publicLiveStatus()); }
 
@@ -45,8 +54,8 @@ app.post('/integrations/events', express.raw({ type: 'application/json', limit: 
 });
 
 app.use(express.json({ limit: '32kb' }));
-app.get('/health', (_req, res) => res.json({ ok: true, service: 'pavyon-live-server' }));
-app.get('/api/status', (_req, res) => res.json({ ok: true, ...publicLiveStatus() }));
+app.get('/health', (_req, res) => res.set('Cache-Control', 'no-store').json({ ok: true, service: 'pavyon-live-server' }));
+app.get('/api/status', (_req, res) => res.set('Cache-Control', 'no-store').json({ ok: true, ...publicLiveStatus() }));
 
 // Development-only event bridge. It is not a public TikTok webhook.
 const seenEventIds = new Map();
@@ -91,3 +100,18 @@ io.on('connection', socket => {
   socket.on('disconnect', () => console.log(`Game client disconnected: ${socket.id}`));
 });
 httpServer.listen(port, '0.0.0.0', () => console.log(`PAVYON LIVE server listening on port ${httpServer.address().port}`));
+
+let shuttingDown = false;
+function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`PAVYON LIVE shutting down after ${signal}`);
+  const forceExit = setTimeout(() => process.exit(1), 10_000);
+  forceExit.unref();
+  io.close(() => {
+    clearTimeout(forceExit);
+    process.exit(0);
+  });
+}
+process.once('SIGTERM', () => shutdown('SIGTERM'));
+process.once('SIGINT', () => shutdown('SIGINT'));
