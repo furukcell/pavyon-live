@@ -6,6 +6,7 @@ import { normalizeViewerName } from './game/viewerRules.js';
 import { GIFT_ACTIONS, getGiftActionRule } from './game/giftRules.js';
 import { createSessionTimers } from './game/sessionTimers.js';
 import { createKonsSessionLifecycle } from './game/konsSessionLifecycle.js';
+import { runReservedAction } from './game/reservedAction.js';
 
 // In development Vite proxies /socket.io to the local game server.
 // In production the Express server serves both the built game and Socket.IO.
@@ -272,25 +273,32 @@ function command(rawName, rawCommand) {
   else if (cmd === '!masa') { if(game.seat(guest.id)){guest.action='seated';updateHud();log(`<b>@${escapeHtml(name)}</b> masaya oturdu.`);}else log('Bütün masalar dolu. Bir koltuk boşalınca tekrar dene.'); }
   else if (cmd === '!sahne') { if(game.stage(guest.id)){guest.action='stage';log(`<b>@${escapeHtml(name)}</b> sahneye çıktı.`);} }
 }
+function safelyGameRelease(konsId, guestId) {
+  try { game.releaseKons(konsId); } catch {}
+  if (guestId) {
+    try { game.releaseGuest(guestId); } catch {}
+  }
+}
 function occupyKons(konsId, name, duration, action) {
   if (!Object.prototype.hasOwnProperty.call(state.kons,konsId)) { log('Geçersiz kons seçimi.'); return false; }
   if (state.kons[konsId]) { log(`<b>${escapeHtml(konsId)}</b> şu anda @${escapeHtml(state.kons[konsId])} ile meşgul.`); return false; }
   if (!sessionRules.canReserve(konsId, name)) { log(`@<b>${escapeHtml(name)}</b> başka bir kons etkileşiminde veya rezervasyon şu anda uygun değil.`); return false; }
   const guest=state.viewers.get(name);
   if(guest?.activeKons){log(`@<b>${escapeHtml(name)}</b> başka bir kons etkileşiminde. Önce mevcut etkileşimin bitmesini beklemeli.`);return false;}
-  // Reserve both sides before mutating the 3D scene; roll back if the scene rejects the action.
-  if(!sessionRules.reserve(konsId,name)){log('Kons rezervasyonu alınamadı. Tekrar dene.');return false;}
-  let actionStarted=false;
-  try {
-    actionStarted=action()!==false;
-  } catch(error) {
-    sessionRules.releaseKons(konsId);
-    log('Etkileşim başlatılırken hata oluştu. Rezervasyon serbest bırakıldı.');
-    return false;
-  }
-  if(!actionStarted){
-    sessionRules.releaseKons(konsId);
-    log('Bu alan şu anda dolu. Biraz sonra tekrar dene.');
+  // A scene action may allocate a dance/VIP pair before failing. Roll back
+  // both the scene reservation and logical ownership as one transaction.
+  const transaction=runReservedAction({
+    reserve:()=>sessionRules.reserve(konsId,name),
+    start:action,
+    rollback:()=>{
+      safelyGameRelease(konsId,guest?.id);
+    },
+    release:()=>sessionRules.releaseKons(konsId)
+  });
+  if(!transaction.ok){
+    log(transaction.reason==='reserve'
+      ? 'Kons rezervasyonu alınamadı. Tekrar dene.'
+      : 'Etkileşim başlatılamadı; sahne ve rezervasyon kayıtları geri alındı.');
     return false;
   }
   state.kons[konsId] = name;
