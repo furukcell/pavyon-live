@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createWaiterQueue, createWaiterServiceLedger, createWaiterServiceManager, createPairSlotManager, createInteractionReservationManager } from './waiterQueue.js';
-import { createWaiterQueue } from './waiterQueue.js';
 
 test('serves requests in FIFO order', () => {
   const queue = createWaiterQueue(3);
@@ -51,7 +50,6 @@ test('rejects invalid customer identifiers and can clear all requests', () => {
   assert.equal(queue.dequeue(), null);
 });
 
-import { createWaiterServiceLedger } from './waiterQueue.js';
 
 test('prevents one customer being served twice at once', () => {
   const ledger = createWaiterServiceLedger();
@@ -115,7 +113,6 @@ test('customer cancellation is idempotent and does not release another waiter', 
 });
 
 
-import { createWaiterServiceManager } from './waiterQueue.js';
 
 function createServiceHarness({ waiterIds = ['waiter-1'], duration = 100 } = {}) {
   const queue = createWaiterQueue(10);
@@ -231,7 +228,6 @@ test('dispose clears timers, queue, assignments and busy state', () => {
 });
 
 
-import { createPairSlotManager } from './waiterQueue.js';
 
 test('pair slot manager allocates unique slots and prevents participant double-booking', () => {
   const slots = [{ id: 'slot-a' }, { id: 'slot-b' }];
@@ -274,7 +270,6 @@ test('clearing pair reservations releases every owner and guest', () => {
 });
 
 
-import { createInteractionReservationManager } from './waiterQueue.js';
 
 test('dance and VIP cannot reserve the same participant at the same time', () => {
   const manager = createInteractionReservationManager({
@@ -307,7 +302,6 @@ test('releasing one interaction mode does not clear reservations in the other mo
 });
 
 
-import { createWaiterServiceManager } from './waiterQueue.js';
 
 test('service startup rolls back its assignment when approach calculation fails', () => {
   const queue = createWaiterQueue(5);
