@@ -7,8 +7,10 @@ export function createSessionTimers({
   function cancel(konsId) {
     const timer = timers.get(konsId);
     if (timer === undefined) return false;
-    clearTimeoutFn(timer.handle);
+    // Remove the registry entry first: even if the host timer API throws,
+    // its eventual callback becomes stale and cannot expire this session.
     timers.delete(konsId);
+    try { clearTimeoutFn(timer.handle); } catch {}
     return true;
   }
 
