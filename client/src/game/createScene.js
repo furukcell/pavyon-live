@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { getCustomerAppearanceByIndex } from './characterCatalog.js';
-import { createWaiterQueue, createWaiterServiceLedger, createWaiterServiceManager, createPairSlotManager } from './waiterQueue.js';
+import { createWaiterQueue, createWaiterServiceLedger, createWaiterServiceManager, createInteractionReservationManager } from './waiterQueue.js';
 import { disposeSceneResources } from './disposeSceneResources.js';
 
 export function createGame(canvas) {
@@ -248,9 +248,8 @@ export function createGame(canvas) {
   const waiterQueue=createWaiterQueue(30);
   const activeCustomerServices=createWaiterServiceLedger();
   const vipSlots=[{x:7,z:-5},{x:8.5,z:-5},{x:7,z:-2.8},{x:8.5,z:-2.8}];
-  const vipReservations=createPairSlotManager(vipSlots);
   const danceSlots=[{x:-3,z:1},{x:0,z:1},{x:3,z:1},{x:-3,z:3},{x:0,z:3},{x:3,z:3}];
-  const danceReservations=createPairSlotManager(danceSlots);
+  const interactionReservations=createInteractionReservationManager({danceSlots,vipSlots});
   const konsColors=['#a92f59','#692b62','#bd7544','#345e77','#8d3b45','#75539a','#b08a36','#3f786a','#934c70','#5c4a37'];
   const skinTones=['#e8bd9b','#d6a17e','#b97855','#f0c9a8','#986447','#c88d6d'];
   const hairTones=['#211b22','#38251e','#6c4930','#171820','#7b5a3c'];
@@ -687,7 +686,7 @@ export function createGame(canvas) {
     guest.userData.danceStyle=i%3;
     hostess.userData.danceTempo=[0.92,1.08,1.2][i%3];
     guest.userData.danceTempo=[1.02,0.94,1.14][i%3];
-    danceReservations.reserve(hostessId,guestId);
+    interactionReservations.reserveDance(hostessId,guestId);
   }
 
 
@@ -854,8 +853,7 @@ export function createGame(canvas) {
     const home=actor.userData.home;
     if(home)moveTo(id,home.x,home.z);
   }
-  function releaseInteractionPair(manager,participantId){
-    const pair=manager.release(participantId);
+  function releaseInteractionPair(pair){
     if(!pair)return false;
     resetKonsHome(pair.ownerId);
     resetGuestHome(pair.guestId);
@@ -1239,8 +1237,7 @@ export function createGame(canvas) {
     konsDance:(k,id)=>{
       const hostess=actors.get(k),guest=actors.get(id);
       if(!hostess||!guest)return false;
-      if(vipReservations.forOwner(k)||vipReservations.forGuest(k)||vipReservations.forOwner(id)||vipReservations.forGuest(id))return false;
-      const slot=danceReservations.reserve(k,id);
+      const slot=interactionReservations.reserveDance(k,id);
       if(!slot)return false;
       prepareGuestForInteraction(guest);
       guest.userData.motion='dance';guest.userData.targetRotation=Math.PI/2;
@@ -1251,8 +1248,7 @@ export function createGame(canvas) {
     vip:(k,id)=>{
       const hostess=actors.get(k),guest=actors.get(id);
       if(!hostess||!guest)return false;
-      if(danceReservations.forOwner(k)||danceReservations.forGuest(k)||danceReservations.forOwner(id)||danceReservations.forGuest(id))return false;
-      const slot=vipReservations.reserve(k,id);
+      const slot=interactionReservations.reserveVip(k,id);
       if(!slot)return false;
       prepareGuestForInteraction(guest);
       hostess.userData.motion='flirt';hostess.userData.targetRotation=-Math.PI/2;
@@ -1261,20 +1257,20 @@ export function createGame(canvas) {
       return true;
     },
     releaseKons:k=>{
-      releaseInteractionPair(danceReservations,k);
-      releaseInteractionPair(vipReservations,k);
+      releaseInteractionPair(interactionReservations.releaseDance(k));
+      releaseInteractionPair(interactionReservations.releaseVip(k));
       resetKonsHome(k);
     },
     releaseGuest:id=>{
-      releaseInteractionPair(danceReservations,id);
-      releaseInteractionPair(vipReservations,id);
+      releaseInteractionPair(interactionReservations.releaseDance(id));
+      releaseInteractionPair(interactionReservations.releaseVip(id));
       resetGuestHome(id);
     },
     removeCustomer:id=>{
       const actor=actors.get(id);if(!actor)return false;
       waiterServices.cancelCustomer(id);
-      releaseInteractionPair(danceReservations,id);
-      releaseInteractionPair(vipReservations,id);
+      releaseInteractionPair(interactionReservations.releaseDance(id));
+      releaseInteractionPair(interactionReservations.releaseVip(id));
       releaseSeat(actor);
       actorGroup.remove(actor);actors.delete(id);
       // Use the same deduplicated cleanup path as full-scene disposal so
@@ -1285,6 +1281,6 @@ export function createGame(canvas) {
     show:id=>animateActor(id,'stage'),
     getTableStatus:()=>tableStates.map(table=>({id:table.id,occupied:table.occupied,capacity:table.seats.length})),
     setLikes:value=>{redGlow.intensity=35+Math.min(value,500)*.08;goldGlow.intensity=28+Math.min(value,500)*.04;},
-    dispose:()=>{if(disposed)return;disposed=true;cancelAnimationFrame(raf);observer.disconnect();waiterServices.dispose();danceReservations.clear();vipReservations.clear();disposeSceneResources(scene);renderer.renderLists.dispose();renderer.dispose();}
+    dispose:()=>{if(disposed)return;disposed=true;cancelAnimationFrame(raf);observer.disconnect();waiterServices.dispose();interactionReservations.clear();disposeSceneResources(scene);renderer.renderLists.dispose();renderer.dispose();}
   };
 }
