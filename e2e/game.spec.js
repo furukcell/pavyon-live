@@ -75,6 +75,24 @@ test('runs all five gift actions and updates the live event status', async ({ pa
   await expect(page.locator('#live-event-history')).toContainText('e2e_provider');
 });
 
+test('music panel imports tracks and preserves favorites across categories', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#music-toggle').click();
+  await expect(page.locator('#music-panel')).toBeVisible();
+  await page.locator('[data-music-category="ankara"]').click();
+  await page.locator('#music-files').setInputFiles({
+    name: 'rehearsal.wav',
+    mimeType: 'audio/wav',
+    buffer: Buffer.alloc(64)
+  });
+  await expect(page.locator('.music-track-name')).toHaveText('rehearsal');
+  await page.locator('.music-favorite').click();
+  await page.locator('[data-music-category="favorites"]').click();
+  await expect(page.locator('.music-track-name')).toHaveText('rehearsal');
+  await page.locator('#music-close').click();
+  await expect(page.locator('#music-panel')).toBeHidden();
+});
+
 test('supports the OBS stream-only layout', async ({ page }) => {
   await page.goto('/?view=stream');
   await expect(page.locator('html')).toHaveClass(/stream-mode/);
