@@ -110,3 +110,6 @@ footer{text-align:center;color:#b08e9d;font-size:9px;letter-spacing:.3px;margin-
 @media(max-width:700px){.live-history-stat{display:none}}
 .stream-mode .live-history-stat{min-width:160px;max-width:260px}
 @media(max-width:700px){.stream-mode .live-history-stat{display:block;min-width:0;max-width:none}}
+
+/* Small phones: keep the game canvas inside the visual viewport and make controls independently scrollable. */
+@media(max-width:700px){#game-shell{min-height:0}.bottom-grid{min-height:0}.controls{max-height:52svh;overflow-y:auto;overscroll-behavior:contain}}
