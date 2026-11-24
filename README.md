@@ -31,7 +31,7 @@
 
 ## İlerleme takibi — sabit hesap yöntemi
 
-**Son doğrulama: 23 Kasım 2026.** GitHub Actions üzerinde `npm test` 91/91 test ile geçti ve `npm run build` başarılı üretim derlemesi oluşturdu. CI sırasında waiterQueue.test.js içindeki yinelenen import ve bir testteki hatalı beklenti düzeltildi. Tarayıcı E2E, gerçek cihaz, yük testi ve gerçek LIVE provası henüz yapılmadı.
+**Son doğrulama: 24 Kasım 2026.** GitHub Actions üzerinde `npm test` 94/94 test ile geçti, `npm run build` başarılı üretim derlemesi oluşturdu ve Playwright tarayıcı paketi 11 geçti / 1 atlandı sonucunu verdi. Masaüstü ve mobil komut/hediye akışları, OBS stream-only görünümü ve masaüstünde 10/25/50/100 eşzamanlı izleyici senaryosu doğrulandı. Mobil 100 izleyici yük testi bilinçli olarak atlanıyor. Gerçek cihaz, fiziksel OBS, Render dağıtımı ve yerel canlı olay provası henüz tamamlanmadı.
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
 - **Mevcut teslim hedefi: yaklaşık %43 (gerçek TikTok bağlantısı hariç).** Bu oran, TikTok dışındaki altı iş paketinin kayıtlı yüzdelerinin eşit ağırlıklı ortalamasıdır (256 / 6 = %42,7; yuvarlanmış %43). TikTok bağlantısı ayrı ve ertelenmiş bir iş paketidir; bu çalışmanın kapsamına dahil değildir. Önceki %95 kaydı doğrulanabilir değildi ve kaldırıldı. Tarayıcı E2E, gerçek cihaz, performans, hosting ve OBS provası doğrulanmadan tamamlandı sayılmayacak.
@@ -58,7 +58,16 @@
 
 **Ayrı ertelenen kapsam:** Gerçek TikTok hesabı yetkilendirmesi, TikTok LIVE olay adaptörü ve gerçek TikTok yayını provası kullanıcı kararıyla bu teslimattan çıkarılmıştır; bunlar tamamlanma yüzdesini veya yukarıdaki kilometre taşlarını bloke etmez.
 
-### TikTok bağlantısı hariç mevcut bitirme kapsamı\n\n- Tarayıcı E2E altyapısı eklendi: masaüstü ve mobil Chromium projeleri, komut/hediye akışı, OBS stream görünümü, 25/50/75/100 izleyici giriş senaryosu.\n- Sunucu HTTP entegrasyon testleri eklendi: health/status, hediye eşlemesi, eventId tekilleştirme, imzalı provider webhook, hatalı imza reddi ve production ortamında geliştirme endpoint'inin kapalı olması.\n- Mobilde 700px altı ekranda piksel oranı 1'e düşürülüyor; kalabalık 30 karakteri aşınca gölge haritası kapatılıp piksel oranı 1'e çekiliyor.\n- HTTP güvenlik başlıkları, status/health için no-store, Socket.IO mesaj boyutu/zaman aşımı sınırları ve SIGTERM/SIGINT için kontrollü kapanış eklendi.\n- Bu yeni tarayıcı ve sunucu entegrasyon testleri CI'da yeşil sonuç vermeden tamamlanmış kabul edilmeyecek. Gerçek TikTok hesabına bağlanma ve gerçek TikTok olay kaynağı bu kapsamın dışında kalır.\n\n### Canlı olay geçmişi ve yayın HUD
+### TikTok bağlantısı hariç mevcut bitirme kapsamı
+
+- Tarayıcı E2E altyapısı masaüstü ve mobil Chromium projelerinde doğrulandı: komut/hediye akışı, OBS stream görünümü ve 10/25/50/100 izleyici masaüstü yük senaryosu.
+- Sunucu HTTP entegrasyon testleri: health/status, hediye eşlemesi, eventId tekilleştirme, imzalı provider webhook, hatalı imza reddi ve production ortamında geliştirme endpoint'inin kapalı olması.
+- Mobilde 700px altı ekranda piksel oranı 1'e düşürülüyor; kalabalık 30 karakteri aşınca gölge haritası kapatılıp piksel oranı 1'e çekiliyor.
+- HTTP güvenlik başlıkları, status/health için no-store, Socket.IO mesaj boyutu/zaman aşımı sınırları ve SIGTERM/SIGINT için kontrollü kapanış eklendi.
+- CI doğrulaması 24 Kasım 2026 tarihinde yeşil: 94/94 birim/sunucu testi, üretim derlemesi ve 11 başarılı / 1 bilinçli atlanan tarayıcı testi. Gerçek cihaz, Render ve fiziksel OBS provası hâlâ bekliyor.
+- Gerçek TikTok hesabına bağlanma ve gerçek TikTok olay kaynağı bu kapsamın dışında kalır.
+
+### Canlı olay geçmişi ve yayın HUD
 
 - Sunucu son 20 kabul edilmiş yorum/beğeni/hediye olayını bellekte tutar; eski kayıtlar otomatik düşürülür.
 - `/api/status` ve Socket.IO `live:status` yanıtı `recentEvents` listesini içerir.
