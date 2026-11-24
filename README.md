@@ -2,7 +2,7 @@
 
 **TikTok LIVE izleyicilerinin yorum, beğeni ve hediyelerle katılacağı 3D pavyon oyunu.**
 
-> **Proje durumu (24 Kasım 2026):** Görsel ve etkileşim prototipi geliştiriliyor. Oyun henüz gerçek TikTok LIVE hesabına bağlı değil. Bu depoda profesyonel harici 3D model dosyaları bulunmuyor; karakterler Three.js geometrileriyle kod üzerinden üretiliyor.
+> **Proje durumu (24 Kasım 2026):** Görsel ve etkileşim prototipi geliştiriliyor. Oyun henüz gerçek TikTok LIVE hesabına bağlı değil. Karakterlerde harici rig'li GLB modeller için ilk yükleme katmanı mevcut; modeller Gobkit CDN üzerinden yükleniyor, yükleme başarısız olursa prosedürel karakter yedeği korunuyor. Animasyon klip adları idle/walk/run/dance/sit gibi anahtar kelimelere göre eşleştiriliyor. Gerçek model/animasyon kalitesi masaüstü ve mobil tarayıcıda ayrıca doğrulanacak. GLB dosyaları depoya dahil değildir.
 
 ## İlk yayın sürümü (V1) — kapsam sabitlendi
 
