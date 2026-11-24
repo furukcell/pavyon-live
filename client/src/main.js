@@ -241,9 +241,9 @@ function addViewer(rawName) {
     return null;
   }
   state.viewers.set(name, guest);
-  // A normal browser follows its own named test character; the OBS stream follows
-  // the latest entrant so every TikTok viewer sees one consistent broadcast camera.
-  if (streamMode || name === username()) game.followActor(guest.id);
+  // Only the local player's browser follows its own character.
+  // OBS/stream mode always keeps the shared wide venue camera.
+  if (!streamMode && name === username()) game.followActor(guest.id);
   log(`<b>@${escapeHtml(name)}</b> pavyona giriş yaptı.`);
   updateHud();
   return guest;
