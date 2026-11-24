@@ -9,11 +9,12 @@ import { cleanupCustomerExit } from './customerExitLifecycle.js';
 const characterAssetLoader = new GLTFLoader();
 const characterAssetCache = new Map();
 const CHARACTER_ASSETS = {
-  customerMale: 'https://gobkit.com/freebies/human021/RestaurantGuest.glb',
-  customerFemale: 'https://gobkit.com/freebies/human001/OfficeLady.glb',
-  waiter: 'https://gobkit.com/freebies/human021/Waitress.glb',
-  kons: 'https://gobkit.com/freebies/human001/OfficeLady.glb',
-  musician: 'https://gobkit.com/freebies/human002/CompanyCeo.glb'
+  // Human-proportioned, textured people models (CC BY 4.0, credit in README).
+  customerMale: 'https://models.vinish.dev/people/casual-man.glb',
+  customerFemale: 'https://models.vinish.dev/people/casual-woman.glb',
+  waiter: 'https://models.vinish.dev/people/business-man.glb',
+  kons: 'https://models.vinish.dev/people/business-woman.glb',
+  musician: 'https://models.vinish.dev/people/business-man.glb'
 };
 function getCharacterAsset(url) {
   if (!characterAssetCache.has(url)) characterAssetCache.set(url, new Promise((resolve, reject) => characterAssetLoader.load(url, resolve, undefined, reject)));
@@ -31,7 +32,9 @@ function attachRiggedCharacter(actor, role, variant) {
     model.updateMatrixWorld(true);
     const bounds = new THREE.Box3().setFromObject(model);
     const height = Math.max(.01, bounds.max.y - bounds.min.y);
-    const scale = 1.72 / height;
+    // Preserve natural human proportions and realistic male/female heights.
+    const targetHeight = female || role === 'kons' ? 1.68 : 1.78;
+    const scale = targetHeight / height;
     model.scale.setScalar(scale);
     model.position.y = -bounds.min.y * scale;
     model.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } });
