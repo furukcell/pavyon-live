@@ -1,9 +1,57 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 import { getCustomerAppearanceByIndex } from './characterCatalog.js';
 import { createWaiterQueue, createWaiterServiceLedger, createWaiterServiceManager, createInteractionReservationManager } from './waiterQueue.js';
 import { disposeSceneResources } from './disposeSceneResources.js';
 import { cleanupCustomerExit } from './customerExitLifecycle.js';
 
+const characterAssetLoader = new GLTFLoader();
+const characterAssetCache = new Map();
+const CHARACTER_ASSETS = {
+  customerMale: 'https://gobkit.com/freebies/human021/RestaurantGuest.glb',
+  customerFemale: 'https://gobkit.com/freebies/human001/OfficeLady.glb',
+  waiter: 'https://gobkit.com/freebies/human021/Waitress.glb',
+  kons: 'https://gobkit.com/freebies/human001/OfficeLady.glb',
+  musician: 'https://gobkit.com/freebies/human002/CompanyCeo.glb'
+};
+function getCharacterAsset(url) {
+  if (!characterAssetCache.has(url)) characterAssetCache.set(url, new Promise((resolve, reject) => characterAssetLoader.load(url, resolve, undefined, reject)));
+  return characterAssetCache.get(url);
+}
+function attachRiggedCharacter(actor, role, variant) {
+  const female = role === 'customer' && getCustomerAppearanceByIndex(variant).gender === 'female';
+  const key = role === 'customer' ? (female ? 'customerFemale' : 'customerMale') : role;
+  const url = CHARACTER_ASSETS[key];
+  if (!url) return;
+  getCharacterAsset(url).then(gltf => {
+    if (!actor.parent) return;
+    const model = cloneSkinned(gltf.scene);
+    model.name = 'rigged-character-model';
+    model.updateMatrixWorld(true);
+    const bounds = new THREE.Box3().setFromObject(model);
+    const height = Math.max(.01, bounds.max.y - bounds.min.y);
+    const scale = 1.72 / height;
+    model.scale.setScalar(scale);
+    model.position.y = -bounds.min.y * scale;
+    model.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } });
+    actor.add(model);
+    actor.children.forEach(child => { if (child !== model && !child.userData.cameraPickTarget) child.visible = false; });
+    const mixer = new THREE.AnimationMixer(model);
+    const actions = new Map();
+    for (const clip of gltf.animations || []) actions.set(clip.name.toLowerCase(), mixer.clipAction(clip));
+    actor.userData.animationMixer = mixer;
+    actor.userData.animationActions = actions;
+    actor.userData.playRiggedAnimation = name => {
+      const wanted = actions.get(name.toLowerCase()) || actions.get('idle');
+      if (!wanted || actor.userData.activeRiggedAction === wanted) return;
+      actor.userData.activeRiggedAction?.fadeOut(.18);
+      wanted.reset().fadeIn(.18).play();
+      actor.userData.activeRiggedAction = wanted;
+    };
+    actor.userData.playRiggedAnimation('Idle');
+  }).catch(error => console.warn('[PAVYON LIVE] Rigged character load failed; using procedural fallback.', error));
+}
 export function createGame(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 700 ? 1 : 1.5));
@@ -723,7 +771,7 @@ export function createGame(canvas) {
     cameraPickTarget.position.y=.98;
     cameraPickTarget.userData.cameraPickTarget=group;
     group.add(cameraPickTarget);
-    actorGroup.add(group);actors.set(id,group);return group;
+    actorGroup.add(group);actors.set(id,group);attachRiggedCharacter(group,role,variant);return group;
   }
   // Navigation stays within the playable floor footprint.
   const ROOM_BOUNDS={minX:-12.3,maxX:12.3,minZ:-10.3,maxZ:10.3};
@@ -1131,6 +1179,7 @@ export function createGame(canvas) {
       separationGrid.get(key).push(actor);
     });
     actors.forEach(actor=>{
+      actor.userData.animationMixer?.update(dt);
       const target=actor.userData.target;
       let walking=false;
       if(target){
@@ -1188,6 +1237,10 @@ export function createGame(canvas) {
             actor.userData.sitStarted=time;
           }
         }
+      }
+      if(actor.userData.playRiggedAnimation){
+        const state = walking ? 'Walk' : (actor.userData.motion === 'dance' || actor.userData.motion === 'stage' ? 'Special' : 'Idle');
+        actor.userData.playRiggedAnimation(state);
       }
       if(actor.userData.role==='kons'){
         const flirt=Math.sin(time*1.7+actor.userData.flirtPhase);
