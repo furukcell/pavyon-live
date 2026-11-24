@@ -51,7 +51,7 @@ The repository contains a Render Blueprint in `render.yaml`.
 3. Confirm the `pavyon-live` web service, Node runtime, build command `npm install && npm run build`, start command `npm start`, and health check `/health`.
 4. Keep `NODE_ENV=production`.
 5. Do not add API keys or secrets to the repository. The signed provider webhook stays unavailable until a secret is deliberately configured.
-6. After deployment, verify `/health` returns HTTP 200 and `/api/status` reports the expected server state.
+6. For automatic deployments, open the Render service settings, create a Deploy Hook, then add its URL to GitHub repository Settings → Secrets and variables → Actions as `RENDER_DEPLOY_HOOK_URL`. The `Deploy to Render` workflow will trigger a deployment after pushes to `main`; it can also be started manually from Actions. Keep the hook URL private.\n7. After deployment, verify `/health` returns HTTP 200 and `/api/status` reports the expected server state.
 
 The actual public URL is assigned by Render; use the URL shown in the Render dashboard. No deployment is considered complete until the live service has been checked.
 
