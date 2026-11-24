@@ -34,7 +34,7 @@
 ****Son doğrulama: 24 Kasım 2026.** GitHub Actions üzerinde `npm test` 94/94 test ile geçti, `npm run build` başarılı üretim derlemesi oluşturdu ve Playwright tarayıcı paketi 11 geçti / 1 atlandı sonucunu verdi. Masaüstü ve mobil komut/hediye akışları, OBS stream-only görünümü ve masaüstünde 10/25/50/100 eşzamanlı izleyici senaryosu doğrulandı. Mobil 100 izleyici yük testi bilinçli olarak atlanıyor. Gerçek cihaz, fiziksel OBS, Render dağıtımı ve yerel canlı olay provası henüz tamamlanmadı.
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
-- **Mevcut teslim hedefi: yaklaşık %43 (gerçek TikTok bağlantısı hariç).** Bu oran, TikTok dışındaki altı iş paketinin kayıtlı yüzdelerinin eşit ağırlıklı ortalamasıdır (256 / 6 = %42,7; yuvarlanmış %43). TikTok bağlantısı ayrı ve ertelenmiş bir iş paketidir; bu çalışmanın kapsamına dahil değildir. Önceki %95 kaydı doğrulanabilir değildi ve kaldırıldı. Tarayıcı E2E, gerçek cihaz, performans, hosting ve OBS provası doğrulanmadan tamamlandı sayılmayacak.
+- **Mevcut teslim hedefi: yaklaşık %50 (gerçek TikTok bağlantısı hariç).** Bu oran, TikTok dışındaki altı iş paketinin kayıtlı yüzdelerinin eşit ağırlıklı ortalamasıdır (298 / 6 = %49,7; yuvarlanmış %50). TikTok bağlantısı ayrı ve ertelenmiş bir iş paketidir; bu çalışmanın kapsamına dahil değildir. Önceki %95 kaydı doğrulanabilir değildi ve kaldırıldı. Tarayıcı E2E, gerçek cihaz, performans, hosting ve OBS provası doğrulanmadan tamamlandı sayılmayacak.
 - Yüzde yalnızca aşağıdaki V1 kabul kriterleri tamamlanıp doğrulandığında artar. Kodun yazılmış olması tek başına tamamlandı sayılmaz; ilgili akışın test edilmesi gerekir.
 - Bir iş paketi tamamlandıktan sonra yeni fikir eklenmesi o paketin yüzdesini düşürmez. V1 için zorunlu yeni bir hata bulunursa yalnızca ilgili kriter yeniden açılır ve nedeni not edilir.
 
@@ -42,10 +42,10 @@
 |---|---:|---|
 | 3D mekân ve sahne | %68 | Mobil/masaüstü sahne kontrolü ve temel görsel kabul |
 | Karakterler ve animasyon | %50 | Kons/müşteri/garson akışlarının cihazda kontrolü |
-| Oyun kuralları ve hediye akışları | %68 | Tüm komut ve hediye senaryolarının uçtan uca testi |
-| Sunucu ve olay altyapısı | %55 | Doğrulanmış olay, hata ve tekrar olay testleri |
+| Oyun kuralları ve hediye akışları | %75 | Komutlar ve beş hediye aksiyonunun masaüstü/mobil uçtan uca doğrulaması |
+| Sunucu ve olay altyapısı | %65 | 94 birim/sunucu testi; imza doğrulama, hata reddi ve eventId tekilleştirme |
 | Gerçek TikTok LIVE bağlantısı (ertelendi) | %0 | Bu teslim kapsamı dışında; sonraki ayrı aşama |
-| Performans, güvenlik ve canlı prova | %5 | Yük testi, mobil test ve başarılı yayın provası |
+| Performans, güvenlik ve canlı prova | %30 | 100 izleyici masaüstü yük testi, mobil viewport ve güvenlik kontrolleri; fiziksel cihaz/OBS provası bekliyor |
 | Hosting/yayın hazırlığı | %10 | Dağıtım, sağlık kontrolü ve Browser Source doğrulaması |
 
 ### Sıradaki kilometre taşları
