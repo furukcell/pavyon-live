@@ -32,15 +32,20 @@ button:hover{transform:translateY(-1px);border-color:#e5bd75}button:active{trans
 .like-button{width:100%;margin-top:8px;background:linear-gradient(90deg,#8f294b,#57213d);border-color:#ce6c8c}
 footer{text-align:center;color:#b08e9d;font-size:9px;letter-spacing:.3px;margin-top:8px}
 @media(max-width:700px){
-  #game-shell{min-height:600px}
-  .hud{padding: max(12px,env(safe-area-inset-top)) 12px max(8px,env(safe-area-inset-bottom))}
-  h1{font-size:32px}.eyebrow{font-size:8px}.live-pill{font-size:8px;padding:7px 9px}
-  .status-row{gap:6px;margin-top:9px}.stat{min-width:0;flex:1;padding:7px 8px}.stat small{font-size:8px}.stat strong{font-size:14px}
-  .bottom-grid{display:block}.command-panel{display:none}.controls{padding:10px;border-radius:12px}
+  #game-shell{height:100svh;min-height:0;overflow:hidden}
+  #game-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .hud{position:absolute;z-index:3;top:0;left:0;right:0;padding:max(8px,env(safe-area-inset-top)) 10px 8px;pointer-events:none}
+  .hud>*{pointer-events:auto}
+  h1{font-size:28px}.eyebrow{font-size:8px}.live-pill{font-size:8px;padding:7px 9px}
+  .status-row{display:flex;flex-wrap:nowrap;gap:6px;margin-top:8px;overflow-x:auto;scrollbar-width:none}
+  .status-row::-webkit-scrollbar{display:none}
+  .stat{min-width:92px;flex:0 0 auto;padding:7px 8px}.stat small{font-size:8px}.stat strong{font-size:13px}
+  .bottom-grid{position:absolute;z-index:4;left:10px;right:10px;bottom:max(8px,env(safe-area-inset-bottom));display:block;min-height:0}
+  .command-panel{display:none}.controls{max-height:40svh;padding:10px;border-radius:12px;overflow-y:auto;overscroll-behavior:contain;background:#160d18f2}
   .controls label{margin:5px 0}.controls input,.controls select{padding:7px 9px}
   .button-grid{gap:5px}.button-grid button{padding:8px 5px;font-size:10px}
   .gifts button{font-size:9px}.divider{margin:7px 0}
-  .like-button{padding:8px;margin-top:6px}footer{font-size:8px}
+  .like-button{padding:8px;margin-top:6px}footer{display:none}
 }
 @media(max-height:720px) and (min-width:701px){.event-log{height:100px}.panel{padding:10px}.hud{padding:12px}}
 

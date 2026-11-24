@@ -257,8 +257,8 @@ export function createGame(canvas) {
   function setCameraFollow(actor){
     followedActor=actor||null;
     if(followedActor){
-      cameraDistance=8.5;
-      cameraPitch=.48;
+      cameraDistance=window.innerWidth<700?7.2:8.5;
+      cameraPitch=window.innerWidth<700?.34:.48;
       cameraYaw=followedActor.rotation.y;
       document.querySelector('#camera-mode')?.setAttribute('aria-pressed','true');
       const button=document.querySelector('#camera-mode');if(button)button.textContent='◉ KARAKTER TAKİPTE';
@@ -312,7 +312,7 @@ export function createGame(canvas) {
   function updateCamera(dt){
     if(followedActor&&!actors.has(followedActor.userData.id)){setCameraFollow(null);}
     const desiredFocus=followedActor
-      ? new THREE.Vector3(followedActor.position.x,1.05,followedActor.position.z)
+      ? new THREE.Vector3(followedActor.position.x,.88,followedActor.position.z)
       : new THREE.Vector3(0,0,0);
     cameraFocus.lerp(desiredFocus,Math.min(1,dt*(followedActor?7:3)));
     const horizontal=Math.cos(cameraPitch)*cameraDistance;
