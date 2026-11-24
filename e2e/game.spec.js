@@ -83,6 +83,7 @@ test('runs all five gift actions and updates the live event status', async ({ pa
 });
 
 test('music panel imports tracks and preserves favorites across categories', async ({ page }) => {
+  test.setTimeout(60_000); // The 3D scene and file-input interactions can exceed 30s on slower CI workers.
   await page.goto('/');
   await page.locator('#music-toggle').click();
   await expect(page.locator('#music-panel')).toBeVisible();
