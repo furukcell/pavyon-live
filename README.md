@@ -4,6 +4,13 @@
 
 > **Proje durumu (24 Kasım 2026):** Görsel ve etkileşim prototipi geliştiriliyor. Oyun henüz gerçek TikTok LIVE hesabına bağlı değil. Karakterlerde harici rig'li GLB modeller için ilk yükleme katmanı mevcut; modeller Gobkit CDN üzerinden yükleniyor, yükleme başarısız olursa prosedürel karakter yedeği korunuyor. Animasyon klip adları idle/walk/run/dance/sit gibi anahtar kelimelere göre eşleştiriliyor. Gerçek model/animasyon kalitesi masaüstü ve mobil tarayıcıda ayrıca doğrulanacak. GLB dosyaları depoya dahil değildir.
 
+
+
+### Karakter model kaynakları
+
+- Casual Man, Casual Woman, Business Man ve Business Woman modelleri: vinish.dev, CC BY 4.0. Kaynak: https://vinish.dev/free-3d-models/people
+- Modeller oyun içinde yeniden ölçeklenmiş ve rol eşleştirmesi yapılmıştır.
+
 ## İlk yayın sürümü (V1) — kapsam sabitlendi
 
 > **18 Kasım 2026 itibarıyla V1 kapsamı donduruldu.** Bundan sonra yeni fikirler V1'e otomatik eklenmeyecek; ayrı bir V2 listesine alınacak. Böylece tamamlanan işler geriye dönük olarak kapsam genişlemesi yüzünden yüzde kaybetmeyecek.
