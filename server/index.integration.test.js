@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createProviderSignature } from './providerWebhook.js';
+import { io as createSocket } from 'socket.io-client';
 
 async function startServer(extraEnv = {}) {
   const child = spawn(process.execPath, ['server/index.js'], {
@@ -139,6 +140,77 @@ test('production mode refuses the development event endpoint', async () => {
     });
     assert.equal(response.status, 403);
   } finally {
+    await server.stop();
+  }
+});
+
+
+test('local simulator rehearsal streams comment, gift and like events and ignores replay', async () => {
+  const server = await startServer({ LIVE_GIFT_MAP: JSON.stringify({ 'Finger Heart': 'invite' }) });
+  const socket = createSocket(server.baseUrl, { transports: ['websocket'], reconnection: false });
+  try {
+    await new Promise((resolve, reject) => {
+      socket.once('connect', resolve);
+      socket.once('connect_error', reject);
+      setTimeout(() => reject(new Error('Simulator WebSocket did not connect.')), 5_000).unref();
+    });
+
+    async function sendAndReceive(payload, expectedType) {
+      const received = new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error(`Timed out waiting for ${expectedType} event.`)), 3_000);
+        socket.once('live:event', event => {
+          clearTimeout(timer);
+          resolve(event);
+        });
+      });
+      const response = await fetch(`${server.baseUrl}/dev/event`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      assert.equal(response.status, 202);
+      const result = await response.json();
+      assert.equal(result.accepted, true);
+      assert.equal(result.duplicate, false);
+      const event = await received;
+      assert.equal(event.type, expectedType);
+      return event;
+    }
+
+    const comment = await sendAndReceive({
+      type: 'comment', username: 'sim_viewer', comment: '!gel', eventId: 'sim-comment-001'
+    }, 'comment');
+    assert.equal(comment.comment, '!gel');
+
+    const gift = await sendAndReceive({
+      type: 'gift', username: 'sim_viewer', giftName: 'Finger Heart', eventId: 'sim-gift-001'
+    }, 'gift');
+    assert.equal(gift.action, 'invite');
+
+    const like = await sendAndReceive({
+      type: 'like', username: 'sim_viewer', count: 25, eventId: 'sim-like-001'
+    }, 'like');
+    assert.equal(like.count, 25);
+
+    const replay = await fetch(`${server.baseUrl}/dev/event`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ type: 'comment', username: 'sim_viewer', comment: '!gel', eventId: 'sim-comment-001' })
+    });
+    assert.equal(replay.status, 200);
+    assert.equal((await replay.json()).duplicate, true);
+
+    const status = await (await fetch(`${server.baseUrl}/api/status`)).json();
+    assert.equal(status.accepted, 3);
+    assert.equal(status.comments, 1);
+    assert.equal(status.gifts, 1);
+    assert.equal(status.likes, 1);
+    assert.equal(status.recentEvents.length, 3);
+    assert.equal(status.recentEvents[0].count, 25);
+    assert.equal(status.recentEvents[1].action, 'invite');
+    assert.equal(status.recentEvents[2].command, '!gel');
+  } finally {
+    socket.close();
     await server.stop();
   }
 });
