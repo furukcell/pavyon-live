@@ -11,10 +11,13 @@ concurrency:
 
 jobs:
   deploy:
-    if: ${{ secrets.RENDER_DEPLOY_HOOK_URL != '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Render deployment
+        if: ${{ env.RENDER_DEPLOY_HOOK_URL != '' }}
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
+      - name: Explain skipped deployment
+        if: ${{ env.RENDER_DEPLOY_HOOK_URL == '' }}
+        run: echo "Skipped: add the RENDER_DEPLOY_HOOK_URL repository Actions secret to enable Render deployments."
