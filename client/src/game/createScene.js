@@ -356,6 +356,43 @@ export function createGame(canvas) {
     body.scale.set(role==='kons'?.92:1,role==='kons'?1:1.04,role==='kons'?.88:1);
     body.castShadow=!liteCustomer;body.receiveShadow=!liteCustomer;group.add(body);
     group.userData.body=body;
+    if(role==='customer'&&!liteCustomer){
+      // Layered street/evening wear so customers read as dressed people, not colored mannequins.
+      const female=appearance.gender==='female';
+      const jacketPalette=['#252832','#40313a','#26343a','#49372e','#343044','#5a3438'];
+      const jacketColor=jacketPalette[(variant*7)%jacketPalette.length];
+      const trimColor=variant%2?'#d3b27a':'#c5c5c8';
+      if(variant%4!==2){
+        const jacketMaterial=new THREE.MeshStandardMaterial({color:jacketColor,roughness:.78});
+        const shirtMaterial=new THREE.MeshStandardMaterial({color:female?(variant%2?'#eee0d7':'#e5c9cb'):'#e8e3dc',roughness:.7});
+        const shirtFront=new THREE.Mesh(new THREE.BoxGeometry(.19,.34,.035),shirtMaterial);
+        shirtFront.position.set(0,.79,.224);group.add(shirtFront);
+        for(const side of [-1,1]){
+          const panel=new THREE.Mesh(new THREE.BoxGeometry(.115,.39,.045),jacketMaterial);
+          panel.position.set(side*.125,.77,.22);panel.rotation.z=side*.035;group.add(panel);
+          const lapel=new THREE.Mesh(new THREE.BufferGeometry(),new THREE.MeshStandardMaterial({color:jacketColor,roughness:.76,side:THREE.DoubleSide}));
+          const points=[new THREE.Vector3(side*.035,.98,.253),new THREE.Vector3(side*.14,1.02,.25),new THREE.Vector3(side*.105,.82,.258)];
+          lapel.geometry.setFromPoints(points);lapel.geometry.computeVertexNormals();group.add(lapel);
+        }
+        const seam=new THREE.Mesh(new THREE.BoxGeometry(.012,.3,.012),new THREE.MeshStandardMaterial({color:trimColor,metalness:.2,roughness:.55}));
+        seam.position.set(0,.78,.257);group.add(seam);
+        if(!female&&variant%3===0){
+          const tie=new THREE.Mesh(new THREE.ConeGeometry(.035,.23,4),new THREE.MeshStandardMaterial({color:variant%2?'#7b293c':'#263c58',roughness:.5}));
+          tie.position.set(0,.81,.263);tie.rotation.x=Math.PI;group.add(tie);
+        }
+        for(let button=0;button<3;button++){
+          const stud=new THREE.Mesh(new THREE.SphereGeometry(.012,7,6),new THREE.MeshStandardMaterial({color:trimColor,metalness:.45,roughness:.35}));
+          stud.position.set((variant%2===0?-.09:.09),.9-button*.085,.265);group.add(stud);
+        }
+      }else{
+        const knit=new THREE.Mesh(new THREE.CylinderGeometry(.235,.245,.12,20,1,true),new THREE.MeshStandardMaterial({color:jacketColor,roughness:.88,side:THREE.DoubleSide}));
+        knit.position.y=.59;group.add(knit);
+      }
+      if(female&&variant%3===1){
+        const pendant=new THREE.Mesh(new THREE.SphereGeometry(.025,10,8),new THREE.MeshStandardMaterial({color:'#d8b36f',metalness:.8,roughness:.25}));
+        pendant.position.set(0,1.015,.265);group.add(pendant);
+      }
+    }
     if(role!=='kons'&&!liteCustomer){
       const waistSeam=new THREE.Mesh(new THREE.TorusGeometry(role==='waiter'?.205:.22,.012,6,24),new THREE.MeshStandardMaterial({color:role==='waiter'?'#b58a54':'#4b3b3e',metalness:.28,roughness:.48}));
       waistSeam.rotation.x=Math.PI/2;waistSeam.position.y=.54;group.add(waistSeam);
