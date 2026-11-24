@@ -53,6 +53,7 @@ socket.on('live:status', status => {
   }
 });
 const game = createGame(document.querySelector('#game-canvas'));
+document.querySelector('#camera-mode')?.addEventListener('click',()=>game.resetCamera());
 const logEl = document.querySelector('#event-log');
 const state = {
   viewers: new Map(), likes: 0,

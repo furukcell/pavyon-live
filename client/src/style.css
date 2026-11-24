@@ -113,3 +113,9 @@ footer{text-align:center;color:#b08e9d;font-size:9px;letter-spacing:.3px;margin-
 
 /* Small phones: keep the game canvas inside the visual viewport and make controls independently scrollable. */
 @media(max-width:700px){#game-shell{min-height:0}.bottom-grid{min-height:0}.controls{max-height:52svh;overflow-y:auto;overscroll-behavior:contain}}
+
+/* Per-viewer third-person camera controls */
+.camera-toggle{border-color:#8c6e9c;background:linear-gradient(135deg,#493052,#281a35);letter-spacing:.45px;font-size:9px;padding:8px 10px;white-space:nowrap}
+#game-canvas{cursor:grab;touch-action:none}
+#game-canvas:active{cursor:grabbing}
+@media(max-width:700px){.camera-toggle{font-size:8px;padding:7px 8px}.top-actions{flex-wrap:wrap;justify-content:flex-end}}

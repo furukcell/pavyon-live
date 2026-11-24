@@ -244,6 +244,85 @@ export function createGame(canvas) {
   const actorGroup=new THREE.Group();scene.add(actorGroup);
   const actors=new Map();
   let customerSequence=0;
+  // Each browser owns its camera state; selecting an actor never changes another viewer's view.
+  const cameraFocus=new THREE.Vector3(0,0,0);
+  let followedActor=null;
+  let cameraYaw=0;
+  let cameraPitch=.72;
+  let cameraDistance=30;
+  let cameraDragging=false;
+  let cameraPointer=null;
+  const cameraRaycaster=new THREE.Raycaster();
+  const cameraPointerNdc=new THREE.Vector2();
+  function setCameraFollow(actor){
+    followedActor=actor||null;
+    if(followedActor){
+      cameraDistance=5.8;
+      cameraPitch=.34;
+      cameraYaw=followedActor.rotation.y+Math.PI;
+      document.querySelector('#camera-mode')?.setAttribute('aria-pressed','true');
+      const button=document.querySelector('#camera-mode');if(button)button.textContent='◉ KARAKTER TAKİPTE';
+    }else{
+      cameraDistance=window.innerWidth<700?31:27;
+      cameraPitch=.72;cameraYaw=0;
+      document.querySelector('#camera-mode')?.setAttribute('aria-pressed','false');
+      const button=document.querySelector('#camera-mode');if(button)button.textContent='◎ GENEL KAMERA';
+    }
+  }
+  function selectActorAt(clientX,clientY){
+    const rect=canvas.getBoundingClientRect();
+    cameraPointerNdc.set(((clientX-rect.left)/rect.width)*2-1,-((clientY-rect.top)/rect.height)*2+1);
+    cameraRaycaster.setFromCamera(cameraPointerNdc,camera);
+    const hits=cameraRaycaster.intersectObjects(actorGroup.children,true);
+    let actor=null;
+    for(const hit of hits){
+      let node=hit.object;
+      while(node&&node.parent!==actorGroup)node=node.parent;
+      if(node&&node.parent===actorGroup){actor=node;break;}
+    }
+    setCameraFollow(actor);
+  }
+  canvas.addEventListener('pointerdown',event=>{
+    if(event.button!==0)return;
+    cameraDragging=true;cameraPointer={x:event.clientX,y:event.clientY,lastX:event.clientX,lastY:event.clientY,moved:false};
+    canvas.setPointerCapture?.(event.pointerId);
+  });
+  canvas.addEventListener('pointermove',event=>{
+    if(!cameraDragging||!cameraPointer)return;
+    const dx=event.clientX-cameraPointer.lastX,dy=event.clientY-cameraPointer.lastY;
+    if(Math.hypot(event.clientX-cameraPointer.x,event.clientY-cameraPointer.y)>4)cameraPointer.moved=true;
+    if(cameraPointer.moved){
+      cameraYaw-=dx*.006;
+      cameraPitch=THREE.MathUtils.clamp(cameraPitch+dy*.004,-.15,1.12);
+    }
+    cameraPointer.lastX=event.clientX;cameraPointer.lastY=event.clientY;
+  });
+  const finishCameraPointer=event=>{
+    if(!cameraDragging||!cameraPointer)return;
+    if(!cameraPointer.moved)selectActorAt(event.clientX,event.clientY);
+    cameraDragging=false;cameraPointer=null;
+  };
+  canvas.addEventListener('pointerup',finishCameraPointer);
+  canvas.addEventListener('pointercancel',()=>{cameraDragging=false;cameraPointer=null;});
+  canvas.addEventListener('wheel',event=>{
+    event.preventDefault();
+    cameraDistance=THREE.MathUtils.clamp(cameraDistance+Math.sign(event.deltaY)*.8,followedActor?2.8:16,followedActor?12:42);
+  },{passive:false});
+  function updateCamera(dt){
+    if(followedActor&&!actors.has(followedActor.userData.id)){setCameraFollow(null);}
+    const desiredFocus=followedActor
+      ? new THREE.Vector3(followedActor.position.x,1.05,followedActor.position.z)
+      : new THREE.Vector3(0,0,0);
+    cameraFocus.lerp(desiredFocus,Math.min(1,dt*(followedActor?7:3)));
+    const horizontal=Math.cos(cameraPitch)*cameraDistance;
+    const desiredPosition=new THREE.Vector3(
+      cameraFocus.x+Math.sin(cameraYaw)*horizontal,
+      cameraFocus.y+Math.sin(cameraPitch)*cameraDistance,
+      cameraFocus.z+Math.cos(cameraYaw)*horizontal
+    );
+    camera.position.lerp(desiredPosition,Math.min(1,dt*6));
+    camera.lookAt(cameraFocus);
+  }
   const konsHomes=new Map();
   const waiterHomes=new Map();
   const waiterQueue=createWaiterQueue(30);
@@ -895,9 +974,10 @@ export function createGame(canvas) {
     const mobile=width<700;
     updateCrowdQuality();
     renderer.setSize(width,height,false);camera.aspect=width/height;
-    // Portrait screens need a wider view of the whole room.
-    camera.fov=width<700?48:38;camera.position.set(0,width<700?27:22,width<700?31:25);
-    camera.updateProjectionMatrix();camera.lookAt(0,0,0);
+    // Keep the room overview on resize; selected-character framing is updated smoothly each frame.
+    camera.fov=width<700?48:43;
+    if(!followedActor)cameraDistance=width<700?31:27;
+    camera.updateProjectionMatrix();
   }
   const observer=new ResizeObserver(resize);observer.observe(canvas);resize();
   let raf=0;
@@ -1235,11 +1315,13 @@ export function createGame(canvas) {
         if(blend>=1)delete actor.userData.poseFrom;
       }
     });
+    updateCamera(dt);
     renderer.render(scene,camera);
   }
   tick();
   return {
     addCustomer,
+    resetCamera:()=>setCameraFollow(null),
     setMusicMood:mood=>{musicMood=mood==='ankara'?'ankara':'pavyon';},
     dance:id=>animateActor(id,'dance'),
     seat:id=>animateActor(id,'seat'),
