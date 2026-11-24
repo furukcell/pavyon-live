@@ -15,9 +15,11 @@ jobs:
     env:
       RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
     steps:
-      - name: Trigger Render deployment
-        if: ${{ env.RENDER_DEPLOY_HOOK_URL != '' }}
-        run: curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
-      - name: Explain skipped deployment
-        if: ${{ env.RENDER_DEPLOY_HOOK_URL == '' }}
-        run: echo "Skipped: add the RENDER_DEPLOY_HOOK_URL repository Actions secret to enable Render deployments."
+      - name: Trigger Render deployment when configured
+        shell: bash
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "Skipped: add the RENDER_DEPLOY_HOOK_URL repository Actions secret."
+            exit 0
+          fi
+          curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
