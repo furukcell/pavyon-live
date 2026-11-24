@@ -343,18 +343,29 @@ export function createGame(canvas) {
     group.userData={id,role,target:null,phase:Math.random()*6,gaitPhase:Math.random()*Math.PI*2,motion:'idle',flirtPhase:Math.random()*Math.PI*2,liteCustomer};
     const generatedColor=role==='customer'?appearance.outfit:new THREE.Color().setHSL((variant*0.137)%1,.34,.43);
     const color=role==='kons'?konsColors[variant%konsColors.length]:role==='waiter'?'#e7dfd3':generatedColor;
+    const femaleShape=role==='customer'&&appearance.gender==='female';
     const bodyGeometry=role==='kons'
       ? new THREE.CapsuleGeometry(.235,.58,liteCustomer?4:6,liteCustomer?8:16)
       : new THREE.LatheGeometry([
-          new THREE.Vector2(.17,-.39),new THREE.Vector2(.185,-.29),
-          new THREE.Vector2(.205,-.12),new THREE.Vector2(.18,.04),
-          new THREE.Vector2(.205,.19),new THREE.Vector2(.265,.34),
-          new THREE.Vector2(.245,.39)
-        ],liteCustomer?10:24);
+          new THREE.Vector2(.155,-.40),new THREE.Vector2(.18,-.34),
+          new THREE.Vector2(femaleShape?.205:.19,-.24),
+          new THREE.Vector2(femaleShape?.19:.175,-.10),
+          new THREE.Vector2(.19,.02),new THREE.Vector2(femaleShape?.225:.215,.16),
+          new THREE.Vector2(femaleShape?.255:.265,.29),
+          new THREE.Vector2(.285,.37),new THREE.Vector2(.245,.405)
+        ],liteCustomer?10:32);
     const body=new THREE.Mesh(bodyGeometry,new THREE.MeshStandardMaterial({color,roughness:role==='kons'?.34:.72,metalness:role==='kons'?.16:0}));
     body.position.y=role==='kons'?.72:.78;
-    body.scale.set(role==='kons'?.92:1,role==='kons'?1:1.04,role==='kons'?.88:1);
+    body.scale.set(role==='kons'?.92:(femaleShape?.96:1),role==='kons'?1:1.04,role==='kons'?.88:(femaleShape?1.02:1));
     body.castShadow=!liteCustomer;body.receiveShadow=!liteCustomer;group.add(body);
+    if(role==='customer'&&!liteCustomer){
+      // Distinct pelvis/hip volume under clothing prevents the straight mannequin silhouette.
+      const pelvis=new THREE.Mesh(new THREE.SphereGeometry(1,20,14),new THREE.MeshStandardMaterial({color:appearance.outfit,roughness:.82}));
+      pelvis.scale.set(femaleShape?.225:.205,.19,.145);pelvis.position.set(0,.48,0);group.add(pelvis);
+      // Neck-to-shoulder transition and clavicle mass.
+      const shoulderMass=new THREE.Mesh(new THREE.SphereGeometry(1,20,14),new THREE.MeshStandardMaterial({color:appearance.outfit,roughness:.78}));
+      shoulderMass.scale.set(.29,.14,.145);shoulderMass.position.set(0,1.015,0);group.add(shoulderMass);
+    }
     group.userData.body=body;
     if(role==='customer'&&!liteCustomer){
       // Layered street/evening wear so customers read as dressed people, not colored mannequins.
@@ -569,6 +580,9 @@ export function createGame(canvas) {
       }
       group.userData.armPivots=armPivots;
       group.userData.legPivots=legPivots;
+    }
+    if(role==='customer'&&!liteCustomer){
+      group.scale.set(appearance.build,appearance.height,appearance.build);
     }
     if(role==='musician'){
       const jacket=new THREE.Mesh(new THREE.BoxGeometry(.39,.48,.055),new THREE.MeshStandardMaterial({color:'#211b25',roughness:.48}));
