@@ -38,6 +38,7 @@ test('loads the 3D game and processes viewer commands', async ({ page }) => {
 });
 
 test('runs all five gift actions and updates the live event status', async ({ page }) => {
+  test.setTimeout(60_000); // Five gift actions plus the 3D scene can exceed 30s on slower CI workers.
   await page.goto('/');
 
   await page.locator('#username').fill('e2e_invite');
