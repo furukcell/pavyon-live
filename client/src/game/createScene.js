@@ -1331,6 +1331,7 @@ export function createGame(canvas) {
   return {
     addCustomer,
     resetCamera:()=>setCameraFollow(null),
+    followActor:id=>{const actor=actors.get(id);if(!actor)return false;setCameraFollow(actor);return true;},
     setMusicMood:mood=>{musicMood=mood==='ankara'?'ankara':'pavyon';},
     dance:id=>animateActor(id,'dance'),
     seat:id=>animateActor(id,'seat'),
