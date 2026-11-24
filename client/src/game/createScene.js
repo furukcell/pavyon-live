@@ -49,7 +49,7 @@ function attachRiggedCharacter(actor, role, variant) {
       walk: ['walk', 'walking', 'locomotion'],
       run: ['run', 'running', 'sprint'],
       dance: ['dance', 'dancing'],
-      special: ['dance', 'dancing', 'celebrat', 'cheer', 'wave', 'gesture'],
+      special: ['special', 'dance', 'dancing', 'celebrat', 'cheer', 'wave', 'gesture'],
       sit: ['sit', 'sitting', 'seated']
     };
     function resolveAction(state) {
