@@ -38,18 +38,50 @@ function attachRiggedCharacter(actor, role, variant) {
     actor.add(model);
     actor.children.forEach(child => { if (child !== model && !child.userData.cameraPickTarget) child.visible = false; });
     const mixer = new THREE.AnimationMixer(model);
-    const actions = new Map();
-    for (const clip of gltf.animations || []) actions.set(clip.name.toLowerCase(), mixer.clipAction(clip));
+    const clips = gltf.animations || [];
+    const actions = clips.map(clip => ({
+      name: clip.name,
+      normalized: clip.name.toLowerCase().replace(/[^a-z0-9]+/g, ''),
+      action: mixer.clipAction(clip)
+    }));
+    const aliases = {
+      idle: ['idle', 'standing', 'stand', 'breathing', 'wait'],
+      walk: ['walk', 'walking', 'locomotion'],
+      run: ['run', 'running', 'sprint'],
+      dance: ['dance', 'dancing'],
+      special: ['dance', 'dancing', 'celebrat', 'cheer', 'wave', 'gesture'],
+      sit: ['sit', 'sitting', 'seated']
+    };
+    function resolveAction(state) {
+      const key = String(state || 'idle').toLowerCase();
+      const terms = aliases[key] || [key.replace(/[^a-z0-9]+/g, '')];
+      for (const term of terms) {
+        const match = actions.find(entry => entry.normalized.includes(term));
+        if (match) return match.action;
+      }
+      if (key === 'idle') return actions[0]?.action || null;
+      if (key === 'special' || key === 'dance') {
+        return actions.find(entry => entry.normalized.includes('dance'))?.action
+          || actions.find(entry => entry.normalized.includes('idle'))?.action
+          || null;
+      }
+      return null;
+    }
     actor.userData.animationMixer = mixer;
     actor.userData.animationActions = actions;
+    actor.userData.animationClipNames = clips.map(clip => clip.name);
     actor.userData.playRiggedAnimation = name => {
-      const wanted = actions.get(name.toLowerCase()) || actions.get('idle');
-      if (!wanted || actor.userData.activeRiggedAction === wanted) return;
-      actor.userData.activeRiggedAction?.fadeOut(.18);
-      wanted.reset().fadeIn(.18).play();
+      const wanted = resolveAction(name);
+      if (!wanted || actor.userData.activeRiggedAction === wanted) return false;
+      actor.userData.activeRiggedAction?.fadeOut(.2);
+      wanted.reset().fadeIn(.2).play();
       actor.userData.activeRiggedAction = wanted;
+      actor.userData.activeRiggedState = String(name).toLowerCase();
+      return true;
     };
-    actor.userData.playRiggedAnimation('Idle');
+    actor.userData.playRiggedAnimation('idle');
+    if (!clips.length) console.warn(`[PAVYON LIVE] ${role} model has no skeletal animation clips.`);
+    else console.info(`[PAVYON LIVE] ${role} animation clips:`, clips.map(clip => clip.name));
   }).catch(error => console.warn('[PAVYON LIVE] Rigged character load failed; using procedural fallback.', error));
 }
 export function createGame(canvas) {
