@@ -409,8 +409,15 @@ export function createGame(canvas) {
       waistSeam.rotation.x=Math.PI/2;waistSeam.position.y=.54;group.add(waistSeam);
     }
     const skin=role==='waiter'?'#d6ad8c':appearance.skin;
-    const head=new THREE.Mesh(new THREE.SphereGeometry(.22+(variant%3)*.012,liteCustomer?12:28,liteCustomer?10:20),new THREE.MeshStandardMaterial({color:skin,roughness:.72}));
-    head.position.y=1.35;head.scale.set(.91,1.08,.9);head.castShadow=!liteCustomer;group.add(head);
+    const headProfile=[
+      new THREE.Vector2(.105,1.16),new THREE.Vector2(.145,1.19),
+      new THREE.Vector2(.18,1.25),new THREE.Vector2(.205,1.34),
+      new THREE.Vector2(.198,1.43),new THREE.Vector2(.17,1.50),
+      new THREE.Vector2(.12,1.545),new THREE.Vector2(.045,1.56),
+      new THREE.Vector2(0,1.56)
+    ];
+    const head=new THREE.Mesh(new THREE.LatheGeometry(headProfile,liteCustomer?12:24),new THREE.MeshStandardMaterial({color:skin,roughness:.76}));
+    head.position.y=0;head.scale.set(.94,1, .9);head.castShadow=!liteCustomer;group.add(head);
     group.userData.head=head;
     if(!liteCustomer&&role!=='kons'){
       // Facial planes and features sized for a human silhouette (front is +Z).
@@ -530,12 +537,12 @@ export function createGame(canvas) {
       for(const side of [-1,1]){
         const armPivot=new THREE.Group();
         armPivot.position.set(side*(role==='kons'?.29:.27),1.02,0);
-        const upperArm=new THREE.Mesh(new THREE.CapsuleGeometry(.066,.19,5,10),limbMaterial);
+        const upperArm=new THREE.Mesh(new THREE.CylinderGeometry(.047,.072,.29,10,1),limbMaterial);
         upperArm.position.y=-.145;upperArm.castShadow=true;armPivot.add(upperArm);
-        const elbow=new THREE.Mesh(new THREE.SphereGeometry(.061,10,8),limbMaterial);
-        elbow.position.y=-.285;armPivot.add(elbow);
-        const forearm=new THREE.Mesh(new THREE.CapsuleGeometry(.052,.17,5,10),limbMaterial);
-        forearm.position.set(0,-.365,.006);forearm.castShadow=true;armPivot.add(forearm);
+        const elbow=new THREE.Mesh(new THREE.SphereGeometry(.052,10,8),limbMaterial);
+        elbow.position.y=-.285;elbow.scale.set(1,.92,.95);armPivot.add(elbow);
+        const forearm=new THREE.Mesh(new THREE.CylinderGeometry(.035,.052,.20,10,1),limbMaterial);
+        forearm.position.set(0,-.385,.006);forearm.castShadow=true;armPivot.add(forearm);
         const hand=new THREE.Mesh(new THREE.SphereGeometry(.057,12,9),limbMaterial);
         hand.scale.set(.82,1.12,.72);hand.position.set(0,-.49,.012);armPivot.add(hand);
         for(let finger=0;finger<3;finger++){
@@ -553,18 +560,18 @@ export function createGame(canvas) {
         group.add(armPivot);armPivots.push(armPivot);
         const legPivot=new THREE.Group();
         legPivot.position.set(side*.13,.38,0);
-        const thigh=new THREE.Mesh(new THREE.CapsuleGeometry(.078,.2,5,10),limbMaterial);
+        const thigh=new THREE.Mesh(new THREE.CylinderGeometry(.062,.09,.27,12,1),limbMaterial);
         thigh.position.y=-.12;thigh.castShadow=true;legPivot.add(thigh);
-        const knee=new THREE.Mesh(new THREE.SphereGeometry(.071,10,8),limbMaterial);
-        knee.position.y=-.255;legPivot.add(knee);
-        const shin=new THREE.Mesh(new THREE.CapsuleGeometry(.055,.19,5,10),limbMaterial);
+        const knee=new THREE.Mesh(new THREE.SphereGeometry(.061,12,9),limbMaterial);
+        knee.position.y=-.255;knee.scale.set(1,.88,.92);legPivot.add(knee);
+        const shin=new THREE.Mesh(new THREE.CylinderGeometry(.038,.058,.22,12,1),limbMaterial);
         shin.position.set(0,-.36,.012);shin.castShadow=true;legPivot.add(shin);
         if(role!=='kons'){
           const trouserColor=role==='waiter'?(variant%2?'#28212b':'#202b35'):variant%4===0?'#24232b':variant%4===1?'#34303a':variant%4===2?'#292c32':'#3b3030';
           const trouserMaterial=new THREE.MeshStandardMaterial({color:trouserColor,roughness:.82});
-          const thighCloth=new THREE.Mesh(new THREE.CapsuleGeometry(.087,.205,5,10),trouserMaterial);
+          const thighCloth=new THREE.Mesh(new THREE.CylinderGeometry(.072,.102,.29,12,1),trouserMaterial);
           thighCloth.position.y=-.12;legPivot.add(thighCloth);
-          const shinCloth=new THREE.Mesh(new THREE.CapsuleGeometry(.064,.19,5,10),trouserMaterial);
+          const shinCloth=new THREE.Mesh(new THREE.CylinderGeometry(.047,.068,.235,12,1),trouserMaterial);
           shinCloth.position.set(0,-.36,.012);legPivot.add(shinCloth);
         }
         const foot=new THREE.Mesh(new THREE.SphereGeometry(1,12,8),new THREE.MeshStandardMaterial({color:role==='kons'?'#241522':role==='waiter'?'#211b20':'#30252a',roughness:.48,metalness:role==='kons'?.18:0}));
