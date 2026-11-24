@@ -257,9 +257,9 @@ export function createGame(canvas) {
   function setCameraFollow(actor){
     followedActor=actor||null;
     if(followedActor){
-      cameraDistance=5.8;
-      cameraPitch=.34;
-      cameraYaw=followedActor.rotation.y+Math.PI;
+      cameraDistance=8.5;
+      cameraPitch=.48;
+      cameraYaw=followedActor.rotation.y;
       document.querySelector('#camera-mode')?.setAttribute('aria-pressed','true');
       const button=document.querySelector('#camera-mode');if(button)button.textContent='◉ KARAKTER TAKİPTE';
     }else{
@@ -277,7 +277,8 @@ export function createGame(canvas) {
     let actor=null;
     for(const hit of hits){
       let node=hit.object;
-      while(node&&node.parent!==actorGroup)node=node.parent;
+      while(node&&node!==actorGroup&&!node.userData.cameraPickTarget)node=node.parent;
+      if(node?.userData.cameraPickTarget){actor=node.userData.cameraPickTarget;break;}
       if(node&&node.parent===actorGroup){actor=node;break;}
     }
     setCameraFollow(actor);
@@ -306,7 +307,7 @@ export function createGame(canvas) {
   canvas.addEventListener('pointercancel',()=>{cameraDragging=false;cameraPointer=null;});
   canvas.addEventListener('wheel',event=>{
     event.preventDefault();
-    cameraDistance=THREE.MathUtils.clamp(cameraDistance+Math.sign(event.deltaY)*.8,followedActor?2.8:16,followedActor?12:42);
+    cameraDistance=THREE.MathUtils.clamp(cameraDistance+Math.sign(event.deltaY)*.8,followedActor?5.5:16,followedActor?16:42);
   },{passive:false});
   function updateCamera(dt){
     if(followedActor&&!actors.has(followedActor.userData.id)){setCameraFollow(null);}
@@ -598,6 +599,14 @@ export function createGame(canvas) {
     ring.position.y=.04;group.add(ring);
     group.scale.set(appearance.build||1,appearance.height||1,appearance.build||1);
     group.position.set((Math.random()-.5)*14,0,(Math.random()-.5)*10);
+    // A forgiving invisible hit target makes every role reliably selectable on desktop and touch.
+    const cameraPickTarget=new THREE.Mesh(
+      new THREE.SphereGeometry(.72,12,10),
+      new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,colorWrite:false})
+    );
+    cameraPickTarget.position.y=.98;
+    cameraPickTarget.userData.cameraPickTarget=group;
+    group.add(cameraPickTarget);
     actorGroup.add(group);actors.set(id,group);return group;
   }
   // Navigation stays within the playable floor footprint.
