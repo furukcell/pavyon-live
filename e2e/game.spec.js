@@ -6,6 +6,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('loads the 3D game and processes viewer commands', async ({ page }) => {
+  test.setTimeout(60_000); // Scene startup and command cooldowns can exceed Playwright's 30s default on CI.
   const pageErrors = [];
   page.on('pageerror', error => { if (!pageErrors.length) pageErrors.push(error.stack || error.message); });
 
