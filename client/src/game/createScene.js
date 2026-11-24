@@ -343,8 +343,18 @@ export function createGame(canvas) {
     group.userData={id,role,target:null,phase:Math.random()*6,gaitPhase:Math.random()*Math.PI*2,motion:'idle',flirtPhase:Math.random()*Math.PI*2,liteCustomer};
     const generatedColor=role==='customer'?appearance.outfit:new THREE.Color().setHSL((variant*0.137)%1,.34,.43);
     const color=role==='kons'?konsColors[variant%konsColors.length]:role==='waiter'?'#e7dfd3':generatedColor;
-    const body=new THREE.Mesh(new THREE.CapsuleGeometry(role==='kons'?.235:.26+(variant%4)*.012,role==='kons'?.58:.64+(variant%3)*.045,liteCustomer?4:6,liteCustomer?8:16),new THREE.MeshStandardMaterial({color,roughness:role==='kons'?.34:.58,metalness:role==='kons'?.16:0}));
-    body.position.y=.72;body.scale.set(role==='kons'?.92:1,1,role==='kons'?.88:1);body.castShadow=!liteCustomer;body.receiveShadow=!liteCustomer;group.add(body);
+    const bodyGeometry=role==='kons'
+      ? new THREE.CapsuleGeometry(.235,.58,liteCustomer?4:6,liteCustomer?8:16)
+      : new THREE.LatheGeometry([
+          new THREE.Vector2(.17,-.39),new THREE.Vector2(.185,-.29),
+          new THREE.Vector2(.205,-.12),new THREE.Vector2(.18,.04),
+          new THREE.Vector2(.205,.19),new THREE.Vector2(.265,.34),
+          new THREE.Vector2(.245,.39)
+        ],liteCustomer?10:24);
+    const body=new THREE.Mesh(bodyGeometry,new THREE.MeshStandardMaterial({color,roughness:role==='kons'?.34:.72,metalness:role==='kons'?.16:0}));
+    body.position.y=role==='kons'?.72:.78;
+    body.scale.set(role==='kons'?.92:1,role==='kons'?1:1.04,role==='kons'?.88:1);
+    body.castShadow=!liteCustomer;body.receiveShadow=!liteCustomer;group.add(body);
     group.userData.body=body;
     if(role!=='kons'&&!liteCustomer){
       const waistSeam=new THREE.Mesh(new THREE.TorusGeometry(role==='waiter'?.205:.22,.012,6,24),new THREE.MeshStandardMaterial({color:role==='waiter'?'#b58a54':'#4b3b3e',metalness:.28,roughness:.48}));
@@ -483,8 +493,23 @@ export function createGame(canvas) {
         knee.position.y=-.255;legPivot.add(knee);
         const shin=new THREE.Mesh(new THREE.CapsuleGeometry(.055,.19,5,10),limbMaterial);
         shin.position.set(0,-.36,.012);shin.castShadow=true;legPivot.add(shin);
+        if(role!=='kons'){
+          const trouserColor=role==='waiter'?(variant%2?'#28212b':'#202b35'):variant%4===0?'#24232b':variant%4===1?'#34303a':variant%4===2?'#292c32':'#3b3030';
+          const trouserMaterial=new THREE.MeshStandardMaterial({color:trouserColor,roughness:.82});
+          const thighCloth=new THREE.Mesh(new THREE.CapsuleGeometry(.087,.205,5,10),trouserMaterial);
+          thighCloth.position.y=-.12;legPivot.add(thighCloth);
+          const shinCloth=new THREE.Mesh(new THREE.CapsuleGeometry(.064,.19,5,10),trouserMaterial);
+          shinCloth.position.set(0,-.36,.012);legPivot.add(shinCloth);
+        }
         const foot=new THREE.Mesh(new THREE.SphereGeometry(1,12,8),new THREE.MeshStandardMaterial({color:role==='kons'?'#241522':role==='waiter'?'#211b20':'#30252a',roughness:.48,metalness:role==='kons'?.18:0}));
-        foot.scale.set(.075,.045,.14);foot.position.set(0,-.48,.065);legPivot.add(foot);
+        foot.scale.set(.085,.052,.155);foot.position.set(0,-.48,.075);legPivot.add(foot);
+        if(role!=='kons'){
+          const shoeColor=role==='waiter'?'#17151a':variant%3===0?'#20191b':variant%3===1?'#35272a':'#242a31';
+          const shoe=new THREE.Mesh(new THREE.BoxGeometry(.16,.085,.25),new THREE.MeshStandardMaterial({color:shoeColor,roughness:.48,metalness:.08}));
+          shoe.position.set(0,-.475,.105);shoe.rotation.x=-.04;legPivot.add(shoe);
+          const sole=new THREE.Mesh(new THREE.BoxGeometry(.165,.018,.255),new THREE.MeshStandardMaterial({color:'#100f12',roughness:.7}));
+          sole.position.set(0,-.515,.105);legPivot.add(sole);
+        }
         group.add(legPivot);legPivots.push(legPivot);
       }
       group.userData.armPivots=armPivots;
