@@ -401,6 +401,24 @@ export function createGame(canvas) {
     const head=new THREE.Mesh(new THREE.SphereGeometry(.22+(variant%3)*.012,liteCustomer?12:28,liteCustomer?10:20),new THREE.MeshStandardMaterial({color:skin,roughness:.72}));
     head.position.y=1.35;head.scale.set(.91,1.08,.9);head.castShadow=!liteCustomer;group.add(head);
     group.userData.head=head;
+    if(!liteCustomer&&role!=='kons'){
+      // Facial planes and features sized for a human silhouette (front is +Z).
+      const faceMat=new THREE.MeshStandardMaterial({color:skin,roughness:.84});
+      for(const side of [-1,1]){
+        const ear=new THREE.Mesh(new THREE.SphereGeometry(.052,10,8),faceMat);
+        ear.scale.set(.48,1.12,.58);ear.position.set(side*.205,1.345,0);group.add(ear);
+        const earInset=new THREE.Mesh(new THREE.SphereGeometry(.022,8,6),new THREE.MeshStandardMaterial({color:skin.clone?skin:'#9c7466',roughness:.9}));
+        earInset.scale.set(.6,1,.45);earInset.position.set(side*.222,1.345,.025);group.add(earInset);
+        const browRidge=new THREE.Mesh(new THREE.CapsuleGeometry(.018,.065,3,7),new THREE.MeshStandardMaterial({color:role==='waiter'?'#28212a':appearance.hair,roughness:.86}));
+        browRidge.position.set(side*.073,1.408,.195);browRidge.rotation.z=side*.08;group.add(browRidge);
+      }
+      const noseBridge=new THREE.Mesh(new THREE.CapsuleGeometry(.018,.07,3,7),faceMat);
+      noseBridge.position.set(0,1.335,.202);group.add(noseBridge);
+      const chin=new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),faceMat);
+      chin.scale.set(1,.48,.55);chin.position.set(0,1.235,.12);group.add(chin);
+      const lip=new THREE.Mesh(new THREE.SphereGeometry(.035,10,7),new THREE.MeshStandardMaterial({color:'#87545a',roughness:.78}));
+      lip.scale.set(1,.2,.38);lip.position.set(0,1.258,.211);group.add(lip);
+    }
     if(role!=='kons'&&!liteCustomer){
       const eyeMaterial=new THREE.MeshStandardMaterial({color:'#251b20',roughness:.42});
       const eyeWhite=new THREE.MeshStandardMaterial({color:'#eee5dc',roughness:.55});
@@ -569,6 +587,21 @@ export function createGame(canvas) {
       for(let button=0;button<3;button++){
         const stud=new THREE.Mesh(new THREE.SphereGeometry(.014,8,6),new THREE.MeshStandardMaterial({color:'#d9bd83',metalness:.72,roughness:.25}));
         stud.position.set(0,.84-button*.105,.27);group.add(stud);
+      }
+    }
+    if(role==='waiter'||role==='musician'){
+      const uniformColor=role==='waiter'?(variant%2?'#382433':'#26323d'):'#211b25';
+      const shoulderMat=new THREE.MeshStandardMaterial({color:uniformColor,roughness:.72});
+      for(const side of [-1,1]){
+        const shoulder=new THREE.Mesh(new THREE.SphereGeometry(.115,10,8),shoulderMat);
+        shoulder.scale.set(1,.78,.92);shoulder.position.set(side*.235,.96,.015);group.add(shoulder);
+        const sleeve=new THREE.Mesh(new THREE.CapsuleGeometry(.065,.17,4,8),shoulderMat);
+        sleeve.position.set(side*.27,.83,0);sleeve.rotation.z=side*.12;group.add(sleeve);
+      }
+      const collarMat=new THREE.MeshStandardMaterial({color:'#f2ece2',roughness:.78});
+      for(const side of [-1,1]){
+        const collarPoint=new THREE.Mesh(new THREE.ConeGeometry(.045,.13,4),collarMat);
+        collarPoint.position.set(side*.055,1.015,.24);collarPoint.rotation.z=side*Math.PI;group.add(collarPoint);
       }
     }
     if(role==='waiter'){
