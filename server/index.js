@@ -7,6 +7,7 @@ import { normalizeDevEvent } from './eventValidation.js';
 import { verifyProviderSignature } from './providerWebhook.js';
 import { parseGiftMapping, resolveGiftAction } from './giftMapping.js';
 import { createLiveMetrics } from './liveMetrics.js';
+import { createEventDeduplicator } from './eventDeduplicator.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -17,6 +18,7 @@ const distDir = path.resolve(currentDir, '../dist');
 const io = new Server(httpServer, { transports: ['websocket', 'polling'], maxHttpBufferSize: 32 * 1024, pingTimeout: 20_000, pingInterval: 25_000 });
 const giftMapping = parseGiftMapping(process.env.LIVE_GIFT_MAP || '{}');
 const liveMetrics = createLiveMetrics();
+const seenEventIds = createEventDeduplicator({ ttlMs: 60_000, maxEntries: 5_000 });
 
 app.disable('x-powered-by');
 app.use((_req, res, next) => {
@@ -43,11 +45,7 @@ app.post('/integrations/events', express.raw({ type: 'application/json', limit: 
   const event = result.event;
   if (event.type === 'gift' && !event.action) event.action = resolveGiftAction(event.giftName, giftMapping);
   if (!event.eventId) return res.status(400).json({ error: 'A unique eventId is required.' });
-  const now = Date.now();
-  for (const [id, expiresAt] of seenEventIds) if (expiresAt <= now) seenEventIds.delete(id);
-  if (seenEventIds.has(event.eventId)) return res.status(200).json({ accepted: true, duplicate: true });
-  if (seenEventIds.size >= MAX_SEEN_EVENT_IDS) { const oldestId = seenEventIds.keys().next().value; if (oldestId) seenEventIds.delete(oldestId); }
-  seenEventIds.set(event.eventId, now + EVENT_ID_TTL_MS);
+  if (seenEventIds.hasSeen(event.eventId)) return res.status(200).json({ accepted: true, duplicate: true });
   io.emit('live:event', event);
   recordLiveEvent(event);
   return res.status(202).json({ accepted: true, duplicate: false });
@@ -58,10 +56,6 @@ app.get('/health', (_req, res) => res.set('Cache-Control', 'no-store').json({ ok
 app.get('/api/status', (_req, res) => res.set('Cache-Control', 'no-store').json({ ok: true, ...publicLiveStatus() }));
 
 // Development-only event bridge. It is not a public TikTok webhook.
-const seenEventIds = new Map();
-const EVENT_ID_TTL_MS = 60_000;
-const MAX_SEEN_EVENT_IDS = 5_000;
-
 app.post('/dev/event', (req, res) => {
   if (process.env.NODE_ENV === 'production') return res.status(403).json({ error: 'Disabled in production.' });
   const result = normalizeDevEvent(req.body);
@@ -70,16 +64,7 @@ app.post('/dev/event', (req, res) => {
   const event = result.event;
   if (event.type === 'gift' && !event.action) event.action = resolveGiftAction(event.giftName, giftMapping);
   if (event.eventId) {
-    const now = Date.now();
-    for (const [id, expiresAt] of seenEventIds) {
-      if (expiresAt <= now) seenEventIds.delete(id);
-    }
-    if (seenEventIds.has(event.eventId)) return res.status(200).json({ accepted: true, duplicate: true });
-    if (seenEventIds.size >= MAX_SEEN_EVENT_IDS) {
-      const oldestId = seenEventIds.keys().next().value;
-      if (oldestId) seenEventIds.delete(oldestId);
-    }
-    seenEventIds.set(event.eventId, now + EVENT_ID_TTL_MS);
+    if (seenEventIds.hasSeen(event.eventId)) return res.status(200).json({ accepted: true, duplicate: true });
   }
   io.emit('live:event', event);
   recordLiveEvent(event);
