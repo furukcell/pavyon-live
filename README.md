@@ -2,7 +2,7 @@
 
 **TikTok LIVE izleyicilerinin yorum, beğeni ve hediyelerle katılacağı 3D pavyon oyunu.**
 
-> **Proje durumu (23 Kasım 2026):** Görsel ve etkileşim prototipi geliştiriliyor. Oyun henüz gerçek TikTok LIVE hesabına bağlı değil. Bu depoda profesyonel harici 3D model dosyaları bulunmuyor; karakterler Three.js geometrileriyle kod üzerinden üretiliyor.
+> **Proje durumu (24 Kasım 2026):** Görsel ve etkileşim prototipi geliştiriliyor. Oyun henüz gerçek TikTok LIVE hesabına bağlı değil. Bu depoda profesyonel harici 3D model dosyaları bulunmuyor; karakterler Three.js geometrileriyle kod üzerinden üretiliyor.
 
 ## İlk yayın sürümü (V1) — kapsam sabitlendi
 
@@ -50,14 +50,15 @@
 
 ### Sıradaki kilometre taşları
 
-1. **M1 — Oyun akışını dondur ve doğrula:** sunucu olay şeması/alan doğrulaması, isteğe bağlı eventId tekilleştirmesi ve tek izleyici/tek kons oturum rezervasyon kuralları eklendi; garson servis yöneticisi ile dans/VIP çift rezervasyon ve çapraz mod çakışma kuralları sahneye bağlandı. Garson servis başlatma ve kons zamanlayıcısı hata durumlarında geri alma yapıyor; kons oturumunun süre dolumu ve izleyici ayrılışı aynı idempotent temizleme yaşam döngüsünü kullanıyor. Müşteri ayrılışında kuyruk/aktif servis, dans/VIP rezervasyonu, koltuk ve sahne aktörü temizliği hata toleranslı. Garson servis yöneticisi timer iptal hatasında ve görsel hareket hatasında da mantıksal sahipliği bırakıyor. Kons hediye aksiyonları kısmi sahne rezervasyonu oluşturup başarısız olursa hem sahne hem mantıksal rezervasyon geri alınıyor; işlem yardımcısının dört hedefli testi geçti. Tam tarayıcı E2E doğrulaması sırada. Tam tarayıcı uçtan uca prova ve son CI doğrulaması sırada.
-2. **M2 — Gerçek LIVE olay adaptörü:** izinli/uygun kaynak, sunucu tarafı doğrulama, tekrar olay koruması ve hediye eşlemesi.
-3. **M3 — Yayın ekranı:** OBS/TikTok LIVE Studio Browser Source, yayın overlay'i ve bağlantı durumları.
-4. **M4 — Sağlamlık:** 10/25/50/100 müşteri yük testleri, mobil tarayıcı, hata ve güvenlik kontrolleri.
-5. **M5 — İlk canlı prova:** hosting üzerinde gerçek yayına bağlanıp tüm akışları baştan sona doğrulama.
+1. **M1 — CI ve tarayıcı doğrulaması: tamamlandı.** 24 Kasım 2026 CI çalışmasında 94/94 birim/sunucu testi, üretim derlemesi ve Playwright'ta 11 başarılı / 1 bilinçli atlanan test. Masaüstü ve mobil komut/hediye akışları, OBS stream-only görünümü ve masaüstünde 10/25/50/100 izleyici yükü geçti.
+2. **M2 — Yerel simülatör provası:** yorum, hediye, beğeni ve yinelenen eventId senaryolarını çalışan sunucu üzerinde baştan sona doğrula.
+3. **M3 — Gerçek cihaz ve performans:** fiziksel Android/iOS cihazlarda sahne, kontroller, FPS, bellek ve uzun süreli çalışma kontrolü.
+4. **M4 — Hosting:** Render Blueprint dağıtımı, HTTPS, health/status ve üretim ortamı güvenlik kontrolleri.
+5. **M5 — OBS yayın provası:** 1920×1080 yatay ve 1080×1920 dikey Browser Source, ses ve sahne geçişlerini gerçek OBS üzerinde kontrol et.
 
+**Ayrı ertelenen kapsam:** Gerçek TikTok hesabı yetkilendirmesi, TikTok LIVE olay adaptörü ve gerçek TikTok yayını provası kullanıcı kararıyla bu teslimattan çıkarılmıştır; bunlar tamamlanma yüzdesini veya yukarıdaki kilometre taşlarını bloke etmez.
 
-\n\n### TikTok bağlantısı hariç mevcut bitirme kapsamı\n\n- Tarayıcı E2E altyapısı eklendi: masaüstü ve mobil Chromium projeleri, komut/hediye akışı, OBS stream görünümü, 25/50/75/100 izleyici giriş senaryosu.\n- Sunucu HTTP entegrasyon testleri eklendi: health/status, hediye eşlemesi, eventId tekilleştirme, imzalı provider webhook, hatalı imza reddi ve production ortamında geliştirme endpoint'inin kapalı olması.\n- Mobilde 700px altı ekranda piksel oranı 1'e düşürülüyor; kalabalık 30 karakteri aşınca gölge haritası kapatılıp piksel oranı 1'e çekiliyor.\n- HTTP güvenlik başlıkları, status/health için no-store, Socket.IO mesaj boyutu/zaman aşımı sınırları ve SIGTERM/SIGINT için kontrollü kapanış eklendi.\n- Bu yeni tarayıcı ve sunucu entegrasyon testleri CI'da yeşil sonuç vermeden tamamlanmış kabul edilmeyecek. Gerçek TikTok hesabına bağlanma ve gerçek TikTok olay kaynağı bu kapsamın dışında kalır.\n\n### Canlı olay geçmişi ve yayın HUD
+### TikTok bağlantısı hariç mevcut bitirme kapsamı\n\n- Tarayıcı E2E altyapısı eklendi: masaüstü ve mobil Chromium projeleri, komut/hediye akışı, OBS stream görünümü, 25/50/75/100 izleyici giriş senaryosu.\n- Sunucu HTTP entegrasyon testleri eklendi: health/status, hediye eşlemesi, eventId tekilleştirme, imzalı provider webhook, hatalı imza reddi ve production ortamında geliştirme endpoint'inin kapalı olması.\n- Mobilde 700px altı ekranda piksel oranı 1'e düşürülüyor; kalabalık 30 karakteri aşınca gölge haritası kapatılıp piksel oranı 1'e çekiliyor.\n- HTTP güvenlik başlıkları, status/health için no-store, Socket.IO mesaj boyutu/zaman aşımı sınırları ve SIGTERM/SIGINT için kontrollü kapanış eklendi.\n- Bu yeni tarayıcı ve sunucu entegrasyon testleri CI'da yeşil sonuç vermeden tamamlanmış kabul edilmeyecek. Gerçek TikTok hesabına bağlanma ve gerçek TikTok olay kaynağı bu kapsamın dışında kalır.\n\n### Canlı olay geçmişi ve yayın HUD
 
 - Sunucu son 20 kabul edilmiş yorum/beğeni/hediye olayını bellekte tutar; eski kayıtlar otomatik düşürülür.
 - `/api/status` ve Socket.IO `live:status` yanıtı `recentEvents` listesini içerir.
