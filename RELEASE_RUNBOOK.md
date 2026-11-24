@@ -86,3 +86,15 @@ The stream view intentionally hides the operator test controls. For a local rehe
 ## Deferred item
 
 The real TikTok LIVE event connector, platform authorization and a rehearsal using a real TikTok broadcast are explicitly deferred. The signed server bridge in this repository is only a receiver for a separately approved provider; it does not itself connect to TikTok.
+
+## Verified CI evidence (24 November 2026)
+
+Latest main-branch workflow `45347083443` completed successfully:
+
+- `npm test`: **99 passed, 0 failed**.
+- `npm run build`: production build succeeded.
+- Playwright: **11 passed, 1 intentionally skipped** (mobile 100-viewer stress test is desktop-only).
+- Desktop and mobile command/gift flows, music panel, OBS stream-only layout, and desktop 10/25/50/75/100 viewer load passed.
+- The automated simulator flow also verifies accepted and duplicate event IDs and live like counters.
+
+This CI evidence does not replace physical-device testing, a deployed Render health check, a real OBS audio/video rehearsal, or the operator's manual rehearsal.

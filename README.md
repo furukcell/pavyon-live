@@ -31,7 +31,7 @@
 
 ## İlerleme takibi — sabit hesap yöntemi
 
-****Son doğrulama: 24 Kasım 2026.** GitHub Actions üzerinde `npm test` 94/94 test ile geçti, `npm run build` başarılı üretim derlemesi oluşturdu ve Playwright tarayıcı paketi 11 geçti / 1 atlandı sonucunu verdi. Masaüstü ve mobil komut/hediye akışları, OBS stream-only görünümü ve masaüstünde 10/25/50/100 eşzamanlı izleyici senaryosu doğrulandı. Mobil 100 izleyici yük testi bilinçli olarak atlanıyor. Gerçek cihaz, fiziksel OBS, Render dağıtımı ve yerel canlı olay provası henüz tamamlanmadı.
+****Son doğrulama: 24 Kasım 2026.** GitHub Actions üzerinde `npm test` 99/99 test ile geçti, `npm run build` başarılı üretim derlemesi oluşturdu ve Playwright tarayıcı paketi 11 geçti / 1 atlandı sonucunu verdi. Masaüstü ve mobil komut/hediye akışları, OBS stream-only görünümü ve masaüstünde 10/25/50/100 eşzamanlı izleyici senaryosu doğrulandı. Mobil 100 izleyici yük testi bilinçli olarak atlanıyor. Gerçek cihaz, fiziksel OBS, Render dağıtımı ve operatörün manuel canlı olay provası henüz tamamlanmadı.
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
 - **Mevcut teslim hedefi: yaklaşık %50 (gerçek TikTok bağlantısı hariç).** Bu oran, TikTok dışındaki altı iş paketinin kayıtlı yüzdelerinin eşit ağırlıklı ortalamasıdır (298 / 6 = %49,7; yuvarlanmış %50). TikTok bağlantısı ayrı ve ertelenmiş bir iş paketidir; bu çalışmanın kapsamına dahil değildir. Önceki %95 kaydı doğrulanabilir değildi ve kaldırıldı. Tarayıcı E2E, gerçek cihaz, performans, hosting ve OBS provası doğrulanmadan tamamlandı sayılmayacak.
@@ -43,15 +43,15 @@
 | 3D mekân ve sahne | %68 | Mobil/masaüstü sahne kontrolü ve temel görsel kabul |
 | Karakterler ve animasyon | %50 | Kons/müşteri/garson akışlarının cihazda kontrolü |
 | Oyun kuralları ve hediye akışları | %75 | Komutlar ve beş hediye aksiyonunun masaüstü/mobil uçtan uca doğrulaması |
-| Sunucu ve olay altyapısı | %65 | 94 birim/sunucu testi; imza doğrulama, hata reddi ve eventId tekilleştirme |
+| Sunucu ve olay altyapısı | %65 | 99 birim/sunucu testi; imza doğrulama, hata reddi ve eventId tekilleştirme |
 | Gerçek TikTok LIVE bağlantısı (ertelendi) | %0 | Bu teslim kapsamı dışında; sonraki ayrı aşama |
 | Performans, güvenlik ve canlı prova | %30 | 100 izleyici masaüstü yük testi, mobil viewport ve güvenlik kontrolleri; fiziksel cihaz/OBS provası bekliyor |
 | Hosting/yayın hazırlığı | %10 | Dağıtım, sağlık kontrolü ve Browser Source doğrulaması |
 
 ### Sıradaki kilometre taşları
 
-1. **M1 — CI ve tarayıcı doğrulaması: tamamlandı.** 24 Kasım 2026 CI çalışmasında 94/94 birim/sunucu testi, üretim derlemesi ve Playwright'ta 11 başarılı / 1 bilinçli atlanan test. Masaüstü ve mobil komut/hediye akışları, OBS stream-only görünümü ve masaüstünde 10/25/50/100 izleyici yükü geçti.
-2. **M2 — Yerel simülatör provası:** yorum, hediye, beğeni ve yinelenen eventId senaryolarını çalışan sunucu üzerinde baştan sona doğrula.
+1. **M1 — CI ve tarayıcı doğrulaması: tamamlandı.** 24 Kasım 2026 CI çalışmasında 99/99 birim/sunucu testi, üretim derlemesi ve Playwright'ta 11 başarılı / 1 bilinçli atlanan test. Masaüstü ve mobil komut/hediye akışları, OBS stream-only görünümü ve masaüstünde 10/25/50/100 izleyici yükü geçti.
+2. **M2 — Simülatör otomasyon provası: tamamlandı.** CI, çalışan sunucu üzerinde yorum/komut, beş hediye aksiyonu, beğeni olayı ve yinelenen eventId davranışını uçtan uca doğruluyor. Operatörün manuel prova adımı yayın öncesi hâlâ yapılacak.
 3. **M3 — Gerçek cihaz ve performans:** fiziksel Android/iOS cihazlarda sahne, kontroller, FPS, bellek ve uzun süreli çalışma kontrolü.
 4. **M4 — Hosting:** Render Blueprint dağıtımı, HTTPS, health/status ve üretim ortamı güvenlik kontrolleri.
 5. **M5 — OBS yayın provası:** 1920×1080 yatay ve 1080×1920 dikey Browser Source, ses ve sahne geçişlerini gerçek OBS üzerinde kontrol et.
@@ -64,7 +64,7 @@
 - Sunucu HTTP entegrasyon testleri: health/status, hediye eşlemesi, eventId tekilleştirme, imzalı provider webhook, hatalı imza reddi ve production ortamında geliştirme endpoint'inin kapalı olması.
 - Mobilde 700px altı ekranda piksel oranı 1'e düşürülüyor; kalabalık 30 karakteri aşınca gölge haritası kapatılıp piksel oranı 1'e çekiliyor.
 - HTTP güvenlik başlıkları, status/health için no-store, Socket.IO mesaj boyutu/zaman aşımı sınırları ve SIGTERM/SIGINT için kontrollü kapanış eklendi.
-- CI doğrulaması 24 Kasım 2026 tarihinde yeşil: 94/94 birim/sunucu testi, üretim derlemesi ve 11 başarılı / 1 bilinçli atlanan tarayıcı testi. Gerçek cihaz, Render ve fiziksel OBS provası hâlâ bekliyor.
+- CI doğrulaması 24 Kasım 2026 tarihinde yeşil: 94/94 birim/sunucu testi, üretim derlemesi ve 11 başarılı / 1 bilinçli atlanan tarayıcı testi. Gerçek cihaz, Render dağıtımı, fiziksel OBS ve operatörün manuel olay provası hâlâ bekliyor.
 - Gerçek TikTok hesabına bağlanma ve gerçek TikTok olay kaynağı bu kapsamın dışında kalır.
 
 ### Canlı olay geçmişi ve yayın HUD
