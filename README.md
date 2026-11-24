@@ -31,7 +31,7 @@
 
 ## İlerleme takibi — sabit hesap yöntemi
 
-**Son doğrulama: 24 Kasım 2026.** GitHub Actions üzerinde `npm test` 94/94 test ile geçti, `npm run build` başarılı üretim derlemesi oluşturdu ve Playwright tarayıcı paketi 11 geçti / 1 atlandı sonucunu verdi. Masaüstü ve mobil komut/hediye akışları, OBS stream-only görünümü ve masaüstünde 10/25/50/100 eşzamanlı izleyici senaryosu doğrulandı. Mobil 100 izleyici yük testi bilinçli olarak atlanıyor. Gerçek cihaz, fiziksel OBS, Render dağıtımı ve yerel canlı olay provası henüz tamamlanmadı.
+****Son doğrulama: 24 Kasım 2026.** GitHub Actions üzerinde `npm test` 94/94 test ile geçti, `npm run build` başarılı üretim derlemesi oluşturdu ve Playwright tarayıcı paketi 11 geçti / 1 atlandı sonucunu verdi. Masaüstü ve mobil komut/hediye akışları, OBS stream-only görünümü ve masaüstünde 10/25/50/100 eşzamanlı izleyici senaryosu doğrulandı. Mobil 100 izleyici yük testi bilinçli olarak atlanıyor. Gerçek cihaz, fiziksel OBS, Render dağıtımı ve yerel canlı olay provası henüz tamamlanmadı.
 
 - **Etkileşimli prototip: %60** — mevcut temel oyun ve görsel prototipin yaklaşık durumu.
 - **Mevcut teslim hedefi: yaklaşık %43 (gerçek TikTok bağlantısı hariç).** Bu oran, TikTok dışındaki altı iş paketinin kayıtlı yüzdelerinin eşit ağırlıklı ortalamasıdır (256 / 6 = %42,7; yuvarlanmış %43). TikTok bağlantısı ayrı ve ertelenmiş bir iş paketidir; bu çalışmanın kapsamına dahil değildir. Önceki %95 kaydı doğrulanabilir değildi ve kaldırıldı. Tarayıcı E2E, gerçek cihaz, performans, hosting ve OBS provası doğrulanmadan tamamlandı sayılmayacak.
